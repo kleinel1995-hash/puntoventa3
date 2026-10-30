@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f3f6fb">
+<title>Productos</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- SheetJS permite leer archivos Excel .xlsx/.xls y CSV -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+:root{--azul:#0b7cff;--linea:#e5e7eb;--fondo:#f3f6fb;--texto:#0f172a;--gris:#64748b;--verde:#16a34a;--rojo:#dc2626}
+body{background:var(--fondo);color:var(--texto);overflow:hidden}
+button,input,select{font:inherit}button{cursor:pointer}
+.header{position:fixed;top:0;left:0;right:0;height:75px;background:#fff;border-bottom:1px solid var(--linea);display:flex;align-items:center;justify-content:space-between;padding:0 25px;z-index:1000}
+.header-left,.header-right{display:flex;align-items:center;gap:10px}.header-left{gap:14px}
+.header h1{font-size:28px}.menu-toggle{width:44px;height:44px;border:0;border-radius:12px;background:#eef5ff;color:var(--azul);display:flex;align-items:center;justify-content:center;flex-shrink:0}.menu-toggle i{font-size:22px}
+.btn-header{height:48px;border:0;border-radius:12px;background:var(--azul);color:white;padding:0 20px;font-weight:bold;font-size:15px;white-space:nowrap}.btn-importar{background:#eaf3ff;color:var(--azul);border:1px solid #d5e7ff}
+.sidebar{position:fixed;top:75px;left:0;bottom:0;width:230px;background:#fff;border-right:1px solid var(--linea);padding:22px 12px;z-index:950;overflow-y:auto;transition:transform .25s ease,visibility .25s ease}
+.menu-item{display:flex;align-items:center;gap:13px;padding:14px 15px;border-radius:12px;margin-bottom:8px;font-size:14px;font-weight:700;color:#334155;cursor:pointer;transition:.2s}.menu-item:hover{background:#eef5ff;color:var(--azul)}.menu-item i{font-size:18px;width:22px;text-align:center}.menu-item.active{background:var(--azul);color:white;box-shadow:0 8px 16px #0b7cff38}.config-separator{margin-top:30px;border-top:1px solid var(--linea);padding-top:18px}
+.menu-overlay{position:fixed;inset:0;background:#0f172a80;z-index:900;display:none}.menu-overlay.active{display:block}
+.content{position:fixed;top:75px;left:230px;right:0;bottom:0;overflow-y:auto;padding:25px;transition:left .25s ease}body.menu-cerrado .sidebar{transform:translateX(-105%)}body.menu-cerrado .content{left:0}
+.card{background:white;border-radius:24px;padding:25px;box-shadow:0 8px 25px #0000000a}.search-box{height:60px;border:1px solid var(--linea);border-radius:15px;display:flex;align-items:center;padding:0 17px;gap:13px;margin-bottom:18px}.search-box>i{font-size:20px;color:var(--gris)}.search-box .barcode-search{cursor:pointer;color:var(--azul)}.search-box input{width:100%;min-width:0;height:100%;border:0;outline:none;font-size:17px}
+.filters{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:22px}.filters select{width:100%;height:46px;border:1px solid var(--linea);border-radius:12px;padding:0 12px;outline:none;font-size:14px;font-weight:bold;color:#334155;background:white}
+.table{width:100%;overflow-x:auto}.header-row,.product-row{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:12px;align-items:center}.header-row{padding:17px 0;border-bottom:1px solid var(--linea);font-size:13px;font-weight:bold;min-width:600px}.product-row{min-height:76px;border-bottom:1px solid #f1f5f9;font-size:13px;font-weight:bold;color:#475569;min-width:600px;cursor:pointer;transition:background .2s}.product-row:hover{background:#f0f7ff}.product-name{display:block}.codigo{color:var(--azul);overflow-wrap:anywhere}.desktop-field{display:block}.product-meta{display:none}.empty{padding:30px 15px;text-align:center;color:var(--gris);background:white;border-radius:12px}.empty i{font-size:32px;display:block;margin-bottom:12px}
+.modal{position:fixed;inset:0;background:#0f172a99;display:none;align-items:center;justify-content:center;z-index:3000;padding:15px}.modal.active{display:flex}.modal-box{background:white;width:95%;max-width:540px;max-height:90vh;overflow-y:auto;border-radius:22px;padding:25px;box-shadow:0 20px 60px #0003}.modal-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}.modal-box h2{font-size:25px}.close-btn{width:38px;height:38px;flex-shrink:0;border:0;border-radius:10px;background:#f1f5f9;color:#334155}.modal-box label{display:block;font-size:13px;font-weight:bold;color:#475569;margin-bottom:7px}.modal-box input,.modal-box select{width:100%;height:51px;border:1px solid #dbe2ea;border-radius:12px;padding:0 13px;font-size:16px;margin-bottom:14px;outline:none;background:white}.modal-box input:focus{border-color:var(--azul)}.codigo-box{display:flex;gap:10px;margin-bottom:14px}.codigo-box input{min-width:0;margin-bottom:0}.scan-btn{width:55px;flex-shrink:0;border:0;border-radius:12px;background:var(--azul);color:white;font-size:21px}.modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}.modal-actions button{height:50px;border:0;border-radius:12px;font-size:15px;font-weight:bold}.save{background:var(--azul);color:white}.cancel{background:#f1f5f9;color:var(--texto)}#reader{width:100%;min-height:250px;background:#000;border-radius:14px;overflow:hidden}#reader video{max-width:100%;object-fit:cover}.scan-info{background:#eff6ff;color:#1d4ed8;padding:12px;border-radius:12px;font-size:14px;font-weight:bold;margin-bottom:14px;text-align:center}
+.detail-box{max-width:570px}.detail-image{width:100%;height:180px;object-fit:contain;background:#f8fafc;border:1px solid var(--linea);border-radius:16px;margin-bottom:20px;padding:12px}.detail-name{font-size:24px;font-weight:bold;color:var(--texto);overflow-wrap:anywhere;line-height:1.3;margin-bottom:8px}.detail-subtitle{font-size:13px;color:var(--gris);margin-bottom:20px}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.detail-item{min-width:0;padding:14px;background:#f8fafc;border:1px solid #edf0f5;border-radius:13px}.detail-item small{display:block;color:var(--gris);font-size:12px;margin-bottom:7px}.detail-item strong{display:block;font-size:15px;color:var(--texto);overflow-wrap:anywhere;line-height:1.4}.detail-item .detail-price{color:var(--azul);font-size:18px}.detail-item .detail-code{color:var(--azul)}.detail-item .detail-gain{color:var(--verde);font-size:18px}.btn-edit-detail{width:100%;height:51px;margin-top:18px;border:0;border-radius:12px;background:var(--azul);color:white;font-weight:bold;font-size:16px}.btn-edit-detail i{margin-right:7px}
+@media(min-width:701px) and (max-width:1000px){.sidebar{width:80px;padding:18px 8px}.menu-item{justify-content:center;padding:15px 5px}.menu-item span{display:none}.content{left:80px;padding:18px}.header{padding:0 18px}.header h1{font-size:23px}.header-row,.product-row{min-width:600px}body.menu-cerrado .content{left:0}}
+@media(max-width:700px){body{overflow-x:hidden;overflow-y:auto}.header{height:62px;padding:0 10px}.header-left{gap:8px}.header h1{font-size:20px}.header-right{gap:6px}.menu-toggle{width:38px;height:40px}.menu-toggle i{font-size:20px}.btn-header{height:40px;padding:0 10px;font-size:14px;border-radius:10px}.btn-header span{display:none}.sidebar{display:block!important;top:62px;left:0;bottom:0;width:270px;max-width:85vw;padding:18px 12px;z-index:950;transform:translateX(-105%);visibility:hidden;box-shadow:8px 0 25px #00000012}.sidebar.menu-visible{transform:translateX(0);visibility:visible}.content{position:relative;top:62px;left:0!important;right:auto;bottom:auto;width:100%;padding:12px 11px 30px;overflow:visible}.card{padding:0;background:transparent;box-shadow:none;border-radius:0}.search-box{height:48px;background:white;padding:0 12px;gap:9px;border-radius:13px;margin-bottom:12px}.search-box>i{font-size:16px}.search-box input{font-size:14px}.filters{grid-template-columns:1fr;gap:8px;margin-bottom:15px}.filters select{height:42px;padding:0 9px;font-size:12px;border-radius:10px;min-width:0}.table{overflow:visible;width:100%}.header-row{display:none}.product-row{min-width:0;width:100%;display:block;padding:15px;margin-bottom:12px;background:white;border:1px solid #e9edf3;border-radius:16px;box-shadow:0 3px 12px #0f172a08;font-size:13px}.product-row:hover{background:white}.product-name{display:block;font-size:16px;font-weight:bold;color:var(--texto);line-height:1.4;overflow-wrap:anywhere;margin-bottom:13px}.desktop-field{display:none}.product-meta{display:grid;grid-template-columns:1fr 1fr;gap:13px 10px}.meta-item{min-width:0}.meta-item small{display:block;font-size:11px;color:var(--gris);font-weight:normal;margin-bottom:5px}.meta-item strong{display:block;font-size:13px;color:#334155;overflow-wrap:anywhere;line-height:1.4}.meta-item strong.price{color:var(--azul);font-size:15px}.empty{background:white;border-radius:15px}.modal{padding:10px}.modal-box{width:100%;max-width:540px;max-height:88dvh;padding:18px;border-radius:19px}.modal-box h2{font-size:21px}.modal-box input,.modal-box select{height:47px;font-size:16px}.modal-actions{gap:9px}.modal-actions button{height:47px;font-size:14px}#reader{min-height:220px}.detail-box{max-width:540px}.detail-image{height:150px;margin-bottom:15px}.detail-name{font-size:21px}.detail-grid{gap:9px}.detail-item{padding:12px 10px}.detail-item small{font-size:11px}.detail-item strong{font-size:14px}.detail-item .detail-price,.detail-item .detail-gain{font-size:16px}.btn-edit-detail{height:48px}}
+</style>
+</head>
+<body>
+<header class="header">
+ <div class="header-left">
+  <button class="menu-toggle" onclick="toggleMenu()" aria-label="Abrir menú" aria-expanded="false"><i class="fa-solid fa-bars" id="menuIcon"></i></button>
+  <h1>Productos</h1>
+ </div>
+ <div class="header-right">
+  <button class="btn-header btn-importar" onclick="seleccionarArchivoImportacion()" title="Importar Excel o CSV"><i class="fa-solid fa-file-import"></i><span> Importar Excel</span></button>
+  <button class="btn-header" onclick="abrirModal()"><i class="fa-solid fa-plus"></i><span> Agregar</span></button>
+ </div>
+</header>
+<input type="file" id="archivoImportacion" accept=".xlsx,.xls,.csv,.txt,.tsv" hidden onchange="importarArchivo(event)">
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu(false)"></div>
+<aside class="sidebar" id="sidebar">
+ <div class="menu-item" onclick="irA('nueva_venta.html')"><i class="fa-solid fa-cart-shopping"></i><span>Nueva venta</span></div>
+ <div class="menu-item" onclick="irA('dashboard.html')"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></div>
+ <div class="menu-item active" onclick="irA('productos.html')"><i class="fa-solid fa-box"></i><span>Productos</span></div>
+ <div class="menu-item" onclick="irA('inventario.html')"><i class="fa-solid fa-warehouse"></i><span>Inventario</span></div>
+ <div class="menu-item" onclick="irA('clientes.html')"><i class="fa-solid fa-users"></i><span>Clientes</span></div>
+ <div class="menu-item" onclick="irA('ventas.html')"><i class="fa-solid fa-receipt"></i><span>Ventas</span></div>
+ <div class="menu-item" onclick="irA('cotizaciones.html')"><i class="fa-solid fa-file-lines"></i><span>Cotizaciones</span></div>
+ <div class="menu-item" onclick="irA('reportes.html')"><i class="fa-solid fa-chart-pie"></i><span>Reportes</span></div>
+ <div class="menu-item" onclick="irA('gastos.html')"><i class="fa-solid fa-money-bill-wave"></i><span>Gastos</span></div>
+ <div class="menu-item" onclick="irA('compras.html')"><i class="fa-solid fa-cart-plus"></i><span>Compras</span></div>
+ <div class="menu-item config-separator" onclick="irA('configuracion.html')"><i class="fa-solid fa-gear"></i><span>Configuración</span></div>
+</aside>
+<main class="content"><div class="card">
+ <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="buscar" placeholder="Buscar producto, departamento o código" autocomplete="off"><i class="fa-solid fa-barcode barcode-search" onclick="abrirScanner('buscar')" title="Escanear código"></i></div>
+ <div class="filters"><select id="filtroDepartamento" onchange="aplicarFiltro()"><option value="Todos">Todos los departamentos</option></select></div>
+ <div class="table"><div class="header-row"><div>Producto</div><div>Departamento</div><div>Costo</div><div>Precio detalle</div></div><div id="listaProductos"></div></div>
+</div></main>
+<div class="modal" id="modalDetalle"><div class="modal-box detail-box">
+ <div class="modal-top"><h2>Detalles del producto</h2><button class="close-btn" onclick="cerrarDetalle()" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+ <img id="detalleImagen" class="detail-image" src="" alt="Imagen del producto" onerror="this.onerror=null;this.src='https://cdn-icons-png.flaticon.com/512/3081/3081559.png'">
+ <div id="detalleNombre" class="detail-name"></div><div class="detail-subtitle">Información completa del producto</div>
+ <div class="detail-grid">
+  <div class="detail-item"><small>Departamento</small><strong id="detalleDepartamento">-</strong></div>
+  <div class="detail-item"><small>Costo del producto</small><strong id="detalleCosto">-</strong></div>
+  <div class="detail-item"><small>Precio de venta al detalle</small><strong id="detallePrecio" class="detail-price">-</strong></div>
+  <div class="detail-item"><small>Precio de venta mayorista</small><strong id="detalleMayorista" class="detail-price">-</strong></div>
+  <div class="detail-item"><small>Ganancia sobre costo</small><strong id="detalleGanancia" class="detail-gain">-</strong></div>
+  <div class="detail-item"><small>Código de barras</small><strong id="detalleCodigo" class="detail-code">-</strong></div>
+ </div><button class="btn-edit-detail" onclick="editarDesdeDetalle()"><i class="fa-solid fa-pen-to-square"></i>Editar producto</button>
+</div></div>
+<div class="modal" id="modalProducto"><div class="modal-box">
+ <div class="modal-top"><h2 id="tituloModal">Agregar producto</h2><button class="close-btn" onclick="cerrarModal()" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+ <label for="nombre">Nombre del producto</label><input type="text" id="nombre" placeholder="Nombre del producto">
+ <label for="departamento">Departamento</label><input type="text" id="departamento" placeholder="Departamento" list="listaDepartamentos"><datalist id="listaDepartamentos"></datalist>
+ <label for="costo">Costo del producto (RD$)</label><input type="number" id="costo" placeholder="0.00" min="0" step="0.01">
+ <label for="precio">Precio de venta al detalle (RD$)</label><input type="number" id="precio" placeholder="0.00" min="0.01" step="0.01">
+ <label for="mayorista">Precio de venta mayorista (RD$)</label><input type="number" id="mayorista" placeholder="0.00" min="0" step="0.01">
+ <label for="ganancia">Ganancia sobre costo (%)</label><input type="text" id="ganancia" value="0.00%" readonly aria-label="Porcentaje de ganancia calculado automáticamente">
+ <label for="codigo">Código de barras</label><div class="codigo-box"><input type="text" id="codigo" placeholder="Código de barra"><button class="scan-btn" onclick="abrirScanner('codigo')" type="button"><i class="fa-solid fa-barcode"></i></button></div>
+ <div class="modal-actions"><button class="cancel" onclick="cerrarModal()">Cancelar</button><button class="save" id="btnGuardar" onclick="guardarProducto()">Guardar</button></div>
+</div></div>
+<div class="modal" id="scannerModal"><div class="modal-box">
+ <div class="modal-top"><h2>Escanear código</h2><button class="close-btn" onclick="cerrarScanner()" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></div>
+ <div class="scan-info" id="scanInfo">Apunta la cámara al código de barras</div><div id="reader"></div>
+ <div class="modal-actions"><button class="cancel" onclick="cerrarScanner()">Cerrar</button><button class="save" onclick="codigoManual()">Manual</button></div>
+</div></div>
+<script src="supabase-config.js"></script>
+<script src="supabase-sync.js"></script>
+<script>
+const imagenDefault="https://cdn-icons-png.flaticon.com/512/3081/3081559.png";
+const STORAGE_KEY="productosPOS";
+let productos=[],indiceEditando=null,indiceDetalle=null;
+try{const datos=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");productos=Array.isArray(datos)?datos:[]}catch(error){productos=[]}
+productos=productos.map(p=>{const {categoria,...r}=p||{};return {...r,nombre:String(r.nombre||""),departamento:String(r.departamento||""),costo:Number(r.costo)||0,precio:Number(r.precio)||0,mayorista:Number(r.mayorista??r.precioMayorista)||0,codigo:String(r.codigo||""),img:r.img||imagenDefault}});
+
+function toggleMenu(forzarEstado){
+ const s=document.getElementById("sidebar"),o=document.getElementById("menuOverlay"),i=document.getElementById("menuIcon"),b=document.querySelector(".menu-toggle");
+ if(innerWidth<=700){const abrir=typeof forzarEstado==="boolean"?forzarEstado:!s.classList.contains("menu-visible");s.classList.toggle("menu-visible",abrir);o.classList.toggle("active",abrir);i.className=abrir?"fa-solid fa-xmark":"fa-solid fa-bars";b.setAttribute("aria-expanded",String(abrir))}
+ else{const abrir=typeof forzarEstado==="boolean"?forzarEstado:document.body.classList.contains("menu-cerrado");document.body.classList.toggle("menu-cerrado",!abrir);i.className="fa-solid fa-bars"}
+}
+function irA(pagina){location.href=pagina}
+function alerta(titulo,texto,icono="success"){Swal.fire({title:titulo,text:texto,icon:icono,confirmButtonColor:"#0b7cff"})}
+function formato(valor){return "RD$ "+Number(valor||0).toLocaleString("es-DO",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function escapar(valor){return String(valor??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function porcentajeGanancia(c,p){c=Number(c)||0;p=Number(p)||0;return c>0?((p-c)/c)*100:0}
+function actualizarGanancia(){const c=Number(document.getElementById("costo").value)||0,p=Number(document.getElementById("precio").value)||0;document.getElementById("ganancia").value=porcentajeGanancia(c,p).toLocaleString("es-DO",{minimumFractionDigits:2,maximumFractionDigits:2})+"%"}
+document.getElementById("costo").addEventListener("input",actualizarGanancia);document.getElementById("precio").addEventListener("input",actualizarGanancia);
+function guardarLocal(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(productos));return true}catch(e){alerta("Error al guardar","No se pudieron guardar los cambios en este dispositivo.","error");return false}}
+function obtenerUnicos(campo){return [...new Set(productos.map(p=>String(p[campo]||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es"))}
+function actualizarDepartamentos(){const s=document.getElementById("filtroDepartamento"),actual=s.value,l=document.getElementById("listaDepartamentos"),deps=obtenerUnicos("departamento");s.innerHTML='<option value="Todos">Todos los departamentos</option>';l.innerHTML="";deps.forEach(d=>{s.add(new Option(d,d));const op=document.createElement("option");op.value=d;l.appendChild(op)});if(deps.includes(actual))s.value=actual}
+function mostrarProductos(lista=productos){
+ const c=document.getElementById("listaProductos");
+ if(!lista.length){c.innerHTML='<div class="empty"><i class="fa-solid fa-box-open"></i><strong>No hay productos encontrados</strong><p style="margin-top:8px;font-size:13px">Prueba otra búsqueda o agrega un producto.</p></div>';return}
+ c.innerHTML=lista.map(p=>{const n=productos.indexOf(p);return `<div class="product-row" onclick="abrirDetalle(${n})" role="button" tabindex="0" aria-label="Ver detalles de ${escapar(p.nombre)}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirDetalle(${n})}"><div class="product-name">${escapar(p.nombre)}</div><div class="desktop-field">${escapar(p.departamento||"-")}</div><div class="desktop-field">${formato(p.costo)}</div><div class="desktop-field">${formato(p.precio)}</div><div class="product-meta"><div class="meta-item"><small>Costo</small><strong>${formato(p.costo)}</strong></div><div class="meta-item"><small>Precio</small><strong class="price">${formato(p.precio)}</strong></div></div></div>`}).join("")
+}
+function abrirDetalle(n){if(n<0||n>=productos.length)return;const p=productos[n];indiceDetalle=n;document.getElementById("detalleImagen").src=p.img||imagenDefault;document.getElementById("detalleImagen").alt=p.nombre||"Imagen del producto";document.getElementById("detalleNombre").textContent=p.nombre||"-";document.getElementById("detalleDepartamento").textContent=p.departamento||"-";document.getElementById("detalleCosto").textContent=formato(p.costo);document.getElementById("detallePrecio").textContent=formato(p.precio);document.getElementById("detalleMayorista").textContent=formato(p.mayorista);document.getElementById("detalleGanancia").textContent=porcentajeGanancia(p.costo,p.precio).toLocaleString("es-DO",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";document.getElementById("detalleCodigo").textContent=p.codigo||"-";document.getElementById("modalDetalle").classList.add("active")}
+function cerrarDetalle(){document.getElementById("modalDetalle").classList.remove("active");indiceDetalle=null}
+function editarDesdeDetalle(){if(indiceDetalle===null)return;const n=indiceDetalle;cerrarDetalle();editarProducto(n)}
+function refrescar(){actualizarDepartamentos();aplicarFiltro()}
+function limpiarFormulario(){["nombre","departamento","costo","precio","mayorista","codigo"].forEach(id=>document.getElementById(id).value="");actualizarGanancia()}
+function abrirModal(){indiceEditando=null;document.getElementById("tituloModal").textContent="Agregar producto";document.getElementById("btnGuardar").textContent="Guardar";limpiarFormulario();document.getElementById("modalProducto").classList.add("active");setTimeout(()=>document.getElementById("nombre").focus(),150)}
+function editarProducto(n){if(n<0||n>=productos.length)return;const p=productos[n];indiceEditando=n;document.getElementById("tituloModal").textContent="Editar producto";document.getElementById("btnGuardar").textContent="Guardar cambios";["nombre","departamento","costo","precio","mayorista","codigo"].forEach(id=>document.getElementById(id).value=p[id]??"");actualizarGanancia();document.getElementById("modalProducto").classList.add("active");setTimeout(()=>document.getElementById("nombre").focus(),150)}
+function cerrarModal(){document.getElementById("modalProducto").classList.remove("active");indiceEditando=null}
+function guardarProducto(ignorarAvisoMayorista=false){
+ const nombre=document.getElementById("nombre").value.trim(),departamento=document.getElementById("departamento").value.trim(),ct=document.getElementById("costo").value.trim(),pt=document.getElementById("precio").value.trim(),mt=document.getElementById("mayorista").value.trim(),codigo=document.getElementById("codigo").value.trim(),costo=Number(ct),precio=Number(pt),mayorista=Number(mt);
+ if(!nombre||!departamento||!codigo||ct===""||pt===""||mt===""||![costo,precio,mayorista].every(Number.isFinite)||costo<0||precio<=0||mayorista<0){alerta("Campos incompletos","Completa todos los campos. El costo y el precio mayorista no pueden ser negativos y el precio al detalle debe ser mayor que cero.","warning");return}
+ if(mayorista>precio&&!ignorarAvisoMayorista){Swal.fire({title:"Revisa el precio mayorista",text:"El precio mayorista es mayor que el precio al detalle. ¿Deseas guardar de todos modos?",icon:"warning",showCancelButton:true,confirmButtonText:"Guardar de todos modos",cancelButtonText:"Revisar",confirmButtonColor:"#0b7cff"}).then(r=>{if(r.isConfirmed)guardarProducto(true)});return}
+ if(productos.some((p,i)=>i!==indiceEditando&&String(p.codigo).trim().toLowerCase()===codigo.toLowerCase())){alerta("Código repetido","Este código de barras ya existe en otro producto.","error");return}
+ const p={nombre,departamento,costo,precio,mayorista,codigo,img:indiceEditando!==null?(productos[indiceEditando].img||imagenDefault):imagenDefault};
+ if(indiceEditando!==null){const anterior=productos[indiceEditando];productos[indiceEditando]=p;if(!guardarLocal()){productos[indiceEditando]=anterior;return}cerrarModal();refrescar();alerta("Cambios guardados","El producto fue actualizado correctamente.")}
+ else{productos.push(p);if(!guardarLocal()){productos.pop();return}cerrarModal();refrescar();alerta("Producto guardado","El producto fue agregado correctamente.")}
+}
+function aplicarFiltro(){const t=document.getElementById("buscar").value.trim().toLowerCase(),d=document.getElementById("filtroDepartamento").value;mostrarProductos(productos.filter(p=>[p.nombre,p.departamento,p.costo,p.precio,p.mayorista,p.codigo,porcentajeGanancia(p.costo,p.precio)].some(v=>String(v??"").toLowerCase().includes(t))&&(d==="Todos"||p.departamento===d)))}
+document.getElementById("buscar").addEventListener("input",aplicarFiltro);
+
+/* IMPORTACIÓN FLEXIBLE DE EXCEL, CSV Y TXT */
+function seleccionarArchivoImportacion(){
+ Swal.fire({title:"Importar productos",html:'<div style="text-align:left;font-size:14px;line-height:1.7"><p>Selecciona un archivo Excel (.xlsx o .xls) o CSV.</p><p style="margin-top:8px"><b>Se reconoce automáticamente:</b> Producto/Nombre, Costo y Precio detalle.</p><p style="margin-top:8px">Si faltan otros campos, se dejan vacíos. Si no hay precio, se guarda como 0.</p><p style="margin-top:8px;color:#64748b">Puedes usar encabezados en la primera fila. Los nombres de columna pueden estar en distinto orden.</p></div>',icon:"info",showCancelButton:true,confirmButtonText:"Elegir archivo",cancelButtonText:"Cancelar",confirmButtonColor:"#0b7cff"}).then(r=>{if(r.isConfirmed){const f=document.getElementById("archivoImportacion");f.value="";f.click()}})
+}
+function norm(s){return String(s??"").replace(/^\uFEFF/,"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[_-]+/g," ").replace(/\s+/g," ")}
+function numImportado(v){
+ if(v===null||v===undefined||String(v).trim()==="")return 0;
+ if(typeof v==="number")return Number.isFinite(v)?v:NaN;
+ let s=String(v).trim().replace(/\s/g,"").replace(/RD\$/gi,"").replace(/\$/g,"").replace(/[^\d,.-]/g,"");
+ if(s.includes(",")&&s.includes(".")){if(s.lastIndexOf(",")>s.lastIndexOf("."))s=s.replace(/\./g,"").replace(",",".");else s=s.replace(/,/g,"")}
+ else if(s.includes(","))s=s.replace(",",".");
+ return s===""?NaN:Number(s)
+}
+function findCol(headers,aliases){return headers.findIndex(h=>aliases.includes(norm(h)))}
+function importarArchivo(ev){
+ const file=ev.target.files&&ev.target.files[0];if(!file)return;
+ const input=ev.target;input.value="";
+ const ext=(file.name.split(".").pop()||"").toLowerCase();
+ const reader=new FileReader();
+ reader.onerror=()=>alerta("Error al leer","No se pudo abrir el archivo seleccionado.","error");
+ reader.onload=()=>{
+  try{
+   if(["xlsx","xls"].includes(ext)){
+    if(typeof XLSX==="undefined"){alerta("Lector de Excel no disponible","Revisa tu conexión a Internet y vuelve a intentarlo.","error");return}
+    const wb=XLSX.read(reader.result,{type:"array"});
+    const sheet=wb.Sheets[wb.SheetNames[0]];
+    if(!sheet){alerta("Excel vacío","No se encontró ninguna hoja con datos.","warning");return}
+    const rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:"",raw:true,blankrows:false});
+    procesarFilasImportadas(rows);
+   }else{
+    const text=String(reader.result||"").replace(/^\uFEFF/,"");
+    const first=(text.split(/\r?\n/)[0]||"");
+    const delimiter=first.includes("\t")?"\t":(first.split(";").length>first.split(",").length?";":",");
+    const rows=XLSX.utils.sheet_to_json(XLSX.read(text,{type:"string",FS:delimiter}),{header:1,defval:"",raw:true,blankrows:false});
+    procesarFilasImportadas(rows);
+   }
+  }catch(err){console.error(err);alerta("Archivo no válido","No se pudo interpretar el archivo. Intenta guardarlo como Excel (.xlsx) o CSV.","error")}
+ };
+ if(["xlsx","xls"].includes(ext))reader.readAsArrayBuffer(file);else reader.readAsText(file,"UTF-8")
+}
+function procesarFilasImportadas(rows){
+ rows=(rows||[]).filter(r=>Array.isArray(r)&&r.some(v=>String(v??"").trim()!==""));
+ if(!rows.length){alerta("Archivo vacío","No se encontraron productos en el archivo.","warning");return}
+ const h=rows[0].map(norm);
+ const aliases={
+  nombre:["producto","nombre","nombre del producto","product","product name","name","descripcion","descripción"],
+  costo:["costo","costo del producto","cost","cost price","precio costo","precio de costo"],
+  precio:["precio detalle","precio al detalle","precio de venta al detalle","precio","precio venta","precio de venta","price","retail price","precio minorista"],
+  departamento:["departamento","categoria","category","department","familia"],
+  mayorista:["mayorista","precio mayorista","precio de venta mayorista","wholesale","wholesale price"],
+  codigo:["codigo","codigo de barras","codigo barras","sku","barcode","bar code","referencia"]
+ };
+ const col={};Object.keys(aliases).forEach(k=>col[k]=findCol(h,aliases[k]));
+ const tieneEncabezado=col.nombre>=0&&(col.costo>=0||col.precio>=0);
+ let start=0;
+ if(tieneEncabezado)start=1;
+ else{
+  col.nombre=0;col.costo=1;col.precio=2;col.departamento=-1;col.mayorista=-1;col.codigo=-1;
+ }
+ const nuevos=[],errores=[],codigos=new Set(productos.map(p=>String(p.codigo||"").trim().toLowerCase()).filter(Boolean));
+ for(let i=start;i<rows.length;i++){
+  const row=rows[i],get=k=>col[k]>=0?String(row[col[k]]??"").trim():"";
+  const nombre=get("nombre"),costoTexto=get("costo"),precioTexto=get("precio"),dep=get("departamento"),mayTexto=get("mayorista"),codigo=get("codigo");
+  if(!nombre&&!costoTexto&&!precioTexto)continue;
+  if(!nombre){errores.push(`Fila ${i+1}: falta el nombre.`);continue}
+  const costo=costoTexto===""?0:numImportado(row[col.costo]);
+  const precio=precioTexto===""?0:numImportado(row[col.precio]);
+  const mayorista=mayTexto===""?0:numImportado(row[col.mayorista]);
+  if(!Number.isFinite(costo)||costo<0){errores.push(`Fila ${i+1}: costo no válido.`);continue}
+  if(!Number.isFinite(precio)||precio<0){errores.push(`Fila ${i+1}: precio no válido.`);continue}
+  if(!Number.isFinite(mayorista)||mayorista<0){errores.push(`Fila ${i+1}: precio mayorista no válido.`);continue}
+  const codeKey=codigo.toLowerCase();
+  if(codeKey&&codigos.has(codeKey)){errores.push(`Fila ${i+1}: código ${codigo} repetido.`);continue}
+  if(codeKey)codigos.add(codeKey);
+  nuevos.push({nombre,departamento:dep,costo,precio,mayorista,codigo,img:imagenDefault});
+ }
+ if(!nuevos.length){let msg="No se encontraron productos válidos para importar.";if(errores.length)msg+="\n\n"+errores.slice(0,8).join("\n");alerta("Sin productos",msg,"warning");return}
+ const resumen=`Se encontraron ${nuevos.length} producto(s) para importar.${errores.length?`\nSe omitirán ${errores.length} fila(s) con errores.`:""}\n\nLos productos existentes se conservarán.`;
+ Swal.fire({title:"Confirmar importación",text:resumen,icon:"question",showCancelButton:true,confirmButtonText:"Importar",cancelButtonText:"Cancelar",confirmButtonColor:"#0b7cff"}).then(r=>{
+  if(!r.isConfirmed)return;
+  const anterior=productos.length;productos.push(...nuevos);
+  if(!guardarLocal()){productos.splice(anterior,nuevos.length);return}
+  refrescar();
+  let msg=`Se importaron ${nuevos.length} producto(s) correctamente.`;
+  if(errores.length)msg+=`\n\nSe omitieron ${errores.length} fila(s):\n`+errores.slice(0,6).join("\n")+(errores.length>6?`\nY ${errores.length-6} error(es) más.`:"");
+  Swal.fire({title:"Importación terminada",text:msg,icon:errores.length?"warning":"success",confirmButtonColor:"#0b7cff"})
+ })
+}
+
+/* ESCÁNER DE CÓDIGOS */
+let scanner=null,campoScanner="codigo",escaneando=false,iniciandoScanner=false,sesionScanner=0;
+async function abrirScanner(campo="codigo"){
+ campoScanner=campo;if(scanner||iniciandoScanner){document.getElementById("scannerModal").classList.add("active");return}
+ const sesion=++sesionScanner;escaneando=false;document.getElementById("scannerModal").classList.add("active");document.getElementById("scanInfo").textContent="Iniciando cámara...";
+ if(typeof Html5Qrcode==="undefined"){document.getElementById("scanInfo").textContent="No se pudo cargar el escáner. Usa la opción Manual.";return}
+ iniciandoScanner=true;const lector=new Html5Qrcode("reader");scanner=lector;
+ try{
+  await lector.start({facingMode:"environment"},{fps:10,qrbox:(w,h)=>({width:Math.max(100,Math.min(w-30,280)),height:Math.max(80,Math.min(h-30,150))}),formatsToSupport:[Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,Html5QrcodeSupportedFormats.CODE_128,Html5QrcodeSupportedFormats.CODE_39,Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E,Html5QrcodeSupportedFormats.QR_CODE]},codigo=>{if(escaneando||sesion!==sesionScanner)return;escaneando=true;procesarCodigoEscaneado(codigo)},()=>{});
+  if(sesion!==sesionScanner){try{await lector.stop()}catch(e){}try{lector.clear()}catch(e){}return}
+  document.getElementById("scanInfo").textContent="Apunta la cámara al código de barras."
+ }catch(e){if(scanner===lector)scanner=null;document.getElementById("scanInfo").textContent="No se pudo abrir la cámara. Revisa los permisos y utiliza HTTPS.";console.error(e);try{lector.clear()}catch(x){}}
+ finally{if(sesion===sesionScanner)iniciandoScanner=false}
+}
+function procesarCodigoEscaneado(codigoEscaneado){const codigo=String(codigoEscaneado).trim();if(campoScanner==="buscar"){document.getElementById("buscar").value=codigo;aplicarFiltro();const found=productos.some(p=>String(p.codigo)===codigo);cerrarScanner();if(!found)alerta("No encontrado","No hay productos con el código: "+codigo,"warning")}else{document.getElementById("codigo").value=codigo;cerrarScanner()}}
+async function cerrarScanner(){document.getElementById("scannerModal").classList.remove("active");++sesionScanner;const lector=scanner;scanner=null;escaneando=false;iniciandoScanner=false;if(lector){try{if(lector.isScanning)await lector.stop()}catch(e){console.warn("No se pudo detener la cámara:",e)}try{lector.clear()}catch(e){}}}
+function codigoManual(){Swal.fire({title:"Código de barras",input:"text",inputPlaceholder:"Escribe el código",showCancelButton:true,confirmButtonText:"Aceptar",cancelButtonText:"Cancelar",confirmButtonColor:"#0b7cff",inputValidator:v=>{if(!v||!v.trim())return "Escribe un código."}}).then(async r=>{if(!r.isConfirmed)return;const codigo=r.value.trim();if(campoScanner==="buscar"){document.getElementById("buscar").value=codigo;aplicarFiltro();await cerrarScanner();if(!productos.some(p=>String(p.codigo)===codigo))alerta("No encontrado","No hay productos con ese código.","warning")}else{document.getElementById("codigo").value=codigo;await cerrarScanner()}})}
+document.getElementById("modalDetalle").addEventListener("click",e=>{if(e.target.id==="modalDetalle")cerrarDetalle()});
+document.getElementById("modalProducto").addEventListener("click",e=>{if(e.target.id==="modalProducto")cerrarModal()});
+document.getElementById("scannerModal").addEventListener("click",e=>{if(e.target.id==="scannerModal")cerrarScanner()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){cerrarDetalle();cerrarModal();cerrarScanner();toggleMenu(false)}});
+document.querySelectorAll(".sidebar .menu-item").forEach(item=>item.addEventListener("click",()=>{if(innerWidth<=700)toggleMenu(false)}));
+window.addEventListener("resize",()=>{if(innerWidth>700){document.getElementById("menuOverlay").classList.remove("active");document.getElementById("sidebar").classList.remove("menu-visible");document.getElementById("menuIcon").className="fa-solid fa-bars";document.querySelector(".menu-toggle").setAttribute("aria-expanded","false")}});
+refrescar();
+</script>
+</body>
+</html>

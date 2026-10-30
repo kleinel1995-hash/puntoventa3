@@ -1,0 +1,556 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f3f6fb">
+<title>Registrar compra</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+:root{
+ --azul:#0b7cff;
+ --fondo:#f3f6fb;
+ --linea:#e5e7eb;
+ --texto:#0f172a;
+ --gris:#64748b;
+ --verde:#16a34a;
+}
+body{background:var(--fondo);color:var(--texto);min-height:100vh}
+button,input,select{font:inherit}
+button{cursor:pointer}
+
+.header{
+ height:75px;background:white;border-bottom:1px solid var(--linea);
+ display:flex;align-items:center;justify-content:space-between;
+ padding:0 25px;position:sticky;top:0;z-index:10
+}
+.header-left{display:flex;align-items:center;gap:14px}
+.header h1{font-size:26px}
+.menu-toggle{
+ width:44px;height:44px;border:0;border-radius:12px;
+ background:#eef5ff;color:var(--azul);font-size:20px
+}
+.btn{
+ border:0;border-radius:11px;padding:13px 17px;font-weight:bold
+}
+.btn-primary{background:var(--azul);color:white}
+.btn-light{background:#eef2f7;color:#334155}
+
+.layout{display:flex;min-height:calc(100vh - 75px)}
+.sidebar{
+ width:230px;flex-shrink:0;background:white;
+ border-right:1px solid var(--linea);padding:22px 12px;
+ transition:transform .2s
+}
+.menu-item{
+ display:flex;align-items:center;gap:13px;padding:14px 15px;
+ border-radius:12px;margin-bottom:8px;font-size:14px;
+ font-weight:bold;color:#334155;text-decoration:none
+}
+.menu-item i{width:22px;text-align:center;font-size:18px}
+.menu-item:hover{background:#eef5ff;color:var(--azul)}
+.menu-item.active{background:var(--azul);color:white}
+
+.overlay{display:none}
+
+main{flex:1;min-width:0;padding:25px}
+.page-title{margin-bottom:20px}
+.page-title h2{font-size:22px;margin-bottom:7px}
+.page-title p{color:var(--gris);font-size:14px;line-height:1.5}
+
+.grid{
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,.85fr);
+ gap:20px;align-items:start
+}
+.card{
+ background:white;border:1px solid #edf0f5;border-radius:20px;
+ padding:23px;box-shadow:0 5px 20px #0f172a08
+}
+.card h3{font-size:18px;margin-bottom:18px}
+
+.field{margin-bottom:17px}
+.field label{
+ display:block;font-size:13px;font-weight:bold;
+ color:#475569;margin-bottom:8px
+}
+.field select,.field input{
+ width:100%;height:49px;border:1px solid #dbe2ea;
+ border-radius:12px;background:white;padding:0 13px;
+ outline:none;font-size:15px;color:var(--texto)
+}
+.field select:focus,.field input:focus{
+ border-color:var(--azul);box-shadow:0 0 0 3px #0b7cff15
+}
+
+.product-info{
+ background:#f8fafc;border:1px solid var(--linea);
+ border-radius:14px;padding:15px;margin:4px 0 18px;display:none
+}
+.product-info.show{display:block}
+.product-info h4{font-size:16px;margin-bottom:10px;overflow-wrap:anywhere}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.info-item{min-width:0}
+.info-item small{display:block;color:var(--gris);font-size:12px;margin-bottom:5px}
+.info-item strong{font-size:14px;overflow-wrap:anywhere}
+.blue{color:var(--azul)}
+
+.total-box{
+ display:flex;justify-content:space-between;align-items:center;
+ padding:16px;background:#eff6ff;border-radius:13px;
+ margin-bottom:18px;gap:10px
+}
+.total-box span{color:#1e40af;font-size:14px;font-weight:bold}
+.total-box strong{color:#1d4ed8;font-size:22px;text-align:right}
+.full{width:100%;min-height:50px}
+.muted-note{font-size:12px;color:var(--gris);line-height:1.5;margin-top:12px}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.stat{background:#f8fafc;border:1px solid var(--linea);border-radius:14px;padding:15px}
+.stat small{display:block;color:var(--gris);font-size:12px;margin-bottom:8px}
+.stat strong{font-size:22px;overflow-wrap:anywhere}
+
+.history-head{
+ display:flex;justify-content:space-between;align-items:center;
+ gap:12px;margin-bottom:14px
+}
+.history-head h3{margin:0}
+.history-list{display:flex;flex-direction:column;gap:10px}
+.history-item{
+ border:1px solid var(--linea);border-radius:13px;padding:14px;
+ display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center
+}
+.history-item h4{font-size:14px;margin-bottom:6px;overflow-wrap:anywhere}
+.history-item p{font-size:12px;color:var(--gris);line-height:1.6}
+.history-right{text-align:right}
+.history-right strong{display:block;color:var(--azul);font-size:14px;margin-bottom:7px}
+.history-right span{font-size:12px;color:var(--gris)}
+.empty{padding:28px 12px;text-align:center;color:var(--gris);font-size:14px}
+.empty i{font-size:28px;display:block;margin-bottom:10px}
+
+@media(max-width:950px){
+ .grid{grid-template-columns:1fr}
+ .sidebar{width:205px}
+ main{padding:18px}
+}
+@media(max-width:700px){
+ .header{height:62px;padding:0 13px}
+ .header h1{font-size:20px}
+ .menu-toggle{width:39px;height:39px}
+ .header .btn{padding:11px 12px;font-size:12px}
+ .layout{display:block}
+ .sidebar{
+  position:fixed;z-index:30;top:62px;bottom:0;left:0;
+  width:270px;max-width:85vw;overflow-y:auto;
+  box-shadow:8px 0 25px #0002;transform:translateX(-110%);
+  transition:transform .22s
+ }
+ .sidebar.open{transform:translateX(0)}
+ .overlay{
+  position:fixed;inset:62px 0 0;background:#0f172a80;
+  z-index:20
+ }
+ .overlay.show{display:block}
+ main{padding:14px 11px 28px}
+ .page-title{margin:3px 3px 15px}
+ .page-title h2{font-size:20px}
+ .card{padding:17px;border-radius:16px}
+ .grid{gap:14px}
+ .field select,.field input{height:47px;font-size:16px}
+ .stat strong{font-size:19px}
+ .total-box strong{font-size:20px}
+ .history-item{padding:12px}
+ .history-right strong{font-size:13px}
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+ <div class="header-left">
+  <button class="menu-toggle" id="menuButton" onclick="toggleMenu()" aria-label="Abrir menú">
+   <i class="fa-solid fa-bars" id="menuIcon"></i>
+  </button>
+  <h1>Registrar compra</h1>
+ </div>
+ <button class="btn btn-light" onclick="location.href='productos.html'">
+  <i class="fa-solid fa-box"></i> Productos
+ </button>
+</header>
+
+<div class="overlay" id="overlay" onclick="toggleMenu(false)"></div>
+
+<div class="layout">
+ <aside class="sidebar" id="sidebar">
+  <a class="menu-item" href="nueva_venta.html"><i class="fa-solid fa-cart-shopping"></i><span>Nueva venta</span></a>
+  <a class="menu-item" href="dashboard.html"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+  <a class="menu-item" href="productos.html"><i class="fa-solid fa-box"></i><span>Productos</span></a>
+  <a class="menu-item" href="inventario.html"><i class="fa-solid fa-warehouse"></i><span>Inventario</span></a>
+  <a class="menu-item active" href="compras.html"><i class="fa-solid fa-truck-ramp-box"></i><span>Registrar compra</span></a>
+  <a class="menu-item" href="clientes.html"><i class="fa-solid fa-users"></i><span>Clientes</span></a>
+  <a class="menu-item" href="ventas.html"><i class="fa-solid fa-receipt"></i><span>Ventas</span></a>
+  <a class="menu-item" href="cotizaciones.html"><i class="fa-solid fa-file-lines"></i><span>Cotizaciones</span></a>
+  <a class="menu-item" href="reportes.html"><i class="fa-solid fa-chart-pie"></i><span>Reportes</span></a>
+  <a class="menu-item" href="gastos.html"><i class="fa-solid fa-money-bill-wave"></i><span>Gastos</span></a>
+  <a class="menu-item" href="configuracion.html"><i class="fa-solid fa-gear"></i><span>Configuración</span></a>
+ </aside>
+
+ <main>
+  <div class="page-title">
+   <h2>Entrada de mercancía</h2>
+   <p>Selecciona un producto existente y escribe la cantidad que compraste. El sistema actualizará sus existencias automáticamente.</p>
+  </div>
+
+  <div class="grid">
+   <section class="card">
+    <h3><i class="fa-solid fa-cart-plus blue"></i> Datos de la compra</h3>
+
+    <div class="field">
+     <label for="producto">Producto existente</label>
+     <select id="producto" onchange="seleccionarProducto()">
+      <option value="">Selecciona un producto...</option>
+     </select>
+    </div>
+
+    <div id="productoInfo" class="product-info">
+     <h4 id="productoNombre">-</h4>
+     <div class="info-grid">
+      <div class="info-item">
+       <small>Departamento</small>
+       <strong id="productoDepartamento">-</strong>
+      </div>
+      <div class="info-item">
+       <small>Costo por unidad</small>
+       <strong class="blue" id="productoCosto">RD$ 0.00</strong>
+      </div>
+      <div class="info-item">
+       <small>Existencia actual</small>
+       <strong id="existenciaActual">0 unidades</strong>
+      </div>
+      <div class="info-item">
+       <small>Código de barras</small>
+       <strong id="productoCodigo">-</strong>
+      </div>
+     </div>
+    </div>
+
+    <div class="field">
+     <label for="cantidad">Cantidad comprada</label>
+     <input type="number" id="cantidad" min="1" step="1" inputmode="numeric" placeholder="Ej. 24" oninput="calcularTotal()">
+    </div>
+
+    <div class="total-box">
+     <span>Total estimado de la compra</span>
+     <strong id="totalCompra">RD$ 0.00</strong>
+    </div>
+
+    <button class="btn btn-primary full" onclick="registrarCompra()">
+     <i class="fa-solid fa-check"></i> Registrar compra y actualizar inventario
+    </button>
+
+    <p class="muted-note">
+     <i class="fa-solid fa-circle-info"></i>
+     El costo unitario se toma del producto seleccionado. Para cambiarlo, edita primero el producto en la página Productos.
+    </p>
+   </section>
+
+   <section class="card">
+    <h3><i class="fa-solid fa-chart-simple blue"></i> Resumen</h3>
+
+    <div class="stat-grid">
+     <div class="stat">
+      <small>Compras registradas</small>
+      <strong id="totalRegistros">0</strong>
+     </div>
+     <div class="stat">
+      <small>Unidades recibidas</small>
+      <strong id="totalUnidades">0</strong>
+     </div>
+    </div>
+
+    <div class="history-head">
+     <h3>Últimas compras</h3>
+     <button class="btn btn-light" onclick="cargarHistorial()">Actualizar</button>
+    </div>
+
+    <div id="historial" class="history-list"></div>
+   </section>
+  </div>
+ </main>
+</div>
+
+<script src="supabase-config.js"></script>
+<script src="supabase-sync.js"></script>
+<script>
+const PRODUCTOS_KEY = "productosPOS";
+const COMPRAS_KEY = "comprasPOS";
+
+let productos = [];
+let compras = [];
+
+const $ = id => document.getElementById(id);
+
+function dinero(valor) {
+ return "RD$ " + Number(valor || 0).toLocaleString("es-DO", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+ });
+}
+
+function escapar(valor) {
+ return String(valor ?? "").replace(/[&<>"']/g, caracter => ({
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#39;"
+ }[caracter]));
+}
+
+function leerArray(clave) {
+ try {
+  const valor = JSON.parse(localStorage.getItem(clave) || "[]");
+  return Array.isArray(valor) ? valor : [];
+ } catch(error) {
+  return [];
+ }
+}
+
+function toggleMenu(forzar) {
+ const sidebar = $("sidebar");
+ const overlay = $("overlay");
+
+ const abrir = typeof forzar === "boolean"
+  ? forzar
+  : !sidebar.classList.contains("open");
+
+ sidebar.classList.toggle("open", abrir);
+ overlay.classList.toggle("show", abrir);
+
+ $("menuIcon").className = abrir
+  ? "fa-solid fa-xmark"
+  : "fa-solid fa-bars";
+}
+
+function cargarProductos() {
+ productos = leerArray(PRODUCTOS_KEY);
+
+ const select = $("producto");
+ const anterior = select.value;
+
+ select.innerHTML = '<option value="">Selecciona un producto...</option>';
+
+ productos.forEach((producto, indice) => {
+  const opcion = document.createElement("option");
+  opcion.value = String(indice);
+
+  opcion.textContent =
+   (producto.nombre || "Producto sin nombre") +
+   (producto.codigo ? " · " + producto.codigo : "");
+
+  select.appendChild(opcion);
+ });
+
+ if (anterior !== "" && productos[Number(anterior)]) {
+  select.value = anterior;
+ }
+
+ seleccionarProducto();
+}
+
+function seleccionarProducto() {
+ const valor = $("producto").value;
+ const info = $("productoInfo");
+
+ if (valor === "" || !productos[Number(valor)]) {
+  info.classList.remove("show");
+  $("totalCompra").textContent = dinero(0);
+  return;
+ }
+
+ const producto = productos[Number(valor)];
+ const stock = Math.max(0, Number(producto.stock) || 0);
+
+ info.classList.add("show");
+
+ $("productoNombre").textContent = producto.nombre || "Producto";
+ $("productoDepartamento").textContent = producto.departamento || "-";
+ $("productoCosto").textContent = dinero(producto.costo);
+ $("existenciaActual").textContent =
+  stock.toLocaleString("es-DO") + " unidades";
+ $("productoCodigo").textContent = producto.codigo || "-";
+
+ calcularTotal();
+}
+
+function calcularTotal() {
+ const indice = $("producto").value;
+ const producto = indice !== "" ? productos[Number(indice)] : null;
+ const cantidad = Number($("cantidad").value) || 0;
+ const costo = Number(producto?.costo) || 0;
+
+ $("totalCompra").textContent = dinero(costo * Math.max(0, cantidad));
+}
+
+function crearId() {
+ return "COMP-" + Date.now().toString(36).toUpperCase() +
+  "-" + Math.random().toString(36).slice(2, 6).toUpperCase();
+}
+
+function registrarCompra() {
+ const valor = $("producto").value;
+
+ if (valor === "" || !productos[Number(valor)]) {
+  Swal.fire("Selecciona un producto",
+   "Primero elige un producto de la lista.", "warning");
+  return;
+ }
+
+ const indice = Number(valor);
+ const producto = productos[indice];
+ const cantidad = Number($("cantidad").value);
+
+ if (!Number.isSafeInteger(cantidad) || cantidad < 1) {
+  Swal.fire("Cantidad inválida",
+   "Escribe una cantidad entera mayor que cero.", "warning");
+  return;
+ }
+
+ const stockActual = Math.max(0, Number(producto.stock) || 0);
+ const nuevoStock = stockActual + cantidad;
+
+ if (!Number.isSafeInteger(nuevoStock)) {
+  Swal.fire("Cantidad demasiado alta",
+   "Revisa la cantidad ingresada.", "error");
+  return;
+ }
+
+ const costo = Number(producto.costo) || 0;
+
+ const compra = {
+  id: crearId(),
+  productoId: producto.codigo || producto.nombre || String(indice),
+  nombre: String(producto.nombre || "Producto"),
+  departamento: String(producto.departamento || ""),
+  codigo: String(producto.codigo || ""),
+  cantidad: cantidad,
+  costoUnitario: costo,
+  total: costo * cantidad,
+  stockAnterior: stockActual,
+  stockNuevo: nuevoStock,
+  fecha: new Date().toISOString()
+ };
+
+ const productosAntes = JSON.stringify(productos);
+ const comprasAntes = JSON.stringify(leerArray(COMPRAS_KEY));
+
+ productos[indice] = {
+  ...producto,
+  stock: nuevoStock
+ };
+
+ compras = leerArray(COMPRAS_KEY);
+ compras.unshift(compra);
+
+ try {
+  localStorage.setItem(PRODUCTOS_KEY, JSON.stringify(productos));
+  localStorage.setItem(COMPRAS_KEY, JSON.stringify(compras));
+ } catch(error) {
+  try {
+   localStorage.setItem(PRODUCTOS_KEY, productosAntes);
+   localStorage.setItem(COMPRAS_KEY, comprasAntes);
+  } catch(errorRestauracion) {}
+
+  productos = JSON.parse(productosAntes);
+  compras = JSON.parse(comprasAntes);
+
+  Swal.fire("Error al guardar",
+   "No se pudo registrar la compra. Revisa el espacio disponible del navegador.",
+   "error");
+  return;
+ }
+
+ $("cantidad").value = "";
+
+ cargarProductos();
+ cargarHistorial();
+
+ Swal.fire({
+  title: "Compra registrada",
+  html:
+   "Se agregaron <b>" + cantidad.toLocaleString("es-DO") +
+   " unidades</b> de <b>" + escapar(compra.nombre) +
+   "</b>.<br>Existencia nueva: <b>" +
+   nuevoStock.toLocaleString("es-DO") + " unidades</b>.",
+  icon: "success",
+  confirmButtonColor: "#0b7cff"
+ });
+}
+
+function cargarHistorial() {
+ compras = leerArray(COMPRAS_KEY);
+
+ $("totalRegistros").textContent =
+  compras.length.toLocaleString("es-DO");
+
+ const totalUnidades = compras.reduce(
+  (suma, compra) => suma + (Number(compra.cantidad) || 0),
+  0
+ );
+
+ $("totalUnidades").textContent =
+  totalUnidades.toLocaleString("es-DO");
+
+ const contenedor = $("historial");
+
+ if (!compras.length) {
+  contenedor.innerHTML =
+   '<div class="empty"><i class="fa-solid fa-receipt"></i>' +
+   'Todavía no hay compras registradas.</div>';
+  return;
+ }
+
+ contenedor.innerHTML = compras.slice(0, 8).map(compra => {
+  const fecha = compra.fecha
+   ? new Date(compra.fecha).toLocaleString("es-DO", {
+      dateStyle: "short",
+      timeStyle: "short"
+     })
+   : "Fecha no disponible";
+
+  return `
+   <div class="history-item">
+    <div>
+     <h4>${escapar(compra.nombre || "Producto")}</h4>
+     <p>
+      ${escapar(fecha)}<br>
+      ${escapar(compra.cantidad || 0)} unidades ·
+      Existencia: ${escapar(compra.stockAnterior ?? "-")} →
+      ${escapar(compra.stockNuevo ?? "-")}
+     </p>
+    </div>
+    <div class="history-right">
+     <strong>${dinero(compra.total)}</strong>
+     <span>${escapar(compra.codigo || "Sin código")}</span>
+    </div>
+   </div>`;
+ }).join("");
+}
+
+window.addEventListener("resize", () => {
+ if (window.innerWidth > 700) {
+  toggleMenu(false);
+ }
+});
+
+cargarProductos();
+cargarHistorial();
+</script>
+
+</body>
+</html>

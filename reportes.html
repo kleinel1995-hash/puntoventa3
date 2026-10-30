@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reporte</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+
+:root{
+    --azul:#0b7cff;
+    --verde:#16a34a;
+    --fondo:#eef3f8;
+    --texto:#0f172a;
+    --gris:#64748b;
+    --linea:#e5e7eb;
+}
+
+body{background:var(--fondo);color:var(--texto);overflow:hidden}
+
+.header{
+    position:fixed;top:0;left:0;right:0;height:75px;background:white;
+    border-bottom:1px solid var(--linea);display:flex;align-items:center;
+    justify-content:space-between;padding:0 25px;z-index:1000;
+}
+
+.header-left{display:flex;align-items:center;gap:18px}
+.header-left i{font-size:25px}
+.header h1{font-size:26px}
+.header-right{display:flex;align-items:center;gap:14px}
+.user{display:flex;align-items:center;gap:12px}
+.user img{width:45px;height:45px;border-radius:50%}
+.user small{color:var(--gris)}
+
+.sidebar{
+    position:fixed;top:75px;left:0;bottom:0;width:230px;background:white;
+    border-right:1px solid var(--linea);padding:22px 12px;z-index:900;
+}
+
+.menu-item{
+    display:flex;align-items:center;gap:13px;padding:14px 15px;
+    border-radius:12px;margin-bottom:8px;font-size:14px;font-weight:700;
+    color:#334155;cursor:pointer;transition:.2s;
+}
+
+.menu-item:hover{background:#eef5ff;color:var(--azul)}
+.menu-item i{font-size:18px;width:22px}
+.menu-item.active{background:var(--azul);color:white;box-shadow:0 8px 16px rgba(11,124,255,.22)}
+.config-separator{margin-top:35px;border-top:1px solid var(--linea);padding-top:15px}
+
+.content{
+    position:fixed;top:75px;left:230px;right:0;bottom:0;
+    overflow-y:auto;padding:25px;
+}
+
+.card{
+    background:white;border-radius:26px;padding:32px;
+    box-shadow:0 8px 25px rgba(0,0,0,.08);
+}
+
+.top{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:28px}
+h2{font-size:34px;color:#111827}
+
+.filters{
+    display:grid;grid-template-columns:1.3fr .8fr;gap:24px;margin-bottom:28px;
+}
+
+.filter-box{
+    height:64px;border:1px solid var(--linea);border-radius:16px;background:white;
+    display:flex;align-items:center;justify-content:space-between;padding:0 22px;
+    font-size:22px;font-weight:bold;color:#374151;
+}
+
+.filter-box select,.filter-box input{
+    width:100%;height:100%;border:none;outline:none;font-size:20px;
+    font-weight:bold;color:#374151;background:white;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:22px;
+    margin-bottom:30px;
+}
+
+.stat{
+    border:1px solid var(--linea);border-radius:18px;padding:25px;min-height:135px;
+    display:flex;flex-direction:column;justify-content:center;
+}
+
+.stat h3{font-size:20px;margin-bottom:20px;color:#374151}
+.stat b{font-size:38px;color:#1d4ed8}
+.stat.green h3,.stat.green b{color:var(--verde)}
+
+.chart-card{
+    border:1px solid var(--linea);border-radius:22px;padding:30px;
+    min-height:455px;margin-bottom:25px;
+}
+
+.chart-card h3{font-size:24px;margin-bottom:28px}
+
+.chart-wrap{
+    display:grid;grid-template-columns:70px 1fr;gap:18px;height:330px;
+}
+
+.y-axis{
+    display:flex;flex-direction:column;justify-content:space-between;
+    color:#64748b;font-size:19px;font-weight:bold;padding-bottom:35px;
+}
+
+.chart-area{
+    display:flex;align-items:flex-end;gap:12px;height:100%;
+    border-bottom:1px solid #f1f5f9;padding:0 10px 35px;
+}
+
+.bar-group{
+    flex:1;height:100%;display:flex;align-items:flex-end;
+    justify-content:center;position:relative;
+}
+
+.bar{
+    width:65%;min-width:10px;max-width:22px;
+    background:linear-gradient(180deg,#22c55e,#10b981);
+    border-radius:8px 8px 0 0;
+}
+
+.bar-group span{
+    position:absolute;bottom:-32px;font-size:17px;color:#64748b;font-weight:bold;
+}
+
+.footer{text-align:center;padding-top:10px}
+
+.footer button{
+    border:none;background:none;color:var(--azul);
+    font-size:22px;font-weight:bold;cursor:pointer;
+}
+
+.detalle{
+    display:none;margin-top:25px;border:1px solid var(--linea);
+    border-radius:20px;overflow:hidden;
+}
+
+.detalle.active{display:block}
+
+.detalle-head,.detalle-row{
+    display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;
+    gap:15px;padding:16px 18px;align-items:center;
+}
+
+.detalle-head{background:#f8fafc;font-weight:bold}
+
+.detalle-row{
+    border-top:1px solid #f1f5f9;font-weight:bold;color:#475569;
+}
+
+.empty{
+    padding:28px;text-align:center;color:#64748b;font-size:18px;font-weight:bold;
+}
+
+@media(max-width:1000px){
+    .sidebar{width:82px}
+    .menu-item{justify-content:center;padding:16px 8px}
+    .menu-item span{display:none}
+    .content{left:82px}
+    .filters,.stats{grid-template-columns:1fr}
+    .card{overflow-x:auto}
+    .chart-card{min-width:850px}
+}
+
+@media(max-width:650px){
+    .header{height:65px;padding:0 12px}
+    .header h1{font-size:20px}
+    .user{display:none}
+    .sidebar{top:65px}
+    .content{top:65px;padding:14px}
+    h2{font-size:26px}
+    .card{padding:20px}
+    .top,.filters,.stats{min-width:900px}
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+    <div class="header-left">
+        <i class="fa-solid fa-bars"></i>
+        <h1>Reportes</h1>
+    </div>
+</header>
+
+<aside class="sidebar">
+    <div class="menu-item" onclick="location.href='nueva_venta.html'"><i class="fa-solid fa-cart-shopping"></i><span>Nueva venta</span></div>
+    <div class="menu-item" onclick="location.href='dashboard.html'"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></div>
+    <div class="menu-item" onclick="location.href='productos.html'"><i class="fa-solid fa-box"></i><span>Productos</span></div>
+    <div class="menu-item" onclick="location.href='inventario.html'"><i class="fa-solid fa-warehouse"></i><span>Inventario</span></div>
+    <div class="menu-item" onclick="location.href='clientes.html'"><i class="fa-solid fa-users"></i><span>Clientes</span></div>
+    <div class="menu-item" onclick="location.href='ventas.html'"><i class="fa-solid fa-receipt"></i><span>Ventas</span></div>
+    <div class="menu-item" onclick="location.href='cotizaciones.html'"><i class="fa-solid fa-file-lines"></i><span>Cotizaciones</span></div>
+    <div class="menu-item active" onclick="location.href='reportes.html'"><i class="fa-solid fa-chart-pie"></i><span>Reportes</span></div>
+    <div class="menu-item" onclick="location.href='gastos.html'"><i class="fa-solid fa-money-bill-wave"></i><span>Gastos</span></div>
+    <div class="menu-item config-separator" onclick="location.href='configuracion.html'"><i class="fa-solid fa-gear"></i><span>Configuración</span></div>
+</aside>
+
+<main class="content">
+    <div class="card">
+        <div class="top">
+            <h2>Reporte de ventas</h2>
+        </div>
+
+        <div class="filters">
+            <div class="filter-box">
+                <input type="date" id="fechaFiltro" onchange="cargarReporte()">
+            </div>
+
+            <div class="filter-box">
+                <select id="periodo" onchange="cargarReporte()">
+                    <option value="todo">Todas</option>
+                    <option value="hoy">Hoy</option>
+                    <option value="semana">Esta semana</option>
+                    <option value="mes">Este mes</option>
+                    <option value="anio">Este año</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat green">
+                <h3>Ventas totales</h3>
+                <b id="ventasTotales">$0</b>
+            </div>
+
+            <div class="stat">
+                <h3>Ventas</h3>
+                <b id="cantidadVentas">0</b>
+            </div>
+
+            <div class="stat">
+                <h3>Ticket promedio</h3>
+                <b id="ticketPromedio">$0</b>
+            </div>
+
+            <div class="stat green">
+                <h3>Ganancias</h3>
+                <b id="ganancias">$0</b>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Ventas por día</h3>
+
+            <div class="chart-wrap">
+                <div class="y-axis" id="yAxis">
+                    <span>$0</span><span>$0</span><span>$0</span><span>$0</span><span>$0</span>
+                </div>
+
+                <div class="chart-area" id="chartArea"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <button onclick="toggleDetalle()">Ver reporte completo</button>
+        </div>
+
+        <div class="detalle" id="detalleReporte">
+            <div class="detalle-head">
+                <div>Folio</div>
+                <div>Fecha</div>
+                <div>Pago</div>
+                <div>Total</div>
+                <div>Ganancia</div>
+            </div>
+
+            <div id="detalleVentas"></div>
+        </div>
+    </div>
+</main>
+
+<script src="supabase-config.js"></script>
+<script src="supabase-sync.js"></script>
+<script>
+function formato(valor){
+    return "$" + Number(valor || 0).toLocaleString("es-DO");
+}
+
+function ventasGuardadas(){
+    try{
+        return JSON.parse(localStorage.getItem("ventasPOS")) || [];
+    }catch(e){
+        return [];
+    }
+}
+
+function fechaVentaADate(fecha){
+    if(!fecha) return null;
+
+    if(String(fecha).includes("/")){
+        const p = String(fecha).split("/");
+        return new Date(Number(p[2]), Number(p[1]) - 1, Number(p[0]));
+    }
+
+    return new Date(fecha);
+}
+
+function mismaFecha(a,b){
+    return a.getFullYear() === b.getFullYear() &&
+           a.getMonth() === b.getMonth() &&
+           a.getDate() === b.getDate();
+}
+
+function calcularGananciaVenta(venta){
+    let ganancia = 0;
+
+    (venta.productos || []).forEach(producto=>{
+        const precio = Number(producto.precio || 0);
+        const costo = Number(producto.costo || 0);
+        const cantidad = Number(producto.cantidad || 1);
+
+        ganancia += (precio - costo) * cantidad;
+    });
+
+    return ganancia;
+}
+
+function filtrarVentas(){
+    const ventas = ventasGuardadas();
+    const periodo = document.getElementById("periodo").value;
+    const fechaInput = document.getElementById("fechaFiltro").value;
+    const hoy = new Date();
+
+    return ventas.filter(v=>{
+        const fecha = fechaVentaADate(v.fecha);
+        if(!fecha || isNaN(fecha)) return true;
+
+        if(fechaInput){
+            const f = new Date(fechaInput + "T00:00:00");
+            return mismaFecha(fecha, f);
+        }
+
+        if(periodo === "hoy") return mismaFecha(fecha, hoy);
+
+        if(periodo === "semana"){
+            const inicio = new Date(hoy);
+            inicio.setDate(hoy.getDate() - hoy.getDay());
+            inicio.setHours(0,0,0,0);
+
+            const fin = new Date(inicio);
+            fin.setDate(inicio.getDate() + 7);
+
+            return fecha >= inicio && fecha < fin;
+        }
+
+        if(periodo === "mes"){
+            return fecha.getMonth() === hoy.getMonth() &&
+                   fecha.getFullYear() === hoy.getFullYear();
+        }
+
+        if(periodo === "anio"){
+            return fecha.getFullYear() === hoy.getFullYear();
+        }
+
+        return true;
+    });
+}
+
+function agruparVentasPorDia(ventas){
+    const dias = Array(31).fill(0);
+
+    ventas.forEach(venta=>{
+        const fecha = fechaVentaADate(venta.fecha);
+        let dia = fecha && !isNaN(fecha) ? fecha.getDate() : new Date().getDate();
+
+        if(dia < 1 || dia > 31) dia = 1;
+
+        dias[dia - 1] += Number(venta.total || 0);
+    });
+
+    return dias;
+}
+
+function cargarYAxis(maximo){
+    const y = document.getElementById("yAxis");
+    const paso = maximo / 4;
+
+    y.innerHTML = `
+        <span>${formato(maximo)}</span>
+        <span>${formato(paso * 3)}</span>
+        <span>${formato(paso * 2)}</span>
+        <span>${formato(paso)}</span>
+        <span>$0</span>
+    `;
+}
+
+function cargarGrafico(datos){
+    const chart = document.getElementById("chartArea");
+    chart.innerHTML = "";
+
+    const maximo = Math.max(...datos, 1);
+    cargarYAxis(maximo);
+
+    datos.forEach((valor,index)=>{
+        const alto = valor > 0 ? Math.max(5, (valor / maximo) * 100) : 0;
+
+        const mostrarNumero =
+            index === 0 || index === 4 || index === 9 ||
+            index === 14 || index === 19 || index === 24 ||
+            index === 29 || index === 30;
+
+        chart.innerHTML += `
+            <div class="bar-group">
+                <div class="bar" title="${formato(valor)}" style="height:${alto}%"></div>
+                ${mostrarNumero ? `<span>${index + 1}</span>` : ""}
+            </div>
+        `;
+    });
+}
+
+function cargarDetalle(ventas){
+    const contenedor = document.getElementById("detalleVentas");
+    contenedor.innerHTML = "";
+
+    if(ventas.length === 0){
+        contenedor.innerHTML = `
+            <div class="empty">
+                No hay ventas guardadas todavía.
+            </div>
+        `;
+        return;
+    }
+
+    ventas.forEach(venta=>{
+        const ganancia = calcularGananciaVenta(venta);
+
+        contenedor.innerHTML += `
+            <div class="detalle-row">
+                <div>${venta.folio || "#000000"}</div>
+                <div>${venta.fecha || ""} ${venta.hora || ""}</div>
+                <div>${venta.pago || "Efectivo"}</div>
+                <div>${formato(venta.total)}</div>
+                <div>${formato(ganancia)}</div>
+            </div>
+        `;
+    });
+}
+
+function cargarReporte(){
+    const ventas = filtrarVentas();
+
+    const total = ventas.reduce((s,v)=>s + Number(v.total || 0),0);
+    const cantidad = ventas.length;
+    const promedio = cantidad > 0 ? total / cantidad : 0;
+    const ganancias = ventas.reduce((s,v)=>s + calcularGananciaVenta(v),0);
+
+    document.getElementById("ventasTotales").innerText = formato(total);
+    document.getElementById("cantidadVentas").innerText = cantidad;
+    document.getElementById("ticketPromedio").innerText = formato(promedio);
+    document.getElementById("ganancias").innerText = formato(ganancias);
+
+    cargarGrafico(agruparVentasPorDia(ventas));
+    cargarDetalle(ventas);
+}
+
+function toggleDetalle(){
+    document.getElementById("detalleReporte").classList.toggle("active");
+}
+
+document.getElementById("periodo").addEventListener("change",function(){
+    document.getElementById("fechaFiltro").value = "";
+});
+
+cargarReporte();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gastos</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+
+:root{
+    --azul:#0b7cff;
+    --verde:#16a34a;
+    --rojo:#ef4444;
+    --fondo:#f3f6fb;
+    --texto:#0f172a;
+    --gris:#64748b;
+    --linea:#e5e7eb;
+}
+
+body{
+    background:var(--fondo);
+    color:var(--texto);
+    overflow:hidden;
+}
+
+.header{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    height:75px;
+    background:white;
+    border-bottom:1px solid var(--linea);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 25px;
+    z-index:1000;
+}
+
+.header-left{
+    display:flex;
+    align-items:center;
+    gap:18px;
+}
+
+.header-left i{
+    font-size:25px;
+}
+
+.header h1{
+    font-size:28px;
+}
+
+.btn-header{
+    height:48px;
+    border:none;
+    border-radius:12px;
+    background:var(--azul);
+    color:white;
+    padding:0 20px;
+    font-weight:bold;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.sidebar{
+    position:fixed;
+    top:75px;
+    left:0;
+    bottom:0;
+    width:230px;
+    background:white;
+    border-right:1px solid var(--linea);
+    padding:22px 12px;
+    z-index:900;
+}
+
+.menu-item{
+    display:flex;
+    align-items:center;
+    gap:13px;
+    padding:14px 15px;
+    border-radius:12px;
+    margin-bottom:8px;
+    font-size:14px;
+    font-weight:700;
+    color:#334155;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.menu-item:hover{
+    background:#eef5ff;
+    color:var(--azul);
+}
+
+.menu-item i{
+    font-size:18px;
+    width:22px;
+}
+
+.menu-item.active{
+    background:var(--azul);
+    color:white;
+    box-shadow:0 8px 16px rgba(11,124,255,.22);
+}
+
+.config-separator{
+    margin-top:35px;
+    border-top:1px solid var(--linea);
+    padding-top:15px;
+}
+
+.content{
+    position:fixed;
+    top:75px;
+    left:230px;
+    right:0;
+    bottom:0;
+    overflow-y:auto;
+    padding:25px;
+}
+
+.card{
+    background:white;
+    border-radius:24px;
+    padding:28px;
+    box-shadow:0 8px 25px rgba(0,0,0,.06);
+}
+
+.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap:15px;
+}
+
+.top h2{
+    font-size:34px;
+}
+
+.filters{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.filters input,
+.filters select{
+    height:54px;
+    border:1px solid var(--linea);
+    border-radius:14px;
+    padding:0 15px;
+    font-size:16px;
+    font-weight:bold;
+    outline:none;
+    background:white;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px;
+    margin-bottom:28px;
+}
+
+.stat{
+    border:1px solid var(--linea);
+    border-radius:18px;
+    padding:22px;
+    background:white;
+}
+
+.stat h3{
+    font-size:16px;
+    color:#334155;
+    margin-bottom:14px;
+}
+
+.stat b{
+    font-size:30px;
+    color:var(--azul);
+}
+
+.stat.red b{
+    color:var(--rojo);
+}
+
+.stat.green b{
+    color:var(--verde);
+}
+
+.table{
+    width:100%;
+}
+
+.header-row,
+.gasto-row{
+    display:grid;
+    grid-template-columns:1.2fr 1.5fr 1fr 1fr 1fr;
+    gap:15px;
+    align-items:center;
+}
+
+.header-row{
+    padding:18px 0;
+    border-bottom:1px solid var(--linea);
+    font-size:16px;
+    font-weight:bold;
+}
+
+.gasto-row{
+    min-height:76px;
+    border-bottom:1px solid #f1f5f9;
+    font-size:15px;
+    font-weight:bold;
+    color:#475569;
+}
+
+.actions{
+    display:flex;
+    gap:18px;
+}
+
+.actions i{
+    cursor:pointer;
+    font-size:22px;
+}
+
+.delete{
+    color:var(--rojo);
+}
+
+.empty{
+    padding:30px;
+    text-align:center;
+    font-size:18px;
+    font-weight:bold;
+    color:#64748b;
+}
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.55);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:3000;
+    padding:15px;
+}
+
+.modal.active{
+    display:flex;
+}
+
+.modal-box{
+    background:white;
+    width:95%;
+    max-width:520px;
+    border-radius:24px;
+    padding:28px;
+    box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+
+.modal-box h2{
+    font-size:28px;
+    margin-bottom:22px;
+}
+
+.modal-box input,
+.modal-box select,
+.modal-box textarea{
+    width:100%;
+    border:1px solid #dbe2ea;
+    border-radius:14px;
+    padding:0 15px;
+    font-size:17px;
+    margin-bottom:14px;
+    outline:none;
+}
+
+.modal-box input,
+.modal-box select{
+    height:55px;
+}
+
+.modal-box textarea{
+    height:100px;
+    padding-top:14px;
+    resize:none;
+}
+
+.modal-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin-top:18px;
+}
+
+.modal-actions button{
+    height:55px;
+    border:none;
+    border-radius:14px;
+    font-size:17px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.save{
+    background:var(--azul);
+    color:white;
+}
+
+.cancel{
+    background:#f1f5f9;
+    color:#0f172a;
+}
+
+@media(max-width:1000px){
+    .sidebar{
+        width:82px;
+    }
+
+    .menu-item{
+        justify-content:center;
+        padding:16px 8px;
+    }
+
+    .menu-item span{
+        display:none;
+    }
+
+    .content{
+        left:82px;
+    }
+
+    .filters,
+    .stats{
+        grid-template-columns:1fr;
+    }
+
+    .card{
+        overflow-x:auto;
+    }
+
+    .top,
+    .filters,
+    .stats,
+    .table{
+        min-width:900px;
+    }
+}
+
+@media(max-width:650px){
+    .header{
+        height:65px;
+        padding:0 12px;
+    }
+
+    .header h1{
+        font-size:20px;
+    }
+
+    .sidebar{
+        top:65px;
+    }
+
+    .content{
+        top:65px;
+        padding:14px;
+    }
+
+    .top h2{
+        font-size:26px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+    <div class="header-left">
+        <i class="fa-solid fa-bars"></i>
+        <h1>Gastos</h1>
+    </div>
+
+    <button class="btn-header" onclick="abrirModal()">
+        <i class="fa-solid fa-plus"></i>
+        Agregar
+    </button>
+</header>
+
+<aside class="sidebar">
+    <div class="menu-item" onclick="location.href='nueva_venta.html'">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <span>Nueva venta</span>
+    </div>
+
+    <div class="menu-item" onclick="location.href='dashboard.html'">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Dashboard</span>
+    </div>
+
+    <div class="menu-item" onclick="location.href='productos.html'">
+        <i class="fa-solid fa-box"></i>
+        <span>Productos</span>
+    </div>
+
+    <div class="menu-item" onclick="location.href='inventario.html'">
+        <i class="fa-solid fa-warehouse"></i>
+        <span>Inventario</span>
+    </div>
+
+    <div class="menu-item" onclick="location.href='clientes.html'">
+        <i class="fa-solid fa-users"></i>
+        <span>Clientes</span>
+    </div>
+
+    <div class="menu-item" onclick="location.href='ventas.html'">
+        <i class="fa-solid fa-receipt"></i>
+        <span>Ventas</span>
+    </div>
+
+    <div class="menu-item" onclick="location.href='cotizaciones.html'">
+        <i class="fa-solid fa-file-lines"></i>
+        <span>Cotizaciones</span>
+    </div>
+
+    <div class="menu-item" onclick="location.href='reportes.html'">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span>Reportes</span>
+    </div>
+
+    <div class="menu-item active" onclick="location.href='gastos.html'">
+        <i class="fa-solid fa-money-bill-wave"></i>
+        <span>Gastos</span>
+    </div>
+
+    <div class="menu-item config-separator" onclick="location.href='configuracion.html'">
+        <i class="fa-solid fa-gear"></i>
+        <span>Configuración</span>
+    </div>
+</aside>
+
+<main class="content">
+    <div class="card">
+
+        <div class="top">
+            <h2>Registro de gastos</h2>
+        </div>
+
+        <div class="filters">
+            <input type="text" id="buscar" placeholder="Buscar gasto o descripción">
+            <input type="date" id="fechaFiltro" onchange="mostrarGastos()">
+            <select id="categoriaFiltro" onchange="mostrarGastos()">
+                <option value="Todas">Todas las categorías</option>
+            </select>
+        </div>
+
+        <div class="stats">
+            <div class="stat red">
+                <h3>Total gastos</h3>
+                <b id="totalGastos">$0</b>
+            </div>
+
+            <div class="stat">
+                <h3>Cantidad de gastos</h3>
+                <b id="cantidadGastos">0</b>
+            </div>
+
+            <div class="stat green">
+                <h3>Promedio por gasto</h3>
+                <b id="promedioGasto">$0</b>
+            </div>
+        </div>
+
+        <div class="table">
+            <div class="header-row">
+                <div>Fecha</div>
+                <div>Descripción</div>
+                <div>Categoría</div>
+                <div>Monto</div>
+                <div>Acciones</div>
+            </div>
+
+            <div id="listaGastos"></div>
+        </div>
+
+    </div>
+</main>
+
+<div class="modal" id="modalGasto">
+    <div class="modal-box">
+        <h2>Nuevo gasto</h2>
+
+        <input type="date" id="fecha">
+        <input type="text" id="descripcion" placeholder="Descripción del gasto">
+
+        <input type="text" id="categoria" list="categoriasGasto" placeholder="Categoría">
+        <datalist id="categoriasGasto"></datalist>
+
+        <input type="number" id="monto" placeholder="Monto">
+
+        <textarea id="nota" placeholder="Nota opcional"></textarea>
+
+        <div class="modal-actions">
+            <button class="cancel" onclick="cerrarModal()">Cancelar</button>
+            <button class="save" onclick="guardarGasto()">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<script src="supabase-config.js"></script>
+<script src="supabase-sync.js"></script>
+<script>
+function formato(valor){
+    return "$" + Number(valor || 0).toLocaleString("es-DO");
+}
+
+function leerLS(clave){
+    try{
+        return JSON.parse(localStorage.getItem(clave)) || [];
+    }catch(e){
+        return [];
+    }
+}
+
+function guardarLS(clave, valor){
+    localStorage.setItem(clave, JSON.stringify(valor));
+}
+
+let gastos = leerLS("gastosPOS");
+
+function hoyISO(){
+    const h = new Date();
+    const y = h.getFullYear();
+    const m = String(h.getMonth() + 1).padStart(2,"0");
+    const d = String(h.getDate()).padStart(2,"0");
+    return `${y}-${m}-${d}`;
+}
+
+function alerta(titulo,texto,icono="success"){
+    Swal.fire({
+        title:titulo,
+        text:texto,
+        icon:icono,
+        confirmButtonColor:"#0b7cff"
+    });
+}
+
+function abrirModal(){
+    document.getElementById("fecha").value = hoyISO();
+    document.getElementById("descripcion").value = "";
+    document.getElementById("categoria").value = "";
+    document.getElementById("monto").value = "";
+    document.getElementById("nota").value = "";
+
+    cargarCategorias();
+    document.getElementById("modalGasto").classList.add("active");
+}
+
+function cerrarModal(){
+    document.getElementById("modalGasto").classList.remove("active");
+}
+
+function cargarCategorias(){
+    const categorias = [...new Set(
+        gastos.map(g => g.categoria).filter(c => c && c.trim() !== "")
+    )].sort();
+
+    const filtro = document.getElementById("categoriaFiltro");
+    const lista = document.getElementById("categoriasGasto");
+    const actual = filtro.value;
+
+    filtro.innerHTML = `<option value="Todas">Todas las categorías</option>`;
+    lista.innerHTML = "";
+
+    categorias.forEach(cat=>{
+        filtro.innerHTML += `<option value="${cat}">${cat}</option>`;
+        lista.innerHTML += `<option value="${cat}"></option>`;
+    });
+
+    if(categorias.includes(actual)){
+        filtro.value = actual;
+    }
+}
+
+function guardarGasto(){
+    const fecha = document.getElementById("fecha").value;
+    const descripcion = document.getElementById("descripcion").value.trim();
+    const categoria = document.getElementById("categoria").value.trim();
+    const monto = Number(document.getElementById("monto").value);
+    const nota = document.getElementById("nota").value.trim();
+
+    if(!fecha || !descripcion || !categoria || monto <= 0){
+        alerta("Campos incompletos","Complete fecha, descripción, categoría y monto","warning");
+        return;
+    }
+
+    const gasto = {
+        id:Date.now(),
+        fecha,
+        descripcion,
+        categoria,
+        monto,
+        nota
+    };
+
+    gastos.unshift(gasto);
+    guardarLS("gastosPOS", gastos);
+
+    cerrarModal();
+    cargarCategorias();
+    mostrarGastos();
+
+    alerta("Guardado","Gasto registrado correctamente");
+}
+
+function eliminarGasto(id){
+    Swal.fire({
+        title:"¿Eliminar gasto?",
+        text:"Esta acción no se puede deshacer",
+        icon:"warning",
+        showCancelButton:true,
+        confirmButtonText:"Sí, eliminar",
+        cancelButtonText:"Cancelar",
+        confirmButtonColor:"#ef4444",
+        cancelButtonColor:"#64748b"
+    }).then(res=>{
+        if(res.isConfirmed){
+            gastos = gastos.filter(g => g.id !== id);
+            guardarLS("gastosPOS", gastos);
+            cargarCategorias();
+            mostrarGastos();
+            alerta("Eliminado","Gasto eliminado correctamente");
+        }
+    });
+}
+
+function gastosFiltrados(){
+    const texto = document.getElementById("buscar").value.toLowerCase();
+    const fecha = document.getElementById("fechaFiltro").value;
+    const categoria = document.getElementById("categoriaFiltro").value;
+
+    return gastos.filter(g=>{
+        const coincideTexto =
+            String(g.descripcion || "").toLowerCase().includes(texto) ||
+            String(g.categoria || "").toLowerCase().includes(texto) ||
+            String(g.nota || "").toLowerCase().includes(texto);
+
+        const coincideFecha = fecha ? g.fecha === fecha : true;
+        const coincideCategoria = categoria !== "Todas" ? g.categoria === categoria : true;
+
+        return coincideTexto && coincideFecha && coincideCategoria;
+    });
+}
+
+function mostrarGastos(){
+    const lista = gastosFiltrados();
+    const contenedor = document.getElementById("listaGastos");
+
+    contenedor.innerHTML = "";
+
+    const total = lista.reduce((s,g)=>s + Number(g.monto || 0),0);
+    const cantidad = lista.length;
+    const promedio = cantidad > 0 ? total / cantidad : 0;
+
+    document.getElementById("totalGastos").innerText = formato(total);
+    document.getElementById("cantidadGastos").innerText = cantidad;
+    document.getElementById("promedioGasto").innerText = formato(promedio);
+
+    if(lista.length === 0){
+        contenedor.innerHTML = `
+            <div class="empty">
+                No hay gastos registrados.
+            </div>
+        `;
+        return;
+    }
+
+    lista.forEach(g=>{
+        contenedor.innerHTML += `
+            <div class="gasto-row">
+                <div>${g.fecha}</div>
+                <div>${g.descripcion}</div>
+                <div>${g.categoria}</div>
+                <div>${formato(g.monto)}</div>
+                <div class="actions">
+                    <i class="fa-solid fa-trash-can delete" onclick="eliminarGasto(${g.id})"></i>
+                </div>
+            </div>
+        `;
+    });
+}
+
+document.getElementById("buscar").addEventListener("input", mostrarGastos);
+
+cargarCategorias();
+mostrarGastos();
+</script>
+
+</body>
+</html>

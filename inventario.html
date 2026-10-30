@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f3f6fb">
+<title>Inventario</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+:root{
+ --azul:#0b7cff;--verde:#16a34a;--rojo:#ef4444;
+ --fondo:#f3f6fb;--texto:#0f172a;--gris:#64748b;--linea:#e5e7eb;
+}
+body{background:var(--fondo);color:var(--texto);overflow:hidden}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.header{
+ position:fixed;top:0;left:0;right:0;height:75px;background:#fff;
+ border-bottom:1px solid var(--linea);display:flex;align-items:center;
+ justify-content:space-between;padding:0 25px;z-index:1000;
+}
+.header-left{display:flex;align-items:center;gap:14px}
+.header h1{font-size:28px}
+.menu-toggle{
+ width:44px;height:44px;border:0;border-radius:12px;background:#eef5ff;
+ color:var(--azul);display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.menu-toggle i{font-size:22px}
+.header-actions{display:flex;align-items:center;gap:10px}
+.btn{
+ min-height:44px;padding:0 16px;border:0;border-radius:12px;font-size:14px;
+ font-weight:bold;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-add{background:var(--azul);color:white}
+.btn-add:hover{background:#0869db}
+.btn-descargar{background:var(--verde);color:white}
+.btn-descargar:hover{background:#15803d}
+.sidebar{
+ position:fixed;top:75px;left:0;bottom:0;width:230px;background:white;
+ border-right:1px solid var(--linea);padding:22px 12px;z-index:950;
+ overflow-y:auto;transition:transform .25s ease;
+}
+.menu-item{
+ display:flex;align-items:center;gap:13px;padding:14px 15px;border-radius:12px;
+ margin-bottom:8px;font-size:14px;font-weight:700;color:#334155;cursor:pointer;transition:.2s;
+}
+.menu-item:hover{background:#eef5ff;color:var(--azul)}
+.menu-item i{font-size:18px;width:22px;text-align:center}
+.menu-item.active{background:var(--azul);color:white;box-shadow:0 8px 16px #0b7cff38}
+.config-separator{margin-top:30px;border-top:1px solid var(--linea);padding-top:18px}
+.menu-overlay{position:fixed;inset:0;background:#0f172a80;z-index:900;display:none}
+.menu-overlay.active{display:block}
+.content{
+ position:fixed;top:75px;left:230px;right:0;bottom:0;overflow-y:auto;
+ padding:25px;transition:left .25s ease;
+}
+body.menu-cerrado .sidebar{transform:translateX(-105%)}
+body.menu-cerrado .content{left:0}
+.card{background:white;border-radius:24px;padding:28px;box-shadow:0 8px 25px #0000000a}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:15px}
+.top h2{font-size:30px}
+.top-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.search-box{
+ height:44px;width:300px;max-width:100%;border:1px solid var(--linea);
+ border-radius:12px;display:flex;align-items:center;gap:10px;padding:0 12px;background:white;
+}
+.search-box input{width:100%;min-width:0;height:100%;border:none;outline:none;font-size:14px}
+.search-box i{color:var(--gris);font-size:16px}
+.stats-sticky{
+ position:sticky;top:0;z-index:100;background:var(--fondo);
+ padding:10px 0 14px;margin-top:-5px;margin-bottom:15px;
+}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.stat{
+ border:1px solid var(--linea);border-radius:16px;padding:17px;background:#fff;
+ min-width:0;box-shadow:0 4px 12px #00000006;transition:background .2s,border-color .2s;
+}
+.stat h3{font-size:13px;color:#334155;margin-bottom:12px;line-height:1.4}
+.stat h3 i{margin-right:4px}
+.stat b{display:block;font-size:clamp(18px,2vw,27px);color:var(--azul);overflow-wrap:anywhere;line-height:1.3}
+.stat.green b{color:var(--verde)}
+.stat.red b{color:var(--rojo)}
+.stat.clickable{cursor:pointer}
+.stat.clickable:hover{border-color:var(--rojo);background:#fffafa}
+.stat.selected{border:2px solid var(--rojo);background:#fff7f7;padding:16px}
+.stat.selected h3{color:var(--rojo)}
+.stat small{display:block;margin-top:7px;font-size:10px;color:var(--gris);line-height:1.4}
+.table-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.table-heading h3{font-size:17px}
+.results-count{color:var(--gris);font-size:12px}
+.table{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.header-row,.product-row{
+ display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1fr 1.1fr;
+ gap:15px;align-items:center;
+}
+.header-row{padding:18px 0;border-bottom:1px solid var(--linea);font-size:13px;font-weight:bold;min-width:760px}
+.product-row{
+ min-height:76px;border-bottom:1px solid #f1f5f9;font-size:13px;
+ font-weight:bold;color:#475569;min-width:760px;
+}
+.product-name{color:var(--texto);overflow-wrap:anywhere;line-height:1.4}
+.codigo{display:block;color:var(--gris);font-size:11px;font-weight:normal;margin-top:5px;overflow-wrap:anywhere}
+.product-row.low{background:#fffafa}
+.stock-badge{display:inline-block;padding:7px 9px;border-radius:8px;background:#dcfce7;color:#15803d;font-size:12px;line-height:1.3}
+.stock-badge.low{background:#fee2e2;color:#b91c1c}
+.empty{padding:35px 20px;font-size:15px;color:var(--gris);text-align:center;background:white;line-height:1.6}
+.empty i{font-size:32px;display:block;margin-bottom:12px}
+.empty strong{color:#334155}
+.modal{
+ position:fixed;inset:0;background:#0f172a88;z-index:3000;display:none;
+ align-items:center;justify-content:center;padding:15px;
+}
+.modal.active{display:flex}
+.modal-box{
+ width:100%;max-width:600px;max-height:92vh;overflow-y:auto;background:white;
+ border-radius:22px;padding:26px;box-shadow:0 20px 60px #00000035;
+}
+.modal-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}
+.modal-header h2{font-size:24px}
+.close-modal{width:38px;height:38px;border:0;border-radius:10px;background:#f1f5f9;color:#334155;font-size:18px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.form-group{display:flex;flex-direction:column;gap:7px;min-width:0}
+.form-group.full{grid-column:1/-1}
+.form-group label{font-size:13px;font-weight:bold;color:#334155}
+.form-group input,.form-group select{
+ width:100%;height:46px;border:1px solid #cbd5e1;border-radius:11px;
+ padding:0 12px;background:white;color:var(--texto);outline:none;min-width:0;
+}
+.form-group input:focus,.form-group select:focus{border-color:var(--azul);box-shadow:0 0 0 3px #0b7cff18}
+.form-note{margin-top:16px;padding:12px;background:#eff6ff;color:#1d4ed8;border-radius:10px;font-size:12px;line-height:1.5}
+.form-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.form-actions button{min-height:48px;border:0;border-radius:12px;font-weight:bold;font-size:14px}
+.btn-cancel{background:#f1f5f9;color:#334155}
+.btn-save{background:var(--azul);color:white}
+.btn-save:hover{background:#0869db}
+.autocomplete-container{position:relative;width:100%}
+.nombre-busqueda{display:flex;align-items:stretch;gap:7px}
+.nombre-busqueda .autocomplete-container{flex:1;min-width:0}
+.sugerencias{
+ display:none;position:absolute;top:calc(100% + 5px);left:0;right:0;max-height:240px;
+ overflow-y:auto;background:#fff;border:1px solid #dbe3ef;border-radius:12px;
+ box-shadow:0 12px 28px #0f172a20;z-index:3100;
+}
+.sugerencias.visible{display:block}
+.sugerencia{
+ width:100%;border:0;border-bottom:1px solid #f1f5f9;background:white;padding:12px;
+ text-align:left;display:flex;flex-direction:column;gap:5px;color:var(--texto);
+}
+.sugerencia:last-child{border-bottom:0}
+.sugerencia:hover,.sugerencia:focus{background:#eff6ff;outline:none}
+.sugerencia-nombre{font-size:14px;font-weight:bold}
+.sugerencia-detalle{display:flex;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--gris);font-weight:normal}
+.sugerencia-detalle span{display:inline-block}
+.autocomplete-ayuda{color:var(--gris);font-size:11px;font-weight:normal;line-height:1.4}
+.producto-seleccionado{
+ margin-top:5px;padding:9px 11px;border-radius:9px;background:#ecfdf5;color:#15803d;
+ font-size:12px;line-height:1.5;display:none;
+}
+.producto-seleccionado.visible{display:block}
+.campo-bloqueado{background:#f8fafc!important;color:#64748b!important}
+.codigo-input-row{display:flex;gap:7px}
+.codigo-input-row input{flex:1;min-width:0}
+.btn-escanear{
+ flex-shrink:0;width:46px;height:46px;border:0;border-radius:11px;
+ background:#eff6ff;color:var(--azul);font-size:18px;
+}
+.btn-escanear:hover{background:#dbeafe}
+.lector-box{
+ display:none;margin-top:12px;border:1px solid var(--linea);
+ border-radius:12px;padding:10px;background:#f8fafc;
+}
+.lector-box.visible{display:block}
+#lectorBarras{width:100%;overflow:hidden;border-radius:8px}
+.lector-estado{font-size:12px;color:var(--gris);margin-top:8px;line-height:1.5}
+.btn-detener-lector{
+ width:100%;margin-top:8px;min-height:40px;border:0;border-radius:9px;
+ background:#fee2e2;color:#b91c1c;font-weight:bold;
+}
+@media(min-width:701px) and (max-width:1000px){
+ .sidebar{width:80px;padding:18px 8px}
+ .menu-item{justify-content:center;padding:15px 5px}
+ .menu-item span{display:none}
+ .content{left:80px;padding:18px}
+ .header{padding:0 18px}
+ .header h1{font-size:23px}
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .top{align-items:flex-start}
+ .top-actions{flex-wrap:wrap}
+ .search-box{width:260px}
+}
+@media(max-width:700px){
+ body{overflow:hidden}
+ .header{height:62px;padding:0 10px}
+ .header-left{gap:9px}
+ .header h1{font-size:21px}
+ .menu-toggle{width:40px;height:40px}
+ .menu-toggle i{font-size:20px}
+ .header-actions{gap:6px}
+ .header .btn{min-height:39px;padding:0 10px;font-size:11px;border-radius:10px;gap:5px}
+ .sidebar{
+  display:block!important;top:62px;left:0;bottom:0;width:270px;max-width:85vw;
+  padding:18px 12px;z-index:950;transform:translateX(-105%);visibility:hidden;
+  box-shadow:8px 0 25px #00000012;
+ }
+ .sidebar.menu-visible{transform:translateX(0);visibility:visible}
+ .menu-item{justify-content:flex-start;padding:14px 15px}
+ .menu-item span{display:inline}
+ .content{
+  position:fixed;top:62px;left:0!important;right:0;bottom:0;width:100%;
+  padding:12px 11px 25px;overflow-y:auto;-webkit-overflow-scrolling:touch;
+ }
+ .card{padding:0;background:transparent;box-shadow:none;border-radius:0}
+ .top{flex-direction:column;align-items:stretch;gap:12px;margin-bottom:12px}
+ .top h2{font-size:25px}
+ .top-actions{display:flex;width:100%}
+ .search-box{width:100%;height:42px;background:white;border-radius:11px}
+ .stats-sticky{top:0;z-index:100;margin:0 0 12px;padding:8px 0 10px;background:var(--fondo)}
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .stat{padding:10px;border-radius:12px;box-shadow:0 3px 9px #00000008}
+ .stat h3{font-size:10px;margin-bottom:7px;line-height:1.35}
+ .stat h3 i{margin-right:2px}
+ .stat b{font-size:clamp(15px,4vw,20px);line-height:1.25}
+ .stat small{font-size:9px;margin-top:5px}
+ .stat.selected{padding:9px}
+ .table-heading{margin-bottom:10px}
+ .table-heading h3{font-size:15px}
+ .results-count{font-size:10px}
+ .table{background:white;border-radius:12px;padding:0 12px}
+ .header-row{min-width:760px;padding:15px 0;font-size:12px}
+ .product-row{min-width:760px;min-height:66px;padding:10px 0;font-size:12px}
+ .modal-box{padding:19px;border-radius:17px}
+ .modal-header h2{font-size:21px}
+}
+@media(max-width:380px){
+ .header h1{font-size:18px}
+ .header .btn{padding:0 7px;font-size:10px}
+ .header .btn span{display:none}
+ .stat{padding:8px}
+ .stat.selected{padding:7px}
+ .stat h3{font-size:9px}
+ .stat b{font-size:15px}
+ .stat small{font-size:8px}
+ .form-grid{grid-template-columns:1fr}
+ .form-group.full{grid-column:auto}
+ .nombre-busqueda{gap:5px}
+ .btn-escanear{width:43px;height:46px}
+}
+</style>
+</head>
+
+<body>
+<header class="header">
+ <div class="header-left">
+  <button class="menu-toggle" onclick="toggleMenu()" aria-label="Abrir menú" aria-expanded="false">
+   <i class="fa-solid fa-bars" id="menuIcon"></i>
+  </button>
+  <h1>Inventario</h1>
+ </div>
+ <div class="header-actions">
+  <button class="btn btn-add" onclick="abrirFormulario()">
+   <i class="fa-solid fa-plus"></i><span>Agregar producto</span>
+  </button>
+  <button class="btn btn-descargar" onclick="descargarInventario()">
+   <i class="fa-solid fa-file-csv"></i><span>Descargar</span>
+  </button>
+ </div>
+</header>
+
+<div class="menu-overlay" id="menuOverlay" onclick="cerrarMenu()"></div>
+
+<aside class="sidebar" id="sidebar">
+ <div class="menu-item" onclick="irA('nueva_venta.html')"><i class="fa-solid fa-cart-shopping"></i><span>Nueva venta</span></div>
+ <div class="menu-item" onclick="irA('dashboard.html')"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></div>
+ <div class="menu-item" onclick="irA('productos.html')"><i class="fa-solid fa-box"></i><span>Productos</span></div>
+ <div class="menu-item active" onclick="irA('inventario.html')"><i class="fa-solid fa-warehouse"></i><span>Inventario</span></div>
+ <div class="menu-item" onclick="irA('clientes.html')"><i class="fa-solid fa-users"></i><span>Clientes</span></div>
+ <div class="menu-item" onclick="irA('ventas.html')"><i class="fa-solid fa-receipt"></i><span>Ventas</span></div>
+ <div class="menu-item" onclick="irA('cotizaciones.html')"><i class="fa-solid fa-file-lines"></i><span>Cotizaciones</span></div>
+ <div class="menu-item" onclick="irA('reportes.html')"><i class="fa-solid fa-chart-pie"></i><span>Reportes</span></div>
+ <div class="menu-item" onclick="irA('gastos.html')"><i class="fa-solid fa-money-bill-wave"></i><span>Gastos</span></div>
+ <div class="menu-item" onclick="irA('compras.html')"><i class="fa-solid fa-cart-plus"></i><span>Compras</span></div>
+ <div class="menu-item config-separator" onclick="irA('configuracion.html')"><i class="fa-solid fa-gear"></i><span>Configuración</span></div>
+</aside>
+
+<main class="content">
+ <div class="card">
+  <div class="top">
+   <h2>Inventario</h2>
+   <div class="top-actions">
+    <div class="search-box">
+     <i class="fa-solid fa-magnifying-glass"></i>
+     <input type="search" id="buscar" placeholder="Buscar producto o código" autocomplete="off">
+    </div>
+   </div>
+  </div>
+
+  <div class="stats-sticky">
+   <div class="stats">
+    <div class="stat">
+     <h3><i class="fa-solid fa-boxes-stacked"></i> Total productos</h3>
+     <b id="totalProductos">0</b><small>Productos registrados en inventario</small>
+    </div>
+    <div class="stat green">
+     <h3><i class="fa-solid fa-coins"></i> Total costo inventario</h3>
+     <b id="totalCostos">RD$ 0.00</b><small>Costo de las existencias</small>
+    </div>
+    <div class="stat">
+     <h3><i class="fa-solid fa-sack-dollar"></i> Valor de venta inventario</h3>
+     <b id="totalVentas">RD$ 0.00</b><small>Valor de venta de las existencias</small>
+    </div>
+    <div class="stat red clickable" id="tarjetaBajoStock" onclick="alternarBajoStock()" role="button" tabindex="0" aria-pressed="false">
+     <h3><i class="fa-solid fa-triangle-exclamation"></i> Productos bajo stock</h3>
+     <b id="bajoStock">0</b><small id="textoBajoStock">Pulsa para filtrar</small>
+    </div>
+   </div>
+  </div>
+
+  <div class="table-heading">
+   <h3 id="tituloLista">Lista de inventario</h3>
+   <span class="results-count" id="cantidadResultados">0 productos</span>
+  </div>
+
+  <div class="table">
+   <div class="header-row">
+    <div>Producto</div><div>Departamento</div><div>Costo</div>
+    <div>Precio</div><div>Stock</div><div>Total costo</div>
+   </div>
+   <div id="listaInventario"></div>
+  </div>
+ </div>
+</main>
+
+<div class="modal" id="modalProducto">
+ <div class="modal-box">
+  <div class="modal-header">
+   <h2><i class="fa-solid fa-box-open"></i> Agregar producto</h2>
+   <button type="button" class="close-modal" onclick="cerrarFormulario()" aria-label="Cerrar">
+    <i class="fa-solid fa-xmark"></i>
+   </button>
+  </div>
+
+  <form id="formProducto">
+   <div class="form-grid">
+
+    <!-- BUSCADOR Y LECTOR AHORA ESTÁN JUNTOS -->
+    <div class="form-group full">
+     <label for="nombreProducto">Nombre del producto *</label>
+
+     <div class="nombre-busqueda">
+      <div class="autocomplete-container">
+       <input id="nombreProducto" name="nombre" type="text" required maxlength="150"
+        placeholder="Escribe para buscar productos..." autocomplete="off"
+        aria-autocomplete="list" aria-controls="listaSugerencias">
+       <div class="sugerencias" id="listaSugerencias" role="listbox"></div>
+      </div>
+
+      <button type="button" class="btn-escanear" onclick="iniciarLector()"
+       title="Escanear código de barras" aria-label="Escanear código de barras">
+       <i class="fa-solid fa-barcode"></i>
+      </button>
+     </div>
+
+     <div class="autocomplete-ayuda" id="ayudaNombre">
+      Escribe el nombre y selecciona un producto de la lista, o escribe uno nuevo.
+      También puedes pulsar el icono del código de barras para escanearlo.
+     </div>
+
+     <div class="producto-seleccionado" id="productoSeleccionado"></div>
+
+     <div class="lector-box" id="lectorBox">
+      <div id="lectorBarras"></div>
+      <div class="lector-estado" id="lectorEstado">Apunta la cámara al código de barras del producto.</div>
+      <button type="button" class="btn-detener-lector" onclick="detenerLector()">
+       <i class="fa-solid fa-stop"></i> Detener cámara
+      </button>
+     </div>
+    </div>
+
+    <div class="form-group">
+     <label for="codigoProducto">Código / SKU / Código de barras</label>
+     <input id="codigoProducto" name="codigo" type="text" maxlength="80" placeholder="Escanea o escribe el código">
+    </div>
+
+    <div class="form-group">
+     <label for="departamentoProducto">Departamento</label>
+     <input id="departamentoProducto" name="departamento" type="text" maxlength="100" placeholder="Ej. Alimentos">
+    </div>
+
+    <div class="form-group">
+     <label for="costoProducto">Costo unitario (RD$) *</label>
+     <input id="costoProducto" name="costo" type="number" min="0" step="0.01" required placeholder="0.00">
+    </div>
+
+    <div class="form-group">
+     <label for="precioProducto">Precio de venta (RD$) *</label>
+     <input id="precioProducto" name="precio" type="number" min="0" step="0.01" required placeholder="0.00">
+    </div>
+
+    <div class="form-group full">
+     <label for="stockProducto" id="etiquetaStock">Cantidad inicial en inventario *</label>
+     <input id="stockProducto" name="stock" type="number" min="0" step="1" required value="0">
+    </div>
+   </div>
+
+   <div class="form-note" id="notaFormulario">
+    <i class="fa-solid fa-circle-info"></i>
+    Selecciona un producto existente para cargar sus datos automáticamente.
+    Puedes usar el lector de código de barras para buscarlo.
+   </div>
+
+   <div class="form-actions">
+    <button type="button" class="btn-cancel" onclick="cerrarFormulario()">Cancelar</button>
+    <button type="submit" class="btn-save"><i class="fa-solid fa-floppy-disk"></i> Guardar producto</button>
+   </div>
+  </form>
+ </div>
+</div>
+
+<script src="supabase-config.js"></script>
+<script src="supabase-sync.js"></script>
+<script>
+const STORAGE_KEY = "productosPOS";
+const INVENTARIO_KEY = "inventarioPOS";
+const LIMITE_STOCK = 5;
+
+const CLAVES_COMPRAS = [
+ "comprasPOS",
+ "compras",
+ "registroComprasPOS",
+ "comprasData",
+ "historialCompras"
+];
+
+let productos = [];
+let catalogoProductos = [];
+let soloBajoStock = false;
+let listaVisible = [];
+let productoSeleccionado = null;
+let indiceSugerencia = -1;
+let lectorQR = null;
+let lectorActivo = false;
+let procesandoLectura = false;
+
+const $ = id => document.getElementById(id);
+
+function formato(valor){
+ return "RD$ " + Number(valor || 0).toLocaleString("es-DO",{
+  minimumFractionDigits:2,maximumFractionDigits:2
+ });
+}
+
+function escapar(valor){
+ return String(valor ?? "").replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+
+function leerClave(clave){
+ try{
+  const datos = JSON.parse(localStorage.getItem(clave) || "[]");
+  return Array.isArray(datos) ? datos : [];
+ }catch(error){return [];}
+}
+
+function guardarClave(clave,datos){
+ try{
+  localStorage.setItem(clave,JSON.stringify(datos));
+  return true;
+ }catch(error){
+  alert("No se pudieron guardar los datos. Comprueba el almacenamiento disponible en el navegador.");
+  return false;
+ }
+}
+
+function leerProductos(){return leerClave(STORAGE_KEY);}
+function leerInventario(){return leerClave(INVENTARIO_KEY);}
+function guardarProductos(datos){return guardarClave(STORAGE_KEY,datos);}
+function guardarInventario(datos){return guardarClave(INVENTARIO_KEY,datos);}
+
+function normalizarProducto(p){
+ return {
+  ...p,
+  id:p.id ?? p.productoId ?? p.idProducto ?? null,
+  nombre:String(p.nombre ?? p.producto ?? p.nombreProducto ?? p.descripcion ?? p.name ?? ""),
+  departamento:String(p.departamento ?? p.categoria ?? p.category ?? "Sin departamento"),
+  codigo:String(p.codigo ?? p.sku ?? p.codigoBarras ?? p.codigo_barra ?? p.barcode ?? ""),
+  costo:Number(p.costo ?? p.costoUnitario ?? p.precioCompra ?? p.cost ?? 0) || 0,
+  precio:Number(p.precio ?? p.precioVenta ?? p.price ?? 0) || 0,
+  stock:Math.max(0,Number(p.stock ?? p.cantidad ?? p.cantidadActual ?? p.existencia ?? 0) || 0)
+ };
+}
+
+function mismaIdentidad(a,b){
+ if(!a || !b) return false;
+
+ if(a.id != null && b.id != null &&
+    String(a.id) === String(b.id)) return true;
+
+ const ca = String(a.codigo || "").trim().toLowerCase();
+ const cb = String(b.codigo || "").trim().toLowerCase();
+
+ if(ca && cb && ca === cb) return true;
+
+ const na = String(a.nombre || "").trim().toLowerCase();
+ const nb = String(b.nombre || "").trim().toLowerCase();
+
+ return !!na && na === nb;
+}
+
+function buscarEnInventario(p){
+ return productos.find(x=>mismaIdentidad(x,p));
+}
+
+function buscarEnCatalogo(p){
+ return catalogoProductos.find(x=>mismaIdentidad(x,p));
+}
+
+/* =========================================
+   LEER PRODUCTOS REGISTRADOS EN COMPRAS
+   ========================================= */
+function extraerLineasCompra(compra){
+ if(!compra || typeof compra !== "object") return [];
+
+ const contenedores = [
+  compra.productos,compra.items,compra.detalles,
+  compra.detalle,compra.articulos,compra.lineas,
+  compra.listaProductos
+ ];
+
+ for(const grupo of contenedores){
+  if(Array.isArray(grupo)) return grupo;
+ }
+
+ if(compra.nombre || compra.producto || compra.nombreProducto ||
+    compra.codigo || compra.sku){
+  return [compra];
+ }
+
+ return [];
+}
+
+function compraCancelada(compra){
+ const estado = String(
+  compra.estado ?? compra.status ?? compra.estatus ?? ""
+ ).trim().toLowerCase();
+
+ return compra.cancelada === true ||
+  compra.anulada === true ||
+  ["cancelada","cancelado","anulada","anulado","cancelled","canceled"].includes(estado);
+}
+
+function leerProductosComprados(){
+ const acumulados = [];
+
+ CLAVES_COMPRAS.forEach(clave=>{
+  const compras = leerClave(clave);
+
+  compras.forEach(compra=>{
+   if(compraCancelada(compra)) return;
+
+   extraerLineasCompra(compra).forEach(linea=>{
+    const p = normalizarProducto(linea);
+    if(!p.nombre.trim()) return;
+
+    const cantidad = Number(
+     linea.cantidadRecibida ??
+     linea.cantidad_recibida ??
+     linea.cantidad ??
+     linea.stock ??
+     linea.unidades ??
+     linea.quantity ??
+     0
+    );
+
+    if(!Number.isFinite(cantidad) || cantidad<=0) return;
+
+    const estado = String(
+     linea.estado ?? linea.status ?? compra.estado ?? compra.status ?? ""
+    ).toLowerCase();
+
+    if(["pendiente","pendiente de recibir","por recibir","borrador","pending"].includes(estado)){
+     return;
+    }
+
+    const existente = acumulados.find(x=>mismaIdentidad(x,p));
+
+    if(existente){
+     existente.stock += cantidad;
+     if(!existente.costo && p.costo) existente.costo=p.costo;
+     if(!existente.precio && p.precio) existente.precio=p.precio;
+     if(existente.departamento==="Sin departamento" &&
+        p.departamento!=="Sin departamento"){
+      existente.departamento=p.departamento;
+     }
+    }else{
+     acumulados.push({...p,stock:cantidad});
+    }
+   });
+  });
+ });
+
+ return acumulados;
+}
+
+/* Solo se muestran los productos agregados al inventario o recibidos por compras. */
+function cargarProductos(){
+ catalogoProductos = leerProductos().map(normalizarProducto);
+
+ const inventarioGuardado = leerInventario().map(normalizarProducto);
+ const comprados = leerProductosComprados();
+
+ inventarioGuardado.forEach(p=>{
+  const catalogo = catalogoProductos.find(c=>mismaIdentidad(c,p));
+
+  if(catalogo){
+   if(!p.codigo) p.codigo=catalogo.codigo;
+   if(!p.departamento || p.departamento==="Sin departamento"){
+    p.departamento=catalogo.departamento;
+   }
+   if(!p.costo) p.costo=catalogo.costo;
+   if(!p.precio) p.precio=catalogo.precio;
+  }
+ });
+
+ productos = [...inventarioGuardado];
+
+ comprados.forEach(compra=>{
+  const existente = productos.find(p=>mismaIdentidad(p,compra));
+
+  if(!existente){
+   const catalogo = catalogoProductos.find(p=>mismaIdentidad(p,compra));
+
+   productos.push({
+    ...compra,
+    id:catalogo && catalogo.id!=null ? catalogo.id : compra.id,
+    nombre:compra.nombre || (catalogo ? catalogo.nombre : ""),
+    codigo:compra.codigo || (catalogo ? catalogo.codigo : ""),
+    departamento:compra.departamento!=="Sin departamento"
+     ? compra.departamento
+     : (catalogo ? catalogo.departamento : "Sin departamento"),
+    costo:compra.costo || (catalogo ? catalogo.costo : 0),
+    precio:compra.precio || (catalogo ? catalogo.precio : 0),
+    stock:compra.stock
+   });
+  }
+ });
+}
+
+/* =========================================
+   RESUMEN Y TABLA
+   ========================================= */
+function calcularResumen(){
+ const totalCostos=productos.reduce((s,p)=>s+p.costo*p.stock,0);
+ const totalVentas=productos.reduce((s,p)=>s+p.precio*p.stock,0);
+ const totalBajoStock=productos.filter(p=>p.stock<=LIMITE_STOCK).length;
+
+ $("totalProductos").textContent=productos.length;
+ $("totalCostos").textContent=formato(totalCostos);
+ $("totalVentas").textContent=formato(totalVentas);
+ $("bajoStock").textContent=totalBajoStock;
+
+ $("tarjetaBajoStock").classList.toggle("selected",soloBajoStock);
+ $("tarjetaBajoStock").setAttribute("aria-pressed",String(soloBajoStock));
+
+ $("textoBajoStock").textContent=soloBajoStock
+  ? "Pulsa para ver todo el inventario"
+  : "Pulsa para filtrar los productos";
+}
+
+function mostrarInventario(lista){
+ const contenedor=$("listaInventario");
+ listaVisible=lista.slice();
+
+ $("cantidadResultados").textContent=
+  lista.length+(lista.length===1?" producto":" productos");
+
+ $("tituloLista").textContent=
+  soloBajoStock?"Productos bajo stock":"Lista de inventario";
+
+ if(!lista.length){
+  contenedor.innerHTML=`
+   <div class="empty">
+    <i class="fa-solid fa-box-open"></i>
+    <strong>No hay productos en el inventario</strong>
+    <p style="margin-top:8px">
+     Agrega productos o registra compras recibidas para verlos aquí.
+    </p>
+   </div>`;
+  return;
+ }
+
+ contenedor.innerHTML=lista.map(p=>{
+  const bajo=p.stock<=LIMITE_STOCK;
+
+  return `
+   <div class="product-row ${bajo?"low":""}">
+    <div class="product-name">${escapar(p.nombre||"Sin nombre")}
+     <span class="codigo">Código: ${escapar(p.codigo||"-")}</span>
+    </div>
+    <div>${escapar(p.departamento)}</div>
+    <div>${formato(p.costo)}</div>
+    <div>${formato(p.precio)}</div>
+    <div><span class="stock-badge ${bajo?"low":""}">${p.stock}</span></div>
+    <div>${formato(p.costo*p.stock)}</div>
+   </div>`;
+ }).join("");
+}
+
+function aplicarBusqueda(){
+ const texto=$("buscar").value.trim().toLowerCase();
+
+ let filtrados=productos.filter(p=>[
+  p.nombre,p.departamento,p.costo,p.precio,p.codigo,p.stock
+ ].some(v=>String(v??"").toLowerCase().includes(texto)));
+
+ if(soloBajoStock){
+  filtrados=filtrados.filter(p=>p.stock<=LIMITE_STOCK);
+ }
+
+ mostrarInventario(filtrados);
+ calcularResumen();
+}
+
+function alternarBajoStock(){
+ soloBajoStock=!soloBajoStock;
+ aplicarBusqueda();
+}
+
+$("tarjetaBajoStock").addEventListener("keydown",e=>{
+ if(e.key==="Enter" || e.key===" "){
+  e.preventDefault();
+  alternarBajoStock();
+ }
+});
+
+$("buscar").addEventListener("input",aplicarBusqueda);
+
+/* =========================================
+   FORMULARIO
+   ========================================= */
+function abrirFormulario(){
+ cargarProductos();
+ prepararFormulario();
+ $("modalProducto").classList.add("active");
+ setTimeout(()=>$("nombreProducto").focus(),100);
+}
+
+function prepararFormulario(){
+ $("formProducto").reset();
+ limpiarSeleccion();
+ ocultarSugerencias();
+
+ $("stockProducto").value="0";
+ $("etiquetaStock").textContent="Cantidad inicial en inventario *";
+
+ $("notaFormulario").innerHTML=`
+  <i class="fa-solid fa-circle-info"></i>
+  Busca un producto existente, escanea su código de barras o escribe un nombre nuevo.
+  Después de guardar, la ventana seguirá abierta para agregar otro producto.`;
+
+ $("lectorEstado").textContent="Apunta la cámara al código de barras del producto.";
+}
+
+function cerrarFormulario(){
+ detenerLector();
+ $("modalProducto").classList.remove("active");
+ ocultarSugerencias();
+ limpiarSeleccion();
+}
+
+function limpiarSeleccion(){
+ productoSeleccionado=null;
+
+ $("productoSeleccionado").classList.remove("visible");
+ $("productoSeleccionado").textContent="";
+
+ $("ayudaNombre").textContent=
+  "Escribe el nombre y selecciona un producto de la lista, o escribe uno nuevo.";
+
+ ["codigoProducto","departamentoProducto","costoProducto","precioProducto"].forEach(id=>{
+  $(id).readOnly=false;
+  $(id).classList.remove("campo-bloqueado");
+ });
+}
+
+function continuarAgregando(){
+ detenerLector();
+ prepararFormulario();
+ cargarProductos();
+ aplicarBusqueda();
+ $("nombreProducto").focus();
+}
+
+/* =========================================
+   AUTOCOMPLETADO
+   ========================================= */
+function ocultarSugerencias(){
+ $("listaSugerencias").classList.remove("visible");
+ $("listaSugerencias").innerHTML="";
+ indiceSugerencia=-1;
+}
+
+function buscarProductosPorNombre(texto){
+ const consulta=texto.trim().toLocaleLowerCase("es");
+ if(!consulta) return [];
+
+ const todos=[...catalogoProductos,...productos];
+ const resultado=[];
+ const identidades=new Set();
+
+ todos.forEach(p=>{
+  const coincide=p.nombre.toLocaleLowerCase("es").includes(consulta) ||
+   (p.codigo && p.codigo.toLocaleLowerCase("es").includes(consulta));
+
+  if(!coincide) return;
+
+  const clave=p.codigo
+   ? "codigo:"+p.codigo.trim().toLowerCase()
+   : "nombre:"+p.nombre.trim().toLowerCase();
+
+  if(identidades.has(clave)) return;
+
+  identidades.add(clave);
+  resultado.push(p);
+ });
+
+ return resultado.slice(0,30);
+}
+
+function mostrarSugerencias(){
+ cargarProductos();
+
+ const coincidencias=buscarProductosPorNombre($("nombreProducto").value);
+ const contenedor=$("listaSugerencias");
+
+ if(!$("nombreProducto").value.trim() || !coincidencias.length){
+  ocultarSugerencias();
+  return;
+ }
+
+ contenedor.innerHTML=coincidencias.map((p,i)=>{
+  const enInventario=productos.find(x=>mismaIdentidad(x,p));
+  const stockActual=enInventario?enInventario.stock:0;
+
+  return `
+   <button type="button" class="sugerencia" role="option"
+    aria-selected="false" data-indice="${i}">
+    <span class="sugerencia-nombre">
+     <i class="fa-solid fa-box" style="color:#0b7cff;margin-right:6px"></i>${escapar(p.nombre)}
+    </span>
+    <span class="sugerencia-detalle">
+     <span>Código: ${escapar(p.codigo||"-")}</span>
+     <span>Stock en inventario: ${stockActual}</span>
+     <span>Costo: ${formato(p.costo)}</span>
+     <span>Precio: ${formato(p.precio)}</span>
+    </span>
+   </button>`;
+ }).join("");
+
+ contenedor.classList.add("visible");
+
+ contenedor.querySelectorAll(".sugerencia").forEach((boton,i)=>{
+  boton.addEventListener("mousedown",e=>e.preventDefault());
+  boton.addEventListener("click",()=>seleccionarProducto(coincidencias[i]));
+ });
+}
+
+function seleccionarProducto(p){
+ cargarProductos();
+
+ const actualCatalogo=catalogoProductos.find(x=>mismaIdentidad(x,p));
+ const actualInventario=productos.find(x=>mismaIdentidad(x,p));
+ const actual=actualCatalogo||actualInventario;
+
+ if(!actual){
+  ocultarSugerencias();
+  alert("Este producto ya no está disponible. Vuelve a buscarlo.");
+  return;
+ }
+
+ productoSeleccionado={
+  ...actual,
+  stock:actualInventario?actualInventario.stock:0
+ };
+
+ $("nombreProducto").value=actual.nombre;
+ $("codigoProducto").value=actual.codigo;
+ $("departamentoProducto").value=actual.departamento;
+ $("costoProducto").value=actual.costo;
+ $("precioProducto").value=actual.precio;
+
+ ["codigoProducto","departamentoProducto","costoProducto","precioProducto"].forEach(id=>{
+  $(id).readOnly=true;
+  $(id).classList.add("campo-bloqueado");
+ });
+
+ $("etiquetaStock").textContent="Cantidad que deseas agregar *";
+ $("stockProducto").value="1";
+
+ const stockActual=actualInventario?actualInventario.stock:0;
+
+ $("notaFormulario").innerHTML=`
+  <i class="fa-solid fa-circle-info"></i>
+  Stock actual en inventario: <strong>${stockActual}</strong>.
+  La cantidad ingresada se sumará a las existencias de este producto.`;
+
+ $("productoSeleccionado").innerHTML=`
+  <i class="fa-solid fa-circle-check"></i> Producto seleccionado:
+  <strong>${escapar(actual.nombre)}</strong><br>
+  Stock actual en inventario: <strong>${stockActual}</strong> unidades`;
+
+ $("productoSeleccionado").classList.add("visible");
+ $("ayudaNombre").textContent="Producto existente seleccionado.";
+
+ ocultarSugerencias();
+ $("stockProducto").focus();
+ $("stockProducto").select();
+}
+
+$("nombreProducto").addEventListener("input",()=>{
+ if(productoSeleccionado &&
+    $("nombreProducto").value.trim()!==productoSeleccionado.nombre){
+  limpiarSeleccion();
+  $("codigoProducto").value="";
+  $("departamentoProducto").value="";
+  $("costoProducto").value="";
+  $("precioProducto").value="";
+  $("stockProducto").value="0";
+  $("etiquetaStock").textContent="Cantidad inicial en inventario *";
+ }
+
+ mostrarSugerencias();
+});
+
+$("nombreProducto").addEventListener("focus",()=>{
+ if($("nombreProducto").value.trim()) mostrarSugerencias();
+});
+
+$("nombreProducto").addEventListener("keydown",e=>{
+ const contenedor=$("listaSugerencias");
+ const opciones=[...contenedor.querySelectorAll(".sugerencia")];
+
+ if(e.key==="Escape"){
+  ocultarSugerencias();
+  return;
+ }
+
+ if(!contenedor.classList.contains("visible") || !opciones.length) return;
+
+ if(e.key==="ArrowDown" || e.key==="ArrowUp"){
+  e.preventDefault();
+
+  if(e.key==="ArrowDown"){
+   indiceSugerencia=(indiceSugerencia+1)%opciones.length;
+  }else{
+   indiceSugerencia=(indiceSugerencia-1+opciones.length)%opciones.length;
+  }
+
+  opciones.forEach((b,i)=>{
+   b.style.background=i===indiceSugerencia?"#eff6ff":"#fff";
+  });
+ }
+
+ if(e.key==="Enter" && indiceSugerencia>=0){
+  e.preventDefault();
+  opciones[indiceSugerencia].click();
+ }
+});
+
+document.addEventListener("click",e=>{
+ if(!e.target.closest(".autocomplete-container")) ocultarSugerencias();
+});
+
+/* =========================================
+   LECTOR DE CÓDIGO DE BARRAS
+   AHORA SE ABRE DESDE EL CAMPO DEL NOMBRE
+   ========================================= */
+async function iniciarLector(){
+ if(typeof Html5Qrcode==="undefined"){
+  alert("No se pudo cargar el lector. Comprueba tu conexión a Internet e inténtalo de nuevo.");
+  return;
+ }
+
+ if(lectorActivo) return;
+
+ $("lectorBox").classList.add("visible");
+ $("lectorEstado").textContent="Solicitando acceso a la cámara…";
+
+ try{
+  lectorQR=new Html5Qrcode("lectorBarras");
+  lectorActivo=true;
+
+  await lectorQR.start(
+   {facingMode:"environment"},
+   {
+    fps:10,
+    qrbox:{width:280,height:140},
+    aspectRatio:1.777,
+    formatsToSupport:[
+     Html5QrcodeSupportedFormats.EAN_13,
+     Html5QrcodeSupportedFormats.EAN_8,
+     Html5QrcodeSupportedFormats.UPC_A,
+     Html5QrcodeSupportedFormats.UPC_E,
+     Html5QrcodeSupportedFormats.CODE_128,
+     Html5QrcodeSupportedFormats.CODE_39,
+     Html5QrcodeSupportedFormats.ITF,
+     Html5QrcodeSupportedFormats.QR_CODE
+    ]
+   },
+   async codigo=>{
+    if(procesandoLectura) return;
+    procesandoLectura=true;
+
+    $("codigoProducto").value=codigo;
+    $("lectorEstado").textContent="Código leído: "+codigo;
+
+    await detenerLector();
+    cargarProductos();
+
+    const encontrado=[...catalogoProductos,...productos].find(p=>
+     String(p.codigo||"").trim().toLowerCase()===
+     String(codigo).trim().toLowerCase()
+    );
+
+    if(encontrado){
+     seleccionarProducto(encontrado);
+
+     $("notaFormulario").innerHTML=`
+      <i class="fa-solid fa-circle-check"></i>
+      Código escaneado y producto encontrado:
+      <strong>${escapar(encontrado.nombre)}</strong>.`;
+    }else{
+     $("nombreProducto").value="";
+     limpiarSeleccion();
+
+     $("codigoProducto").value=codigo;
+
+     $("notaFormulario").innerHTML=`
+      <i class="fa-solid fa-barcode"></i>
+      Código escaneado: <strong>${escapar(codigo)}</strong>.
+      No se encontró en el catálogo. Escribe el nombre, costo y precio para registrarlo.`;
+
+     $("nombreProducto").focus();
+    }
+
+    procesandoLectura=false;
+   },
+   ()=>{}
+  );
+
+  $("lectorEstado").textContent=
+   "Cámara activa. Coloca el código de barras dentro del recuadro.";
+
+ }catch(error){
+  lectorActivo=false;
+  lectorQR=null;
+  $("lectorEstado").textContent="No se pudo iniciar la cámara.";
+
+  alert("No se pudo abrir la cámara. Revisa los permisos del navegador y asegúrate de usar HTTPS o localhost.");
+ }
+}
+
+async function detenerLector(){
+ if(lectorQR && lectorActivo){
+  try{await lectorQR.stop();}catch(error){}
+  try{lectorQR.clear();}catch(error){}
+ }
+
+ lectorQR=null;
+ lectorActivo=false;
+ $("lectorBox").classList.remove("visible");
+ $("lectorBarras").innerHTML="";
+}
+
+/* Lectores físicos USB o Bluetooth */
+$("codigoProducto").addEventListener("keydown",e=>{
+ if(e.key!=="Enter") return;
+
+ e.preventDefault();
+
+ const codigo=$("codigoProducto").value.trim();
+ if(!codigo) return;
+
+ cargarProductos();
+
+ const encontrado=[...catalogoProductos,...productos].find(p=>
+  String(p.codigo||"").trim().toLowerCase()===codigo.toLowerCase()
+ );
+
+ if(encontrado){
+  seleccionarProducto(encontrado);
+ }else{
+  $("notaFormulario").innerHTML=`
+   <i class="fa-solid fa-circle-info"></i>
+   No se encontró el código <strong>${escapar(codigo)}</strong>.
+   Puedes completar los datos para crear el producto.`;
+
+  $("nombreProducto").focus();
+ }
+});
+
+/* =========================================
+   GUARDAR PRODUCTO O AGREGAR EXISTENCIAS
+   ========================================= */
+$("formProducto").addEventListener("submit",function(e){
+ e.preventDefault();
+
+ const nombre=$("nombreProducto").value.trim();
+ const codigo=$("codigoProducto").value.trim();
+ const departamento=$("departamentoProducto").value.trim()||"Sin departamento";
+ const costo=Number($("costoProducto").value);
+ const precio=Number($("precioProducto").value);
+ const cantidad=Number($("stockProducto").value);
+
+ if(!nombre){
+  alert("Escribe el nombre del producto.");
+  $("nombreProducto").focus();
+  return;
+ }
+
+ if(!Number.isFinite(costo)||costo<0||
+    !Number.isFinite(precio)||precio<0){
+  alert("El costo y el precio deben ser números válidos y no negativos.");
+  return;
+ }
+
+ if(!Number.isInteger(cantidad)||cantidad<0){
+  alert("La cantidad debe ser un número entero igual o mayor que cero.");
+  $("stockProducto").focus();
+  return;
+ }
+
+ cargarProductos();
+
+ /* Producto existente: sumar existencias y mantener abierto el formulario. */
+ if(productoSeleccionado){
+  if(cantidad<=0){
+   alert("Escribe una cantidad mayor que cero para agregar existencias.");
+   $("stockProducto").focus();
+   return;
+  }
+
+  const referencia=productoSeleccionado;
+  const inventarioActual=productos.find(p=>mismaIdentidad(p,referencia));
+  const catalogoActual=catalogoProductos.find(p=>mismaIdentidad(p,referencia));
+
+  let productoInventario;
+
+  if(inventarioActual){
+   productoInventario={
+    ...inventarioActual,
+    nombre:catalogoActual?catalogoActual.nombre:inventarioActual.nombre,
+    codigo:catalogoActual?catalogoActual.codigo:inventarioActual.codigo,
+    departamento:catalogoActual?catalogoActual.departamento:inventarioActual.departamento,
+    costo:catalogoActual?catalogoActual.costo:inventarioActual.costo,
+    precio:catalogoActual?catalogoActual.precio:inventarioActual.precio,
+    stock:Number(inventarioActual.stock||0)+cantidad
+   };
+  }else{
+   productoInventario={
+    ...referencia,
+    id:referencia.id!=null?referencia.id:Date.now().toString(),
+    nombre:referencia.nombre,
+    codigo:referencia.codigo||"",
+    departamento:referencia.departamento||"Sin departamento",
+    costo:Number(referencia.costo)||0,
+    precio:Number(referencia.precio)||0,
+    stock:cantidad
+   };
+  }
+
+  const inventarioActualizado=[...productos];
+  const indice=inventarioActual
+   ?inventarioActualizado.findIndex(p=>mismaIdentidad(p,inventarioActual))
+   :-1;
+
+  if(indice>=0) inventarioActualizado[indice]=productoInventario;
+  else inventarioActualizado.push(productoInventario);
+
+  if(!guardarInventario(inventarioActualizado)) return;
+
+  if(catalogoActual){
+   const catalogoActualizado=[...catalogoProductos];
+   const indiceCatalogo=catalogoActualizado.findIndex(p=>mismaIdentidad(p,catalogoActual));
+
+   if(indiceCatalogo>=0){
+    catalogoActualizado[indiceCatalogo]={
+     ...catalogoActualizado[indiceCatalogo],
+     stock:Number(catalogoActualizado[indiceCatalogo].stock||0)+cantidad
+    };
+
+    if(!guardarProductos(catalogoActualizado)) return;
+   }
+  }
+
+  alert(
+   "Existencias agregadas correctamente.\n\nProducto: "+
+   productoInventario.nombre+
+   "\nCantidad agregada: "+cantidad+
+   "\nNuevo stock en inventario: "+productoInventario.stock
+  );
+
+  continuarAgregando();
+  return;
+ }
+
+ /* Producto nuevo: evitar duplicados por nombre o código. */
+ const duplicado=[...catalogoProductos,...productos].find(p=>
+  p.nombre.trim().toLowerCase()===nombre.toLowerCase() ||
+  (codigo && String(p.codigo||"").trim().toLowerCase()===codigo.toLowerCase())
+ );
+
+ if(duplicado){
+  if(confirm(
+   "Ya existe un producto con este nombre o código.\n\n"+
+   "¿Deseas seleccionarlo para agregar existencias?"
+  )){
+   seleccionarProducto(duplicado);
+   $("stockProducto").focus();
+  }
+  return;
+ }
+
+ const nuevoProducto={
+  id:Date.now().toString(),
+  nombre,codigo,departamento,costo,precio,stock:cantidad
+ };
+
+ if(!guardarProductos([...catalogoProductos,nuevoProducto])) return;
+
+ const inventarioNuevo=[...productos,nuevoProducto];
+
+ if(!guardarInventario(inventarioNuevo)){
+  cargarProductos();
+  aplicarBusqueda();
+
+  alert("El producto se guardó en Productos, pero no se pudo agregar a Inventario. Intenta guardarlo nuevamente.");
+  return;
+ }
+
+ alert(
+  "Producto agregado correctamente al inventario.\n\nProducto: "+
+  nombre+"\nCantidad inicial: "+cantidad
+ );
+
+ continuarAgregando();
+});
+
+/* Cerrar al pulsar fuera del formulario. */
+$("modalProducto").addEventListener("click",function(e){
+ if(e.target===this) cerrarFormulario();
+});
+
+/* =========================================
+   DESCARGAR CSV
+   ========================================= */
+function descargarInventario(){
+ if(!listaVisible.length){
+  alert("No hay productos para descargar con los filtros actuales.");
+  return;
+ }
+
+ const encabezados=[
+  "Producto","Departamento","Código","Costo unitario (RD$)",
+  "Precio de venta (RD$)","Stock","Total costo (RD$)","Total venta (RD$)","Estado"
+ ];
+
+ function celdaCSV(valor){
+  let texto=String(valor??"");
+  if(/^[\s]*[=+\-@]/.test(texto)) texto="'"+texto;
+  return '"'+texto.replace(/"/g,'""')+'"';
+ }
+
+ const filas=listaVisible.map(p=>[
+  p.nombre,p.departamento,p.codigo,p.costo.toFixed(2),p.precio.toFixed(2),
+  p.stock,(p.costo*p.stock).toFixed(2),(p.precio*p.stock).toFixed(2),
+  p.stock<=LIMITE_STOCK?"Bajo stock":"Disponible"
+ ]);
+
+ const csv="\uFEFF"+[encabezados,...filas]
+  .map(f=>f.map(celdaCSV).join(";")).join("\r\n");
+
+ const archivo=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+ const url=URL.createObjectURL(archivo);
+ const enlace=document.createElement("a");
+
+ enlace.href=url;
+ enlace.download=soloBajoStock?"inventario_bajo_stock.csv":"inventario.csv";
+
+ document.body.appendChild(enlace);
+ enlace.click();
+ enlace.remove();
+
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+/* =========================================
+   MENÚ LATERAL
+   ========================================= */
+function toggleMenu(forzarEstado){
+ const sidebar=$("sidebar");
+ const overlay=$("menuOverlay");
+ const icono=$("menuIcon");
+ const boton=document.querySelector(".menu-toggle");
+
+ if(window.innerWidth<=700){
+  const abrir=typeof forzarEstado==="boolean"
+   ?forzarEstado:!sidebar.classList.contains("menu-visible");
+
+  sidebar.classList.toggle("menu-visible",abrir);
+  overlay.classList.toggle("active",abrir);
+  icono.className=abrir?"fa-solid fa-xmark":"fa-solid fa-bars";
+  boton.setAttribute("aria-expanded",String(abrir));
+ }else{
+  const abrir=typeof forzarEstado==="boolean"
+   ?forzarEstado:document.body.classList.contains("menu-cerrado");
+
+  document.body.classList.toggle("menu-cerrado",!abrir);
+  icono.className="fa-solid fa-bars";
+ }
+}
+
+function cerrarMenu(){
+ $("sidebar").classList.remove("menu-visible");
+ $("menuOverlay").classList.remove("active");
+ $("menuIcon").className="fa-solid fa-bars";
+ document.querySelector(".menu-toggle").setAttribute("aria-expanded","false");
+}
+
+function irA(pagina){location.href=pagina;}
+
+/* =========================================
+   EVENTOS Y ACTUALIZACIÓN
+   ========================================= */
+document.addEventListener("keydown",e=>{
+ if(e.key==="Escape"){
+  cerrarMenu();
+
+  if($("modalProducto").classList.contains("active")){
+   cerrarFormulario();
+  }
+ }
+});
+
+window.addEventListener("storage",e=>{
+ if(e.key===STORAGE_KEY ||
+    e.key===INVENTARIO_KEY ||
+    CLAVES_COMPRAS.includes(e.key) ||
+    e.key===null){
+  cargarProductos();
+  aplicarBusqueda();
+ }
+});
+
+window.addEventListener("focus",()=>{
+ cargarProductos();
+ aplicarBusqueda();
+});
+
+window.addEventListener("resize",()=>{
+ if(window.innerWidth>700) cerrarMenu();
+});
+
+/* INICIALIZACIÓN */
+cargarProductos();
+aplicarBusqueda();
+</script>
+</body>
+</html>

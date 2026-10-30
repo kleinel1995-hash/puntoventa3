@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#f3f6fb">
+<title>Configuración</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+:root{
+    --azul:#0b7cff;
+    --azul2:#0066e6;
+    --fondo:#f3f6fb;
+    --texto:#0f172a;
+    --gris:#64748b;
+    --gris2:#94a3b8;
+    --linea:#e5e7eb;
+    --verde:#16a34a;
+    --rojo:#dc2626;
+    --amarillo:#ca8a04;
+    --sombra:0 8px 24px rgba(15,23,42,.07);
+}
+
+body{
+    background:var(--fondo);
+    color:var(--texto);
+    min-height:100vh;
+}
+
+/* HEADER */
+.header{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    height:65px;
+    background:#fff;
+    border-bottom:1px solid var(--linea);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 24px;
+    z-index:1000;
+}
+
+.header-left{
+    display:flex;
+    align-items:center;
+    gap:18px;
+}
+
+.menu-toggle{
+    border:none;
+    background:transparent;
+    color:#334155;
+    font-size:22px;
+    width:38px;
+    height:38px;
+    border-radius:10px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.menu-toggle:hover{
+    background:#eef5ff;
+    color:var(--azul);
+}
+
+.header h1{
+    font-size:21px;
+    font-weight:800;
+}
+
+.header-right{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:14px;
+    color:var(--gris);
+}
+
+/* MENÚ IZQUIERDO */
+.sidebar{
+    position:fixed;
+    top:65px;
+    left:0;
+    bottom:0;
+    width:230px;
+    background:#fff;
+    border-right:1px solid var(--linea);
+    padding:22px 12px;
+    z-index:1100;
+    overflow-y:auto;
+    transition:transform .25s ease;
+}
+
+.menu-item{
+    display:flex;
+    align-items:center;
+    gap:13px;
+    padding:14px 15px;
+    border-radius:12px;
+    margin-bottom:8px;
+    font-size:14px;
+    font-weight:700;
+    color:#334155;
+    cursor:pointer;
+    transition:.2s;
+    user-select:none;
+}
+
+.menu-item:hover{
+    background:#eef5ff;
+    color:var(--azul);
+}
+
+.menu-item i{
+    font-size:18px;
+    width:22px;
+    text-align:center;
+    flex-shrink:0;
+}
+
+.menu-item.active{
+    background:var(--azul);
+    color:#fff;
+    box-shadow:0 8px 16px rgba(11,124,255,.22);
+}
+
+.config-separator{
+    margin-top:35px;
+    border-top:1px solid var(--linea);
+    padding-top:15px;
+    border-radius:0;
+}
+
+.sidebar-overlay{
+    display:none;
+}
+
+/* CONTENIDO */
+.content{
+    margin-left:230px;
+    margin-top:65px;
+    padding:25px;
+    min-width:0;
+}
+
+.panel{
+    background:#fff;
+    border-radius:22px;
+    padding:24px;
+    box-shadow:var(--sombra);
+    border:1px solid rgba(226,232,240,.75);
+}
+
+.panel h2{
+    font-size:24px;
+    margin-bottom:6px;
+    font-weight:800;
+}
+
+.sub{
+    color:var(--gris);
+    font-size:14px;
+    margin-bottom:22px;
+    line-height:1.5;
+}
+
+/* TARJETAS */
+.settings-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:18px;
+}
+
+.setting-card{
+    border:1px solid var(--linea);
+    border-radius:18px;
+    padding:18px;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    cursor:pointer;
+    transition:.2s;
+    background:#fff;
+    min-height:92px;
+    min-width:0;
+}
+
+.setting-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 22px rgba(15,23,42,.08);
+    border-color:#bfdbfe;
+}
+
+.icon-box{
+    width:48px;
+    height:48px;
+    border-radius:15px;
+    background:#eef5ff;
+    color:var(--azul);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    flex-shrink:0;
+}
+
+.setting-info{
+    flex:1;
+    min-width:0;
+}
+
+.setting-info h3{
+    font-size:15px;
+    margin-bottom:6px;
+    font-weight:800;
+    overflow-wrap:anywhere;
+}
+
+.setting-info p{
+    font-size:13px;
+    color:var(--gris);
+    line-height:1.45;
+    overflow-wrap:anywhere;
+}
+
+.setting-arrow{
+    color:var(--gris2);
+    flex-shrink:0;
+}
+
+/* MODALES */
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.58);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:3000;
+    padding:18px;
+}
+
+.modal.active{
+    display:flex;
+}
+
+.modal-box{
+    width:100%;
+    max-width:720px;
+    max-height:90vh;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    background:#fff;
+    border-radius:20px;
+    padding:24px;
+    box-shadow:0 22px 65px rgba(0,0,0,.25);
+}
+
+.modal-box.small{
+    max-width:520px;
+}
+
+.modal-box h2{
+    font-size:22px;
+    margin-bottom:18px;
+    font-weight:800;
+    line-height:1.3;
+}
+
+/* FORMULARIOS */
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:14px;
+}
+
+.form-group{
+    margin-bottom:14px;
+    min-width:0;
+}
+
+.form-group.full{
+    grid-column:1 / -1;
+}
+
+.form-group label{
+    display:block;
+    font-size:13px;
+    font-weight:800;
+    margin-bottom:7px;
+    color:#334155;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+    width:100%;
+    min-width:0;
+    min-height:45px;
+    border:1px solid #dbe2ea;
+    border-radius:12px;
+    padding:10px 12px;
+    outline:none;
+    font-size:14px;
+    background:#fff;
+    transition:.2s;
+    color:var(--texto);
+}
+
+.form-group textarea{
+    height:88px;
+    resize:vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
+    border-color:var(--azul);
+    box-shadow:0 0 0 3px rgba(11,124,255,.12);
+}
+
+/* BOTONES */
+.btn,
+.modal-actions button{
+    min-height:45px;
+    border:none;
+    border-radius:12px;
+    font-weight:800;
+    cursor:pointer;
+    padding:10px 16px;
+    transition:.2s;
+    font-size:14px;
+}
+
+.btn:hover,
+.modal-actions button:hover{
+    transform:translateY(-1px);
+}
+
+.save{
+    background:var(--azul);
+    color:#fff;
+}
+
+.save:hover{
+    background:var(--azul2);
+}
+
+.cancel{
+    background:#f1f5f9;
+    color:#0f172a;
+}
+
+.danger,
+.btn-danger{
+    background:#fee2e2;
+    color:var(--rojo);
+}
+
+/* MODAL ACTIONS */
+.modal-actions{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+    margin-top:18px;
+}
+
+.modal-actions button{
+    width:100%;
+    min-width:0;
+}
+
+/* SWITCH */
+.switch-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    background:#f8fafc;
+    padding:13px;
+    border-radius:14px;
+    margin-bottom:10px;
+    border:1px solid #edf2f7;
+}
+
+.switch-row strong{
+    font-size:14px;
+    line-height:1.4;
+}
+
+.switch-row span{
+    font-size:12px;
+    color:var(--gris);
+    line-height:1.5;
+}
+
+.switch{
+    position:relative;
+    width:50px;
+    height:28px;
+    flex-shrink:0;
+}
+
+.switch input{
+    position:absolute;
+    opacity:0;
+    width:1px;
+    height:1px;
+}
+
+.slider{
+    position:absolute;
+    cursor:pointer;
+    inset:0;
+    background:#cbd5e1;
+    border-radius:30px;
+    transition:.2s;
+}
+
+.slider:before{
+    content:"";
+    position:absolute;
+    height:22px;
+    width:22px;
+    left:3px;
+    top:3px;
+    background:#fff;
+    border-radius:50%;
+    transition:.2s;
+    box-shadow:0 2px 5px rgba(0,0,0,.2);
+}
+
+.switch input:checked + .slider{
+    background:var(--azul);
+}
+
+.switch input:checked + .slider:before{
+    transform:translateX(22px);
+}
+
+.switch input:focus-visible + .slider{
+    outline:3px solid rgba(11,124,255,.3);
+}
+
+/* LISTAS */
+.info-list{
+    display:grid;
+    gap:10px;
+}
+
+.info-row{
+    background:#f8fafc;
+    border-radius:14px;
+    padding:12px;
+    font-size:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    border:1px solid #edf2f7;
+    min-width:0;
+}
+
+.info-row > div:first-child{
+    min-width:0;
+    overflow-wrap:anywhere;
+}
+
+.info-row small{
+    color:var(--gris);
+    line-height:1.5;
+}
+
+.actions{
+    display:flex;
+    gap:8px;
+}
+
+.actions button{
+    border:none;
+    border-radius:9px;
+    padding:8px 10px;
+    font-weight:800;
+    cursor:pointer;
+}
+
+.badge{
+    display:inline-block;
+    background:#dcfce7;
+    color:var(--verde);
+    padding:5px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:800;
+}
+
+.badge.off{
+    background:#fee2e2;
+    color:var(--rojo);
+}
+
+.badge.warn{
+    background:#fef9c3;
+    color:var(--amarillo);
+}
+
+/* USUARIOS Y PERMISOS */
+.permissions{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+    margin-top:10px;
+}
+
+.permission{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    background:#f8fafc;
+    padding:10px;
+    border-radius:10px;
+    border:1px solid #edf2f7;
+    min-width:0;
+}
+
+.permission input{
+    width:16px;
+    height:16px;
+    flex-shrink:0;
+}
+
+.user-actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    flex-shrink:0;
+}
+
+.user-actions button{
+    border:none;
+    border-radius:9px;
+    padding:8px 10px;
+    font-weight:800;
+    cursor:pointer;
+}
+
+/* ESTADO VACÍO */
+.empty-state{
+    background:#f8fafc;
+    border:1px dashed #cbd5e1;
+    border-radius:14px;
+    padding:20px;
+    text-align:center;
+    color:var(--gris);
+    font-size:14px;
+    line-height:1.5;
+}
+
+/* TABLET */
+@media(max-width:1000px){
+    .settings-grid{
+        grid-template-columns:1fr;
+    }
+
+    .content{
+        padding:18px;
+    }
+}
+
+/* MÓVIL */
+@media(max-width:700px){
+    .header{
+        height:60px;
+        padding:0 12px;
+    }
+
+    .header-left{
+        gap:10px;
+    }
+
+    .header h1{
+        font-size:18px;
+    }
+
+    .menu-toggle{
+        width:40px;
+        height:40px;
+        font-size:21px;
+    }
+
+    .sidebar{
+        top:60px;
+        width:250px;
+        max-width:85vw;
+        padding:16px 12px;
+        transform:translateX(-105%);
+        box-shadow:none;
+    }
+
+    .sidebar.mobile-open{
+        transform:translateX(0);
+        box-shadow:12px 0 30px rgba(15,23,42,.15);
+    }
+
+    .sidebar .menu-item{
+        justify-content:flex-start;
+        padding:14px;
+        gap:13px;
+    }
+
+    .sidebar .menu-item span{
+        display:inline;
+    }
+
+    .sidebar-overlay{
+        position:fixed;
+        inset:60px 0 0;
+        background:rgba(15,23,42,.4);
+        z-index:1050;
+        display:none;
+    }
+
+    .sidebar-overlay.active{
+        display:block;
+    }
+
+    .content{
+        margin-left:0;
+        margin-top:60px;
+        padding:12px;
+        width:100%;
+    }
+
+    .panel{
+        padding:17px;
+        border-radius:17px;
+    }
+
+    .panel h2{
+        font-size:21px;
+        line-height:1.3;
+    }
+
+    .sub{
+        font-size:13px;
+        margin-bottom:18px;
+    }
+
+    .settings-grid{
+        grid-template-columns:1fr;
+        gap:12px;
+    }
+
+    .setting-card{
+        padding:14px;
+        min-height:84px;
+        border-radius:15px;
+        gap:12px;
+    }
+
+    .icon-box{
+        width:43px;
+        height:43px;
+        border-radius:13px;
+        font-size:18px;
+    }
+
+    .setting-info h3{
+        font-size:14px;
+    }
+
+    .setting-info p{
+        font-size:12px;
+    }
+
+    .setting-arrow{
+        font-size:13px;
+    }
+
+    .modal{
+        padding:10px;
+        align-items:flex-end;
+    }
+
+    .modal-box,
+    .modal-box.small{
+        width:100%;
+        max-width:100%;
+        max-height:92dvh;
+        padding:18px;
+        border-radius:20px 20px 12px 12px;
+    }
+
+    .modal-box h2{
+        font-size:20px;
+        margin-bottom:16px;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+        gap:0;
+    }
+
+    .form-group.full{
+        grid-column:auto;
+    }
+
+    .form-group{
+        margin-bottom:13px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea{
+        font-size:16px;
+        min-height:46px;
+    }
+
+    .form-group textarea{
+        height:90px;
+    }
+
+    .modal-actions{
+        gap:9px;
+        margin-top:15px;
+    }
+
+    .modal-actions button,
+    .btn{
+        min-height:46px;
+        padding:10px;
+        font-size:13px;
+    }
+
+    .permissions{
+        grid-template-columns:1fr;
+    }
+
+    .permission{
+        min-height:42px;
+    }
+
+    .info-row{
+        align-items:flex-start;
+        flex-direction:column;
+        padding:12px;
+    }
+
+    .user-actions{
+        width:100%;
+    }
+
+    .user-actions button{
+        flex:1;
+        min-height:38px;
+    }
+
+    .switch-row{
+        padding:12px;
+    }
+}
+
+/* MÓVILES MUY PEQUEÑOS */
+@media(max-width:360px){
+    .header h1{
+        font-size:16px;
+    }
+
+    .content{
+        padding:8px;
+    }
+
+    .panel{
+        padding:13px;
+    }
+
+    .setting-card{
+        padding:11px;
+        gap:9px;
+    }
+
+    .icon-box{
+        width:38px;
+        height:38px;
+    }
+
+    .modal{
+        padding:6px;
+    }
+
+    .modal-box,
+    .modal-box.small{
+        padding:14px;
+    }
+
+    .modal-actions{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+    <div class="header-left">
+        <button class="menu-toggle" id="menuToggle" type="button"
+                onclick="toggleMenu()" aria-label="Abrir menú"
+                aria-expanded="false">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <h1>Configuración</h1>
+    </div>
+</header>
+
+<div class="sidebar-overlay" id="sidebarOverlay"
+     onclick="closeMenu()"></div>
+
+<aside class="sidebar" id="sidebar">
+
+    <div class="menu-item" onclick="irA('nueva_venta.html')">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <span>Nueva venta</span>
+    </div>
+
+    <div class="menu-item" onclick="irA('dashboard.html')">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Dashboard</span>
+    </div>
+
+    <div class="menu-item" onclick="irA('productos.html')">
+        <i class="fa-solid fa-box"></i>
+        <span>Productos</span>
+    </div>
+
+    <div class="menu-item" onclick="irA('inventario.html')">
+        <i class="fa-solid fa-warehouse"></i>
+        <span>Inventario</span>
+    </div>
+
+    <div class="menu-item" onclick="irA('clientes.html')">
+        <i class="fa-solid fa-users"></i>
+        <span>Clientes</span>
+    </div>
+
+    <div class="menu-item" onclick="irA('ventas.html')">
+        <i class="fa-solid fa-receipt"></i>
+        <span>Ventas</span>
+    </div>
+
+    <div class="menu-item" onclick="irA('cotizaciones.html')">
+        <i class="fa-solid fa-file-lines"></i>
+        <span>Cotizaciones</span>
+    </div>
+
+    <div class="menu-item" onclick="irA('reportes.html')">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span>Reportes</span>
+    </div>
+
+    <div class="menu-item" onclick="irA('gastos.html')">
+        <i class="fa-solid fa-money-bill-wave"></i>
+        <span>Gastos</span>
+    </div>
+
+    <div class="menu-item active config-separator">
+        <i class="fa-solid fa-gear"></i>
+        <span>Configuración</span>
+    </div>
+</aside>
+
+<main class="content">
+    <div class="panel">
+        <h2>Configuración general</h2>
+        <p class="sub">
+            Datos para facturas, cotizaciones, impuestos, métodos de pago e impresora.
+        </p>
+
+        <div class="settings-grid">
+
+            <div class="setting-card" onclick="openBusiness()">
+                <div class="icon-box">
+                    <i class="fa-regular fa-clipboard"></i>
+                </div>
+                <div class="setting-info">
+                    <h3>Información del negocio</h3>
+                    <p id="bizView">Campos en blanco</p>
+                </div>
+                <i class="fa-solid fa-chevron-right setting-arrow"></i>
+            </div>
+
+            <div class="setting-card" onclick="openUsers()">
+                <div class="icon-box">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div class="setting-info">
+                    <h3>Usuarios</h3>
+                    <p id="usersView">0 usuarios registrados</p>
+                </div>
+                <i class="fa-solid fa-chevron-right setting-arrow"></i>
+            </div>
+
+            <div class="setting-card" onclick="openTax()">
+                <div class="icon-box">
+                    <i class="fa-regular fa-clipboard"></i>
+                </div>
+                <div class="setting-info">
+                    <h3>Impuestos</h3>
+                    <p id="taxView">Desactivado</p>
+                </div>
+                <i class="fa-solid fa-chevron-right setting-arrow"></i>
+            </div>
+
+            <div class="setting-card" onclick="openPayments()">
+                <div class="icon-box">
+                    <i class="fa-regular fa-credit-card"></i>
+                </div>
+                <div class="setting-info">
+                    <h3>Métodos de pago</h3>
+                    <p id="payView">Sin métodos activos</p>
+                </div>
+                <i class="fa-solid fa-chevron-right setting-arrow"></i>
+            </div>
+
+            <div class="setting-card" onclick="openPrinter()">
+                <div class="icon-box">
+                    <i class="fa-solid fa-print"></i>
+                </div>
+                <div class="setting-info">
+                    <h3>Impresoras</h3>
+                    <p id="printerView">No conectada</p>
+                </div>
+                <i class="fa-solid fa-chevron-right setting-arrow"></i>
+            </div>
+
+            <div class="setting-card" onclick="respaldarDatos()">
+                <div class="icon-box">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div class="setting-info">
+                    <h3>Respaldo</h3>
+                    <p>Exportar datos del sistema</p>
+                </div>
+                <i class="fa-solid fa-chevron-right setting-arrow"></i>
+            </div>
+
+            <div class="setting-card" onclick="borrarTodaLaApp()">
+                <div class="icon-box" style="background:#fee2e2;color:#dc2626;">
+                    <i class="fa-solid fa-trash-can"></i>
+                </div>
+                <div class="setting-info">
+                    <h3>Borrar toda la información</h3>
+                    <p>Eliminar compras, inventario, productos, ventas, clientes y configuraciones sin cerrar sesión</p>
+                </div>
+                <i class="fa-solid fa-chevron-right setting-arrow"></i>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<!-- MODAL NEGOCIO -->
+<div class="modal" id="businessModal">
+    <div class="modal-box">
+        <h2>Información del negocio</h2>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="bizNombre">Nombre del negocio</label>
+                <input id="bizNombre" placeholder="Ej: Comercial Beltre">
+            </div>
+
+            <div class="form-group">
+                <label for="bizRnc">RNC / Cédula</label>
+                <input id="bizRnc" placeholder="Opcional">
+            </div>
+
+            <div class="form-group">
+                <label for="bizTel">Teléfono</label>
+                <input id="bizTel" placeholder="Ej: 809-000-0000">
+            </div>
+
+            <div class="form-group">
+                <label for="bizCorreo">Correo electrónico</label>
+                <input id="bizCorreo" type="email" placeholder="correo@negocio.com">
+            </div>
+
+            <div class="form-group full">
+                <label for="bizDir">Dirección</label>
+                <textarea id="bizDir" placeholder="Dirección del negocio"></textarea>
+            </div>
+
+            <div class="form-group full">
+                <label for="bizLogo">Foto / logo del negocio</label>
+                <input type="file" id="bizLogo" accept="image/*">
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button class="cancel" onclick="closeModal('businessModal')">Cancelar</button>
+            <button class="save" onclick="saveBusiness()">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL USUARIOS -->
+<div class="modal" id="usersModal">
+    <div class="modal-box">
+        <h2>Usuarios y permisos</h2>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="uNombre">Nombre completo</label>
+                <input id="uNombre" placeholder="Ej: Juan Pérez">
+            </div>
+
+            <div class="form-group">
+                <label for="uLogin">Usuario para iniciar sesión</label>
+                <input id="uLogin" placeholder="Ej: cajero1">
+            </div>
+
+            <div class="form-group">
+                <label for="uPass">Contraseña</label>
+                <input id="uPass" type="password" placeholder="Contraseña">
+            </div>
+
+            <div class="form-group">
+                <label for="uRol">Rol</label>
+                <select id="uRol" onchange="rolCambiado()">
+                    <option>Administrador</option>
+                    <option>Cajero</option>
+                    <option>Vendedor</option>
+                    <option>Supervisor</option>
+                </select>
+            </div>
+        </div>
+
+        <label style="font-size:13px;font-weight:800;color:#334155;">
+            Funciones permitidas
+        </label>
+
+        <div class="permissions" id="permList"></div>
+
+        <div class="modal-actions">
+            <button class="cancel" onclick="clearUser()">Limpiar</button>
+            <button class="save" onclick="saveUser()">Guardar usuario</button>
+        </div>
+
+        <br>
+
+        <div class="info-list" id="usersList"></div>
+
+        <div class="modal-actions">
+            <button class="cancel" onclick="closeModal('usersModal')">Cerrar</button>
+            <button class="danger" onclick="deleteAllUsers()">Borrar usuarios</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL IMPUESTO -->
+<div class="modal" id="taxModal">
+    <div class="modal-box small">
+        <h2>Impuesto</h2>
+
+        <div class="switch-row">
+            <div>
+                <strong>Activar impuesto</strong><br>
+                <span>Si está activado aparece en factura y cotización.</span>
+            </div>
+
+            <label class="switch">
+                <input type="checkbox" id="taxActive">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label for="taxName">Nombre del impuesto</label>
+            <input id="taxName" placeholder="Ej: IVA / ITBIS">
+        </div>
+
+        <div class="form-group">
+            <label for="taxPercent">Porcentaje</label>
+            <input id="taxPercent" type="number" min="0" step="any" placeholder="Ej: 18">
+        </div>
+
+        <div class="modal-actions">
+            <button class="cancel" onclick="closeModal('taxModal')">Cancelar</button>
+            <button class="save" onclick="saveTax()">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL MÉTODOS DE PAGO -->
+<div class="modal" id="payModal">
+    <div class="modal-box small">
+        <h2>Métodos de pago</h2>
+
+        <div id="payList"></div>
+
+        <div class="modal-actions">
+            <button class="cancel" onclick="closeModal('payModal')">Cancelar</button>
+            <button class="save" onclick="savePayments()">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL IMPRESORA -->
+<div class="modal" id="printerModal">
+    <div class="modal-box small">
+        <h2>Impresora</h2>
+
+        <div class="switch-row">
+            <div>
+                <strong>Impresora conectada</strong><br>
+                <span>Si está apagado no se mostrará como conectada.</span>
+            </div>
+
+            <label class="switch">
+                <input type="checkbox" id="printerConnected">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label for="printerType">Tipo de impresora</label>
+            <select id="printerType">
+                <option value="58mm">Impresora térmica 58mm</option>
+                <option value="80mm">Impresora térmica 80mm</option>
+                <option value="normal">Impresora normal / carta</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="printerStatus">Estado</label>
+            <input id="printerStatus" readonly>
+        </div>
+
+        <div class="modal-actions">
+            <button class="cancel" onclick="closeModal('printerModal')">Cancelar</button>
+            <button class="save" onclick="savePrinter()">Guardar</button>
+        </div>
+
+        <button class="btn save" style="width:100%;margin-top:12px;" onclick="testPrinter()">
+            Probar impresión
+        </button>
+    </div>
+</div>
+
+<script src="supabase-config.js"></script>
+<script src="supabase-sync.js"></script>
+<script>
+"use strict";
+
+let userEdit = null;
+
+/* NAVEGACIÓN MÓVIL */
+function toggleMenu(){
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+    const button = document.getElementById("menuToggle");
+
+    const abierto = sidebar.classList.toggle("mobile-open");
+
+    overlay.classList.toggle("active", abierto);
+    button.setAttribute("aria-expanded", String(abierto));
+    button.setAttribute("aria-label", abierto ? "Cerrar menú" : "Abrir menú");
+    button.innerHTML = abierto
+        ? '<i class="fa-solid fa-xmark"></i>'
+        : '<i class="fa-solid fa-bars"></i>';
+}
+
+function closeMenu(){
+    document.getElementById("sidebar").classList.remove("mobile-open");
+    document.getElementById("sidebarOverlay").classList.remove("active");
+
+    const button = document.getElementById("menuToggle");
+    button.setAttribute("aria-expanded", "false");
+    button.setAttribute("aria-label", "Abrir menú");
+    button.innerHTML = '<i class="fa-solid fa-bars"></i>';
+}
+
+function irA(url){
+    closeMenu();
+    location.href = url;
+}
+
+function closeModal(id){
+    document.getElementById(id).classList.remove("active");
+}
+
+/* CERRAR MODALES AL TOCAR FUERA */
+document.querySelectorAll(".modal").forEach(modal => {
+    modal.addEventListener("click", function(event){
+        if(event.target === modal){
+            modal.classList.remove("active");
+        }
+    });
+});
+
+/* FUNCIONES BASE */
+function getLS(key, def){
+    try{
+        const value = localStorage.getItem(key);
+        return value === null ? def : (JSON.parse(value) ?? def);
+    }catch(e){
+        return def;
+    }
+}
+
+function setLS(key, value){
+    localStorage.setItem(key, JSON.stringify(value));
+}
+
+function money(value){
+    return "$" + Number(value || 0).toLocaleString("es-DO");
+}
+
+function today(){
+    return new Date().toLocaleDateString("es-DO");
+}
+
+function nowTime(){
+    return new Date().toLocaleTimeString("es-DO");
+}
+
+/*
+ CONFIGURACIÓN INICIAL VACÍA.
+ No se crea un administrador de ejemplo ni se activan
+ métodos de pago automáticamente.
+*/
+function initConfig(){
+    if(!localStorage.getItem("configNegocio")){
+        setLS("configNegocio", {
+            nombre:"",
+            rnc:"",
+            telefono:"",
+            correo:"",
+            direccion:"",
+            logo:""
+        });
+    }
+
+    if(!localStorage.getItem("configImpuesto")){
+        setLS("configImpuesto", {
+            activo:false,
+            nombre:"",
+            porcentaje:0
+        });
+    }
+
+    if(!localStorage.getItem("configImpresora")){
+        setLS("configImpresora", {
+            conectada:false,
+            tipo:"80mm"
+        });
+    }
+
+    if(!localStorage.getItem("usuariosPOS")){
+        setLS("usuariosPOS", []);
+    }
+
+    if(!localStorage.getItem("configPagos")){
+        setLS("configPagos", []);
+    }
+}
+
+function printerWidth(){
+    const printer = getLS("configImpresora", {tipo:"80mm"});
+
+    if(printer.tipo === "58mm"){
+        return "58mm";
+    }
+
+    if(printer.tipo === "80mm"){
+        return "80mm";
+    }
+
+    return "210mm";
+}
+
+/* ACTUALIZAR RESUMEN */
+function refresh(){
+    const business = getLS("configNegocio", {});
+    const tax = getLS("configImpuesto", {});
+    const payments = getLS("configPagos", []);
+    const printer = getLS("configImpresora", {});
+    const users = getLS("usuariosPOS", []);
+
+    document.getElementById("bizView").innerText =
+        business.nombre || "Campos en blanco";
+
+    document.getElementById("taxView").innerText =
+        tax.activo
+        ? `${tax.nombre} ${tax.porcentaje}% activo`
+        : "Desactivado";
+
+    const activePayments = payments
+        .filter(payment => payment.activo)
+        .map(payment => payment.nombre)
+        .join(", ");
+
+    document.getElementById("payView").innerText =
+        activePayments || "Sin métodos activos";
+
+    document.getElementById("printerView").innerHTML =
+        printer.conectada
+        ? `<span class="badge">Conectada - ${printer.tipo}</span>`
+        : `<span class="badge off">No conectada</span>`;
+
+    document.getElementById("usersView").innerText =
+        `${users.length} usuarios registrados`;
+}
+
+/* NEGOCIO */
+function openBusiness(){
+    const business = getLS("configNegocio", {});
+
+    document.getElementById("bizNombre").value = business.nombre || "";
+    document.getElementById("bizRnc").value = business.rnc || "";
+    document.getElementById("bizTel").value = business.telefono || "";
+    document.getElementById("bizCorreo").value = business.correo || "";
+    document.getElementById("bizDir").value = business.direccion || "";
+    document.getElementById("bizLogo").value = "";
+
+    document.getElementById("businessModal").classList.add("active");
+}
+
+function saveBusiness(){
+    const oldBusiness = getLS("configNegocio", {});
+    const file = document.getElementById("bizLogo").files[0];
+
+    function save(logo){
+        setLS("configNegocio", {
+            nombre:document.getElementById("bizNombre").value.trim(),
+            rnc:document.getElementById("bizRnc").value.trim(),
+            telefono:document.getElementById("bizTel").value.trim(),
+            correo:document.getElementById("bizCorreo").value.trim(),
+            direccion:document.getElementById("bizDir").value.trim(),
+            logo:logo
+        });
+
+        closeModal("businessModal");
+        refresh();
+        alert("Información del negocio guardada");
+    }
+
+    if(file){
+        const reader = new FileReader();
+
+        reader.onload = function(){
+            save(reader.result);
+        };
+
+        reader.onerror = function(){
+            alert("No se pudo cargar el logo. Inténtalo de nuevo.");
+        };
+
+        reader.readAsDataURL(file);
+    }else{
+        save(oldBusiness.logo || "");
+    }
+}
+
+/* IMPUESTO */
+function openTax(){
+    const tax = getLS("configImpuesto", {});
+
+    document.getElementById("taxActive").checked = !!tax.activo;
+    document.getElementById("taxName").value = tax.nombre || "";
+    document.getElementById("taxPercent").value = tax.porcentaje || "";
+
+    document.getElementById("taxModal").classList.add("active");
+}
+
+function saveTax(){
+    const active = document.getElementById("taxActive").checked;
+    const name = document.getElementById("taxName").value.trim();
+    const percent = Number(document.getElementById("taxPercent").value || 0);
+
+    if(active && (!name || percent <= 0)){
+        alert("Para activar el impuesto debe llenar nombre y porcentaje");
+        return;
+    }
+
+    setLS("configImpuesto", {
+        activo:active,
+        nombre:name,
+        porcentaje:percent
+    });
+
+    closeModal("taxModal");
+    refresh();
+    alert("Impuesto guardado");
+}
+
+/* MÉTODOS DE PAGO */
+function openPayments(){
+    const payments = getLS("configPagos", []);
+    const container = document.getElementById("payList");
+
+    container.innerHTML = "";
+
+    if(!payments.length){
+        container.innerHTML = `
+            <div class="empty-state">
+                No hay métodos de pago configurados.
+                Para mantener la configuración en blanco,
+                no se agregan métodos automáticamente.
+            </div>
+        `;
+    }else{
+        payments.forEach((payment, index) => {
+            const row = document.createElement("div");
+            row.className = "switch-row";
+
+            row.innerHTML = `
+                <div>
+                    <strong>${escapeHTML(payment.nombre)}</strong><br>
+                    <span>${payment.activo ? "Activo" : "Desactivado"}</span>
+                </div>
+
+                <label class="switch">
+                    <input id="pay_${index}" type="checkbox"
+                        ${payment.activo ? "checked" : ""}>
+                    <span class="slider"></span>
+                </label>
+            `;
+
+            container.appendChild(row);
+        });
+    }
+
+    document.getElementById("payModal").classList.add("active");
+}
+
+function savePayments(){
+    const oldPayments = getLS("configPagos", []);
+
+    const payments = oldPayments.map((payment, index) => {
+        const checkbox = document.getElementById(`pay_${index}`);
+
+        return {
+            ...payment,
+            activo:checkbox ? checkbox.checked : false
+        };
+    });
+
+    setLS("configPagos", payments);
+
+    closeModal("payModal");
+    refresh();
+    alert("Métodos de pago guardados");
+}
+
+/* IMPRESORA */
+function openPrinter(){
+    const printer = getLS("configImpresora", {
+        conectada:false,
+        tipo:"80mm"
+    });
+
+    document.getElementById("printerConnected").checked =
+        !!printer.conectada;
+
+    document.getElementById("printerType").value =
+        printer.tipo || "80mm";
+
+    document.getElementById("printerStatus").value =
+        printer.conectada ? "Conectada" : "No conectada";
+
+    document.getElementById("printerModal").classList.add("active");
+}
+
+document.getElementById("printerConnected").addEventListener("change", function(){
+    document.getElementById("printerStatus").value =
+        this.checked ? "Conectada" : "No conectada";
+});
+
+function savePrinter(){
+    setLS("configImpresora", {
+        conectada:document.getElementById("printerConnected").checked,
+        tipo:document.getElementById("printerType").value
+    });
+
+    closeModal("printerModal");
+    refresh();
+    alert("Configuración de impresora guardada");
+}
+
+function testPrinter(){
+    const printer = getLS("configImpresora", {});
+
+    if(!printer.conectada){
+        alert("No hay impresora marcada como conectada");
+        return;
+    }
+
+    const business = getLS("configNegocio", {});
+    const width = printerWidth();
+    const w = window.open("", "_blank", "width=400,height=500");
+
+    if(!w){
+        alert("Permite las ventanas emergentes para probar la impresión.");
+        return;
+    }
+
+    const logoHTML = business.logo
+        ? `<img src="${business.logo}" style="max-width:70px;max-height:70px;">`
+        : "";
+
+    w.document.write(`
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>Prueba de impresora</title>
+            <style>
+                body{
+                    width:${width};
+                    margin:0 auto;
+                    padding:10px;
+                    font-family:Arial,sans-serif;
+                    text-align:center;
+                    overflow-wrap:anywhere;
+                }
+                h3{margin:5px 0;font-size:18px}
+                p{font-size:13px;margin:4px 0}
+                .line{border-top:1px dashed #000;margin:10px 0}
+                @media print{
+                    body{width:${width};margin:0;padding:6px}
+                }
+            </style>
+        </head>
+        <body>
+            ${logoHTML}
+            <h3>${escapeHTML(business.nombre || "POS Nueva Venta")}</h3>
+            ${business.telefono ? `<p>Tel: ${escapeHTML(business.telefono)}</p>` : ""}
+            ${business.correo ? `<p>${escapeHTML(business.correo)}</p>` : ""}
+            <div class="line"></div>
+            <p>Prueba de impresora</p>
+            <p>Tipo: ${escapeHTML(printer.tipo || "")}</p>
+            <p>Estado: Conectada</p>
+            <script>
+                window.onload=function(){
+                    window.print();
+                };
+            <\/script>
+        </body>
+        </html>
+    `);
+
+    w.document.close();
+}
+
+/* EVITAR INSERTAR TEXTO COMO HTML */
+function escapeHTML(value){
+    return String(value ?? "").replace(/[&<>"']/g, function(char){
+        return {
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            '"':"&quot;",
+            "'":"&#39;"
+        }[char];
+    });
+}
+
+/* USUARIOS Y PERMISOS */
+const permisosSistema = [
+    {id:"dashboard", nombre:"Dashboard"},
+    {id:"ventas", nombre:"Nueva venta"},
+    {id:"productos", nombre:"Productos"},
+    {id:"inventario", nombre:"Inventario"},
+    {id:"clientes", nombre:"Clientes"},
+    {id:"reportes", nombre:"Reportes"},
+    {id:"gastos", nombre:"Gastos"},
+    {id:"cotizaciones", nombre:"Cotizaciones"},
+    {id:"configuracion", nombre:"Configuración"}
+];
+
+function openUsers(){
+    userEdit = null;
+    clearUser();
+    renderUsers();
+    document.getElementById("usersModal").classList.add("active");
+}
+
+function renderPerms(selected){
+    const container = document.getElementById("permList");
+
+    container.innerHTML = permisosSistema.map(perm => `
+        <label class="permission">
+            <input type="checkbox" value="${perm.id}"
+                ${selected.includes(perm.id) ? "checked" : ""}>
+            ${escapeHTML(perm.nombre)}
+        </label>
+    `).join("");
+}
+
+function rolCambiado(){
+    const rol = document.getElementById("uRol").value;
+
+    if(rol === "Administrador"){
+        document.querySelectorAll("#permList input").forEach(input => {
+            input.checked = true;
+        });
+    }
+}
+
+function saveUser(){
+    const nombre = document.getElementById("uNombre").value.trim();
+    const usuario = document.getElementById("uLogin").value.trim();
+    const clave = document.getElementById("uPass").value.trim();
+    const rol = document.getElementById("uRol").value;
+
+    let permisos = Array.from(
+        document.querySelectorAll("#permList input:checked")
+    ).map(input => input.value);
+
+    if(!nombre || !usuario || !clave){
+        alert("Complete nombre, usuario y contraseña");
+        return;
+    }
+
+    if(rol === "Administrador"){
+        permisos = permisosSistema.map(p => p.id);
+    }
+
+    const users = getLS("usuariosPOS", []);
+
+    const existe = users.some((u, index) =>
+        u.usuario === usuario && index !== userEdit
+    );
+
+    if(existe){
+        alert("Ese nombre de usuario ya existe");
+        return;
+    }
+
+    const newUser = {
+        nombre:nombre,
+        usuario:usuario,
+        clave:clave,
+        rol:rol,
+        permisos:permisos
+    };
+
+    if(userEdit === null){
+        users.push(newUser);
+    }else{
+        users[userEdit] = newUser;
+    }
+
+    setLS("usuariosPOS", users);
+
+    clearUser();
+    renderUsers();
+    refresh();
+
+    alert("Usuario guardado correctamente");
+}
+
+function renderUsers(){
+    const users = getLS("usuariosPOS", []);
+    const list = document.getElementById("usersList");
+
+    if(users.length === 0){
+        list.innerHTML = `
+            <div class="empty-state">
+                No hay usuarios registrados.
+            </div>
+        `;
+        return;
+    }
+
+    list.innerHTML = "";
+
+    users.forEach((user, index) => {
+        const row = document.createElement("div");
+        row.className = "info-row";
+
+        const info = document.createElement("div");
+        const nombre = document.createElement("b");
+        nombre.textContent = user.nombre || "";
+        info.appendChild(nombre);
+        info.appendChild(document.createElement("br"));
+
+        const cuenta = document.createElement("span");
+        cuenta.textContent = `${user.usuario || ""} - ${user.rol || ""}`;
+        info.appendChild(cuenta);
+        info.appendChild(document.createElement("br"));
+
+        const small = document.createElement("small");
+        small.textContent = "Funciones: " +
+            ((user.permisos || []).join(", ") || "Sin permisos");
+        info.appendChild(small);
+
+        const actions = document.createElement("div");
+        actions.className = "user-actions";
+
+        const editButton = document.createElement("button");
+        editButton.textContent = "Editar";
+        editButton.type = "button";
+        editButton.onclick = () => editUser(index);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "btn-danger";
+        deleteButton.textContent = "Eliminar";
+        deleteButton.type = "button";
+        deleteButton.onclick = () => deleteUser(index);
+
+        actions.append(editButton, deleteButton);
+        row.append(info, actions);
+        list.appendChild(row);
+    });
+}
+
+function editUser(index){
+    const users = getLS("usuariosPOS", []);
+    const user = users[index];
+
+    if(!user) return;
+
+    userEdit = index;
+
+    document.getElementById("uNombre").value = user.nombre || "";
+    document.getElementById("uLogin").value = user.usuario || "";
+    document.getElementById("uPass").value = user.clave || "";
+    document.getElementById("uRol").value = user.rol || "Cajero";
+
+    renderPerms(user.permisos || []);
+}
+
+function deleteUser(index){
+    if(!confirm("¿Desea eliminar este usuario?")){
+        return;
+    }
+
+    const users = getLS("usuariosPOS", []);
+    users.splice(index, 1);
+
+    setLS("usuariosPOS", users);
+
+    if(userEdit === index){
+        clearUser();
+    }
+
+    renderUsers();
+    refresh();
+}
+
+function clearUser(){
+    userEdit = null;
+
+    document.getElementById("uNombre").value = "";
+    document.getElementById("uLogin").value = "";
+    document.getElementById("uPass").value = "";
+    document.getElementById("uRol").value = "Cajero";
+
+    renderPerms([]);
+}
+
+function deleteAllUsers(){
+    if(!confirm("¿Desea borrar todos los usuarios registrados?")){
+        return;
+    }
+
+    setLS("usuariosPOS", []);
+    clearUser();
+    renderUsers();
+    refresh();
+
+    alert("Todos los usuarios registrados fueron eliminados.");
+}
+
+/* RESPALDO */
+function respaldarDatos(){
+    const data = {
+        negocio:getLS("configNegocio", {}),
+        impuesto:getLS("configImpuesto", {}),
+        impresora:getLS("configImpresora", {}),
+        pagos:getLS("configPagos", []),
+        usuarios:getLS("usuariosPOS", []),
+        productos:getLS("productosPOS", []),
+        inventario:getLS("inventarioPOS", []),
+        compras:getLS("comprasPOS", []),
+        ventas:getLS("ventasPOS", []),
+        cotizaciones:getLS("cotizacionesPOS", []),
+        clientes:getLS("clientesPOS", []),
+        gastos:getLS("gastosPOS", []),
+        proveedores:getLS("proveedoresPOS", [])
+    };
+
+    const blob = new Blob(
+        [JSON.stringify(data, null, 2)],
+        {type:"application/json"}
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "respaldo_pos.json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* DATOS PARA FACTURAS Y COTIZACIONES */
+function obtenerDatosFactura(){
+    return {
+        negocio:getLS("configNegocio", {}),
+        impuesto:getLS("configImpuesto", {}),
+        impresora:getLS("configImpresora", {}),
+        pagos:getLS("configPagos", []).filter(pago => pago.activo)
+    };
+}
+
+/*
+ BORRADO COMPLETO DE LOS DATOS DEL SISTEMA.
+
+ Se eliminan las claves conocidas de compras, inventario,
+ productos, ventas, clientes, gastos, cotizaciones y
+ configuración.
+
+ También se eliminan otras claves de datos de la aplicación
+ que coincidan con los patrones indicados.
+
+ Se preservan las claves comunes de sesión/autenticación.
+ Si otra página usa un nombre de clave distinto, hay que
+ añadirlo a las listas correspondientes.
+*/
+function borrarTodaLaApp(){
+    const confirmar1 = confirm(
+        "¿Deseas borrar TODA la información guardada de la aplicación?\n\n" +
+        "Se eliminarán compras, inventario, productos, ventas, " +
+        "clientes, gastos, cotizaciones, usuarios y configuraciones."
+    );
+
+    if(!confirmar1){
+        return;
+    }
+
+    const confirmar2 = confirm(
+        "ATENCIÓN: esta acción es permanente y no se puede deshacer.\n\n" +
+        "La aplicación quedará en blanco. Se intentará conservar " +
+        "la sesión actual para no cerrar sesión.\n\n" +
+        "¿Deseas continuar?"
+    );
+
+    if(!confirmar2){
+        return;
+    }
+
+    /*
+     Claves de datos que pueden ser usadas por las distintas
+     páginas del sistema POS.
+    */
+    const clavesEliminar = [
+        /* Productos e inventario */
+        "productosPOS",
+        "inventarioPOS",
+        "inventario",
+        "stockPOS",
+        "stock",
+        "movimientosInventarioPOS",
+        "movimientosInventario",
+        "ajustesInventarioPOS",
+        "historialInventarioPOS",
+        "categoriasPOS",
+        "categoriasProductosPOS",
+
+        /* Compras */
+        "comprasPOS",
+        "compras",
+        "compraPOS",
+        "detalleComprasPOS",
+        "detallesComprasPOS",
+        "productosCompradosPOS",
+        "historialComprasPOS",
+        "recepcionesPOS",
+        "ordenesCompraPOS",
+        "ordenesComprasPOS",
+
+        /* Proveedores */
+        "proveedoresPOS",
+        "proveedores",
+        "cuentasPorPagarPOS",
+
+        /* Ventas y documentos */
+        "ventasPOS",
+        "cotizacionesPOS",
+        "facturasPOS",
+        "devolucionesPOS",
+        "apartadosPOS",
+        "pedidosPOS",
+        "reservasPOS",
+
+        /* Clientes y gastos */
+        "clientesPOS",
+        "gastosPOS",
+        "ingresosPOS",
+        "cuentasPorCobrarPOS",
+
+        /* Configuración */
+        "configNegocio",
+        "configImpuesto",
+        "configImpresora",
+        "configPagos",
+        "configuracionPOS",
+        "configPOS",
+        "usuariosPOS",
+
+        /* Datos auxiliares comunes */
+        "reportesPOS",
+        "movimientosPOS",
+        "historialPOS",
+        "notificacionesPOS",
+        "cajaPOS",
+        "cajasPOS",
+        "cierresCajaPOS",
+        "arqueosCajaPOS",
+        "transaccionesPOS",
+        "abonosPOS",
+        "pagosPOS",
+        "deudasPOS",
+        "cuentasPOS",
+        "numeracionPOS",
+        "secuenciasPOS",
+        "datosInicialesPOS",
+        "demoPOS"
+    ];
+
+    /*
+     Claves de sesión que NO deben eliminarse.
+     Se conservan incluso si el nombre coincide con
+     algún patrón de datos.
+    */
+    const clavesProtegidas = new Set([
+        "usuarioActualPOS",
+        "sesionPOS",
+        "sessionPOS",
+        "sesionActual",
+        "session",
+        "token",
+        "authToken",
+        "accessToken",
+        "refreshToken",
+        "usuarioLogueado",
+        "usuarioActivo",
+        "loginPOS",
+        "sesionUsuarioPOS"
+    ]);
+
+    /*
+     Primero se eliminan las claves conocidas.
+    */
+    clavesEliminar.forEach(key => {
+        if(!clavesProtegidas.has(key)){
+            localStorage.removeItem(key);
+        }
+    });
+
+    /*
+     Después se buscan claves adicionales que puedan
+     contener registros del sistema.
+
+     Se excluyen las claves de sesión/autenticación.
+    */
+    const patronesDatos =
+        /(compra|inventario|stock|producto|categoria|venta|cotizacion|factura|devolucion|pedido|cliente|proveedor|gasto|ingreso|impuesto|impresora|pagos|pago|movimiento|historial|reporte|cuenta|abono|caja|arqueo|transaccion|recepcion|respaldo|confignegocio|configuracionpos|configpos|usuariospos|datosiniciales)/i;
+
+    const clavesActuales = [];
+
+    for(let i = 0; i < localStorage.length; i++){
+        const key = localStorage.key(i);
+
+        if(key){
+            clavesActuales.push(key);
+        }
+    }
+
+    clavesActuales.forEach(key => {
+        const esSesionProtegida = clavesProtegidas.has(key);
+        const esDatoAplicacion = patronesDatos.test(key);
+
+        if(!esSesionProtegida && esDatoAplicacion){
+            localStorage.removeItem(key);
+        }
+    });
+
+    /*
+     Dejar los datos de configuración vacíos.
+     No se crean usuarios, pagos ni productos de ejemplo.
+    */
+    initConfig();
+    refresh();
+
+    closeMenu();
+
+    document.querySelectorAll(".modal").forEach(modal => {
+        modal.classList.remove("active");
+    });
+
+    alert(
+        "La información local de la aplicación fue borrada.\n\n" +
+        "Compras, inventario, productos, ventas y configuraciones " +
+        "quedaron vacíos. No se ha ordenado cerrar la sesión."
+    );
+
+    location.reload();
+}
+
+/* INICIO */
+initConfig();
+refresh();
+</script>
+
+</body>
+</html>

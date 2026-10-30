@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cotizaciones</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+:root{
+    --azul:#0b7cff;
+    --linea:#e5e7eb;
+    --fondo:#eef3f8;
+    --texto:#0f172a;
+    --gris:#64748b;
+    --verde:#16a34a;
+    --rojo:#dc2626;
+    --amarillo:#ca8a04;
+}
+
+body{
+    background:var(--fondo);
+    color:var(--texto);
+    overflow:hidden;
+}
+
+/* HEADER */
+.header{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    height:75px;
+    background:white;
+    border-bottom:1px solid var(--linea);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 25px;
+    z-index:1000;
+}
+
+.header-left{
+    display:flex;
+    align-items:center;
+    gap:18px;
+}
+
+.header-left i{
+    font-size:25px;
+}
+
+.header h1{
+    font-size:26px;
+}
+
+.header-right{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.btn-header{
+    height:48px;
+    border:none;
+    border-radius:12px;
+    background:var(--azul);
+    color:white;
+    padding:0 18px;
+    font-weight:bold;
+    font-size:15px;
+    cursor:pointer;
+}
+
+.user{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.user img{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+}
+
+.user small{
+    color:var(--gris);
+}
+
+/* MENÚ IZQUIERDO IGUAL CONFIGURACIÓN */
+.sidebar{
+    position:fixed;
+    top:75px;
+    left:0;
+    bottom:0;
+    width:230px;
+    background:white;
+    border-right:1px solid var(--linea);
+    padding:22px 12px;
+    z-index:900;
+}
+
+.menu-item{
+    display:flex;
+    align-items:center;
+    gap:13px;
+    padding:14px 15px;
+    border-radius:12px;
+    margin-bottom:8px;
+    font-size:14px;
+    font-weight:700;
+    color:#334155;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.menu-item:hover{
+    background:#eef5ff;
+    color:var(--azul);
+}
+
+.menu-item i{
+    font-size:18px;
+    width:22px;
+}
+
+.menu-item.active{
+    background:var(--azul);
+    color:white;
+    box-shadow:0 8px 16px rgba(11,124,255,.22);
+}
+
+.config-separator{
+    margin-top:35px;
+    border-top:1px solid var(--linea);
+    padding-top:15px;
+}
+
+/* CONTENIDO */
+.content{
+    position:fixed;
+    top:75px;
+    left:230px;
+    right:0;
+    bottom:0;
+    overflow-y:auto;
+    padding:25px;
+}
+
+.card{
+    background:white;
+    border-radius:26px;
+    padding:30px;
+    box-shadow:0 8px 25px rgba(0,0,0,.08);
+}
+
+.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    margin-bottom:25px;
+}
+
+h1{
+    font-size:32px;
+    color:#111827;
+}
+
+.search-box{
+    width:100%;
+    height:65px;
+    border:1px solid var(--linea);
+    border-radius:18px;
+    display:flex;
+    align-items:center;
+    padding:0 22px;
+    gap:18px;
+    margin-bottom:28px;
+}
+
+.search-box i{
+    font-size:24px;
+    color:#6b7280;
+}
+
+.search-box input{
+    width:100%;
+    height:100%;
+    border:none;
+    outline:none;
+    font-size:21px;
+    color:#111827;
+}
+
+.table{
+    width:100%;
+}
+
+.header-row,
+.quote-row{
+    display:grid;
+    grid-template-columns:1.1fr 1.1fr 1.8fr 1fr 1.2fr 1fr;
+    align-items:center;
+    gap:15px;
+}
+
+.header-row{
+    font-weight:bold;
+    font-size:17px;
+    color:#111827;
+    padding-bottom:18px;
+    border-bottom:1px solid var(--linea);
+}
+
+.quote-row{
+    min-height:78px;
+    font-size:16px;
+    font-weight:bold;
+    color:#374151;
+    border-bottom:1px solid #f1f5f9;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.quote-row:hover{
+    background:#f8fafc;
+}
+
+.folio{
+    color:var(--azul);
+}
+
+.estado{
+    background:#eff6ff;
+    color:#1d4ed8;
+    padding:9px 14px;
+    border-radius:14px;
+    text-align:center;
+    font-size:14px;
+}
+
+.btn-imprimir{
+    background:#f1f5f9;
+    border:none;
+    padding:10px 12px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+    color:var(--azul);
+}
+
+.no-result{
+    text-align:center;
+    padding:30px;
+    font-size:20px;
+    color:#6b7280;
+    display:none;
+}
+
+/* MODALES */
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.55);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:3000;
+    padding:16px;
+}
+
+.modal.active{
+    display:flex;
+}
+
+.modal-box{
+    background:white;
+    width:95%;
+    max-width:760px;
+    max-height:90vh;
+    overflow-y:auto;
+    border-radius:24px;
+    padding:28px;
+    box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+
+.modal-box h2{
+    font-size:26px;
+    margin-bottom:18px;
+}
+
+.detalle-info{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+    margin-bottom:20px;
+}
+
+.detalle-card{
+    background:#f8fafc;
+    border:1px solid #edf2f7;
+    border-radius:14px;
+    padding:14px;
+}
+
+.detalle-card small{
+    display:block;
+    color:var(--gris);
+    font-weight:bold;
+    margin-bottom:6px;
+}
+
+.detalle-table{
+    width:100%;
+}
+
+.detalle-head,
+.detalle-row{
+    display:grid;
+    grid-template-columns:2fr .7fr 1fr 1fr;
+    gap:12px;
+    align-items:center;
+}
+
+.detalle-head{
+    font-weight:bold;
+    color:#334155;
+    padding:12px 0;
+    border-bottom:1px solid var(--linea);
+}
+
+.detalle-row{
+    padding:12px 0;
+    border-bottom:1px solid #f1f5f9;
+    color:#475569;
+    font-weight:bold;
+}
+
+.detalle-total{
+    margin-top:18px;
+    display:grid;
+    gap:8px;
+    max-width:320px;
+    margin-left:auto;
+}
+
+.total-row{
+    display:flex;
+    justify-content:space-between;
+    font-size:16px;
+    font-weight:bold;
+}
+
+.total-row.grande{
+    font-size:24px;
+    color:var(--azul);
+}
+
+.modal-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin-top:22px;
+}
+
+.modal-actions button{
+    height:52px;
+    border:none;
+    border-radius:14px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.save{
+    background:var(--azul);
+    color:white;
+}
+
+.cancel{
+    background:#f1f5f9;
+    color:#0f172a;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+    .header{
+        height:65px;
+        padding:0 14px;
+    }
+
+    .header h1{
+        font-size:21px;
+    }
+
+    .btn-header span,
+    .user{
+        display:none;
+    }
+
+    .sidebar{
+        top:65px;
+        width:82px;
+        padding:18px 8px;
+    }
+
+    .menu-item{
+        justify-content:center;
+        padding:16px 8px;
+    }
+
+    .menu-item span{
+        display:none;
+    }
+
+    .content{
+        top:65px;
+        left:82px;
+        padding:14px;
+    }
+
+    .card{
+        padding:20px;
+        overflow-x:auto;
+    }
+
+    .top,
+    .search-box,
+    .table{
+        min-width:950px;
+    }
+
+    .detalle-info{
+        grid-template-columns:1fr;
+    }
+
+    .detalle-table{
+        min-width:700px;
+        overflow-x:auto;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+    <div class="header-left">
+        <i class="fa-solid fa-bars"></i>
+        <h1>Cotizaciones</h1>
+    </div>
+
+    <div class="header-right">
+        <button class="btn-header" onclick="location.href='nueva_venta.html'">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span>Nueva venta</span>
+        </button>
+
+        <div class="user">
+            <img src="https://i.pravatar.cc/100?img=5">
+            <div>
+                <b>POS Nueva Venta</b><br>
+                <small>Administrador</small>
+            </div>
+        </div>
+    </div>
+</header>
+
+<aside class="sidebar">
+    <div class="menu-item" onclick="location.href='index.html'">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <span>Nueva venta</span>
+    </div>
+
+    <div class="menu-item" onclick="location.href='dashboard.html'">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Dashboard</span>
+    </div>
+
+    <div class="menu-item" onclick="location.href='productos.html'">
+        <i class="fa-solid fa-box"></i>
+        <span>Productos</span>
+    </div>
+
+    <div class="menu-item" onclick="location.href='inventario.html'">
+        <i class="fa-solid fa-warehouse"></i>
+        <span>Inventario</span>
+    </div>
+
+    <div class="menu-item" onclick="location.href='clientes.html'">
+        <i class="fa-solid fa-users"></i>
+        <span>Clientes</span>
+    </div>
+
+    <div class="menu-item" onclick="location.href='ventas.html'">
+        <i class="fa-solid fa-receipt"></i>
+        <span>Ventas</span>
+    </div>
+
+    <div class="menu-item active" onclick="location.href='cotizaciones.html'">
+        <i class="fa-solid fa-file-lines"></i>
+        <span>Cotizaciones</span>
+    </div>
+
+    <div class="menu-item" onclick="location.href='reportes.html'">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span>Reportes</span>
+    </div>
+
+    <div class="menu-item" onclick="location.href='gastos.html'">
+        <i class="fa-solid fa-money-bill-wave"></i>
+        <span>Gastos</span>
+    </div>
+
+    <div class="menu-item config-separator" onclick="location.href='configuracion.html'">
+        <i class="fa-solid fa-gear"></i>
+        <span>Configuración</span>
+    </div>
+</aside>
+
+<main class="content">
+    <div class="card">
+        <div class="top">
+            <h1>Historial de cotizaciones</h1>
+            <button class="btn-header" onclick="location.href='index.html'">
+                <i class="fa-solid fa-plus"></i> Nueva cotización
+            </button>
+        </div>
+
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="buscar" placeholder="Buscar cotización">
+            <i class="fa-solid fa-file-lines"></i>
+        </div>
+
+        <div class="table">
+            <div class="header-row">
+                <div>Folio</div>
+                <div>Fecha</div>
+                <div>Cliente</div>
+                <div>Total</div>
+                <div>Estado</div>
+                <div>Acción</div>
+            </div>
+
+            <div id="listaCotizaciones"></div>
+
+            <div class="no-result" id="sinResultados">
+                No se encontraron cotizaciones
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- MODAL DETALLE -->
+<div class="modal" id="modalDetalle">
+    <div class="modal-box">
+        <h2>Detalle de la cotización</h2>
+
+        <div class="detalle-info">
+            <div class="detalle-card">
+                <small>Folio</small>
+                <b id="detalleFolio"></b>
+            </div>
+
+            <div class="detalle-card">
+                <small>Fecha</small>
+                <b id="detalleFecha"></b>
+            </div>
+
+            <div class="detalle-card">
+                <small>Cliente</small>
+                <b id="detalleCliente"></b>
+            </div>
+
+            <div class="detalle-card">
+                <small>Estado</small>
+                <b id="detalleEstado"></b>
+            </div>
+
+            <div class="detalle-card">
+                <small>Productos</small>
+                <b id="detalleCantidadProductos"></b>
+            </div>
+
+            <div class="detalle-card">
+                <small>Total</small>
+                <b id="detalleTotal"></b>
+            </div>
+        </div>
+
+        <div class="detalle-table">
+            <div class="detalle-head">
+                <div>Artículo</div>
+                <div>Cant.</div>
+                <div>Unit.</div>
+                <div>Total</div>
+            </div>
+
+            <div id="detalleProductos"></div>
+        </div>
+
+        <div class="detalle-total">
+            <div class="total-row grande">
+                <span>Total:</span>
+                <b id="detalleTotalFinal">$0</b>
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button class="cancel" onclick="cerrarDetalle()">Cerrar</button>
+            <button class="save" onclick="imprimirCotizacion(detalleIndexActual)">
+                <i class="fa-solid fa-print"></i> Imprimir
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="supabase-config.js"></script>
+<script src="supabase-sync.js"></script>
+<script>
+let cotizaciones = JSON.parse(localStorage.getItem("cotizacionesPOS")) || [];
+let cotizacionesMostradas = [...cotizaciones];
+let detalleIndexActual = null;
+
+function formato(valor){
+    return "$" + Number(valor || 0).toLocaleString("es-DO");
+}
+
+function getLS(key, def){
+    try{
+        return JSON.parse(localStorage.getItem(key)) ?? def;
+    }catch(e){
+        return def;
+    }
+}
+
+function obtenerNegocio(){
+    return getLS("configNegocio", {
+        nombre:"",
+        rnc:"",
+        telefono:"",
+        correo:"",
+        direccion:"",
+        logo:""
+    });
+}
+
+function obtenerImpuesto(){
+    return getLS("configImpuesto", {
+        activo:false,
+        nombre:"",
+        porcentaje:0
+    });
+}
+
+function obtenerImpresora(){
+    return getLS("configImpresora", {
+        conectada:false,
+        tipo:"80mm"
+    });
+}
+
+function anchoImpresora(){
+    const impresora = obtenerImpresora();
+
+    if(impresora.tipo === "58mm"){
+        return "58mm";
+    }
+
+    if(impresora.tipo === "80mm"){
+        return "80mm";
+    }
+
+    return "210mm";
+}
+
+function encabezadoNegocioHTML(){
+    const negocio = obtenerNegocio();
+
+    return `
+        ${negocio.logo ? `<img src="${negocio.logo}" style="max-width:70px;max-height:70px;display:block;margin:0 auto 6px;">` : ""}
+        <h2>${negocio.nombre || "POS Nueva Venta"}</h2>
+        ${negocio.rnc ? `<div class="center">RNC/Cédula: ${negocio.rnc}</div>` : ""}
+        ${negocio.telefono ? `<div class="center">Tel: ${negocio.telefono}</div>` : ""}
+        ${negocio.correo ? `<div class="center">${negocio.correo}</div>` : ""}
+        ${negocio.direccion ? `<div class="center">${negocio.direccion}</div>` : ""}
+    `;
+}
+
+function mostrarCotizaciones(lista){
+    cotizacionesMostradas = lista;
+
+    const contenedor = document.getElementById("listaCotizaciones");
+    const sinResultados = document.getElementById("sinResultados");
+
+    contenedor.innerHTML = "";
+
+    if(lista.length === 0){
+        sinResultados.style.display = "block";
+        return;
+    }
+
+    sinResultados.style.display = "none";
+
+    lista.forEach((cotizacion, index) => {
+        contenedor.innerHTML += `
+            <div class="quote-row" onclick="abrirDetalle(${index})">
+                <div class="folio">${cotizacion.folio || "COT-000000"}</div>
+                <div>${cotizacion.fecha || ""}</div>
+                <div>${cotizacion.cliente || "Consumidor final"}</div>
+                <div>${formato(cotizacion.total)}</div>
+                <div><span class="estado">${cotizacion.estado || "Cotización"}</span></div>
+                <div>
+                    <button class="btn-imprimir" onclick="event.stopPropagation(); imprimirCotizacion(${index})">
+                        <i class="fa-solid fa-print"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+document.getElementById("buscar").addEventListener("input", function(){
+    const texto = this.value.toLowerCase();
+
+    const filtradas = cotizaciones.filter(c =>
+        String(c.folio || "").toLowerCase().includes(texto) ||
+        String(c.fecha || "").toLowerCase().includes(texto) ||
+        String(c.hora || "").toLowerCase().includes(texto) ||
+        String(c.cliente || "").toLowerCase().includes(texto) ||
+        String(c.total || "").toLowerCase().includes(texto) ||
+        String(c.estado || "").toLowerCase().includes(texto)
+    );
+
+    mostrarCotizaciones(filtradas);
+});
+
+function abrirDetalle(index){
+    detalleIndexActual = index;
+
+    const cotizacion = cotizacionesMostradas[index];
+
+    if(!cotizacion){
+        return;
+    }
+
+    document.getElementById("detalleFolio").innerText = cotizacion.folio || "COT-000000";
+    document.getElementById("detalleFecha").innerText = `${cotizacion.fecha || ""} ${cotizacion.hora || ""}`;
+    document.getElementById("detalleCliente").innerText = cotizacion.cliente || "Consumidor final";
+    document.getElementById("detalleEstado").innerText = cotizacion.estado || "Cotización";
+    document.getElementById("detalleCantidadProductos").innerText =
+        (cotizacion.productos || []).length;
+    document.getElementById("detalleTotal").innerText = formato(cotizacion.total);
+    document.getElementById("detalleTotalFinal").innerText = formato(cotizacion.total);
+
+    const contenedor = document.getElementById("detalleProductos");
+    contenedor.innerHTML = "";
+
+    if(cotizacion.productos && cotizacion.productos.length > 0){
+        cotizacion.productos.forEach(p => {
+            contenedor.innerHTML += `
+                <div class="detalle-row">
+                    <div>${p.nombre}</div>
+                    <div>${p.cantidad}</div>
+                    <div>${formato(p.precio)}</div>
+                    <div>${formato(p.precio * p.cantidad)}</div>
+                </div>
+            `;
+        });
+    }else{
+        contenedor.innerHTML = `
+            <div style="padding:18px;color:#64748b;font-weight:bold;">
+                Esta cotización no tiene productos guardados.
+            </div>
+        `;
+    }
+
+    document.getElementById("modalDetalle").classList.add("active");
+}
+
+function cerrarDetalle(){
+    document.getElementById("modalDetalle").classList.remove("active");
+}
+
+function imprimirCotizacion(index){
+    const cotizacion = cotizacionesMostradas[index];
+
+    if(!cotizacion){
+        alert("No se encontró la cotización");
+        return;
+    }
+
+    let rows = "";
+
+    if(cotizacion.productos && cotizacion.productos.length > 0){
+        cotizacion.productos.forEach(p => {
+            rows += `
+                <tr>
+                    <td>${p.cantidad}</td>
+                    <td>${p.nombre}</td>
+                    <td>${formato(p.precio)}</td>
+                    <td>${formato(p.precio * p.cantidad)}</td>
+                </tr>
+            `;
+        });
+    }
+
+    const impuesto = obtenerImpuesto();
+    const subtotal = cotizacion.subtotal || (cotizacion.productos || []).reduce((s,p)=>s+p.precio*p.cantidad,0);
+
+    const impuestoMonto =
+        impuesto.activo && impuesto.nombre && Number(impuesto.porcentaje) > 0
+        ? subtotal * Number(impuesto.porcentaje) / 100
+        : 0;
+
+    const ancho = anchoImpresora();
+
+    const ventana = window.open("", "_blank", "width=420,height=760");
+
+    ventana.document.write(`
+        <html>
+        <head>
+            <title>Cotización ${cotizacion.folio}</title>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+
+            <style>
+                *{
+                    box-sizing:border-box;
+                    font-family:Arial,sans-serif;
+                }
+
+                body{
+                    width:${ancho};
+                    margin:auto;
+                    padding:10px;
+                    color:#000;
+                }
+
+                h2{
+                    text-align:center;
+                    margin:0 0 4px;
+                    font-size:23px;
+                }
+
+                .center{
+                    text-align:center;
+                    font-size:13px;
+                    margin:4px 0;
+                }
+
+                .line{
+                    border-top:1px dashed #000;
+                    margin:10px 0;
+                }
+
+                table{
+                    width:100%;
+                    border-collapse:collapse;
+                    margin-top:8px;
+                }
+
+                th{
+                    border-bottom:1px solid #000;
+                    padding:5px 0;
+                    font-size:12px;
+                    text-align:left;
+                }
+
+                td{
+                    border-bottom:1px dashed #ccc;
+                    padding:6px 0;
+                    font-size:12px;
+                    vertical-align:top;
+                }
+
+                th:nth-child(1),
+                td:nth-child(1){
+                    width:38px;
+                    text-align:center;
+                }
+
+                th:nth-child(2),
+                td:nth-child(2){
+                    width:115px;
+                    text-align:left;
+                    word-break:break-word;
+                }
+
+                th:nth-child(3),
+                th:nth-child(4),
+                td:nth-child(3),
+                td:nth-child(4){
+                    text-align:right;
+                }
+
+                .total,
+                .info{
+                    display:flex;
+                    justify-content:space-between;
+                    font-size:14px;
+                    margin:5px 0;
+                }
+
+                .total{
+                    font-size:21px;
+                    font-weight:bold;
+                    margin-top:10px;
+                }
+
+                #qrcode{
+                    display:flex;
+                    justify-content:center;
+                    margin-top:14px;
+                }
+
+                .nota{
+                    text-align:center;
+                    font-size:12px;
+                    margin-top:12px;
+                    font-weight:bold;
+                }
+
+                @media print{
+                    body{
+                        width:${ancho};
+                        margin:0;
+                        padding:6px;
+                    }
+                }
+            </style>
+        </head>
+
+        <body>
+            ${encabezadoNegocioHTML()}
+
+            <div class="center">
+                <b>COTIZACIÓN</b>
+            </div>
+
+            <div class="center">
+                No. ${cotizacion.folio || "COT-000000"}
+            </div>
+
+            <div class="center">
+                ${cotizacion.fecha || ""} ${cotizacion.hora || ""}
+            </div>
+
+            <div class="line"></div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cant.</th>
+                        <th>Artículo</th>
+                        <th>Unit.</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${rows}
+                </tbody>
+            </table>
+
+            <div class="line"></div>
+
+            <div class="info">
+                <span>Subtotal:</span>
+                <span>${formato(subtotal)}</span>
+            </div>
+
+            ${
+                impuestoMonto > 0
+                ? `<div class="info"><span>${impuesto.nombre} ${impuesto.porcentaje}%:</span><span>${formato(impuestoMonto)}</span></div>`
+                : ""
+            }
+
+            <div class="total">
+                <span>TOTAL</span>
+                <span>${formato(cotizacion.total)}</span>
+            </div>
+
+            <div class="line"></div>
+
+            <div id="qrcode"></div>
+            <div class="center">QR Cotización: ${cotizacion.folio || "COT-000000"}</div>
+
+            <div class="line"></div>
+
+            <div class="nota">
+                Esta cotización no descuenta inventario.
+            </div>
+
+            <script>
+                new QRCode(
+                    document.getElementById("qrcode"),
+                    {
+                        text:"COTIZACION: ${cotizacion.folio || "COT-000000"}",
+                        width:100,
+                        height:100
+                    }
+                );
+
+                window.onload=function(){
+                    setTimeout(function(){
+                        window.print();
+                    },800);
+                };
+            <\/script>
+        </body>
+        </html>
+    `);
+
+    ventana.document.close();
+}
+
+mostrarCotizaciones(cotizaciones);
+</script>
+
+</body>
+</html>

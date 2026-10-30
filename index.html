@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:linear-gradient(135deg,#0b7cff,#1e1b4b);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.login-card{
+    width:100%;
+    max-width:420px;
+    background:white;
+    border-radius:26px;
+    padding:32px;
+    box-shadow:0 25px 70px rgba(0,0,0,.25);
+}
+
+.logo{
+    width:82px;
+    height:82px;
+    background:#eef5ff;
+    color:#0b7cff;
+    border-radius:22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:38px;
+    margin:0 auto 18px;
+}
+
+h1{
+    text-align:center;
+    font-size:28px;
+    color:#0f172a;
+    margin-bottom:8px;
+}
+
+p{
+    text-align:center;
+    color:#64748b;
+    margin-bottom:28px;
+    font-weight:bold;
+}
+
+.input-group{
+    margin-bottom:16px;
+}
+
+.input-group label{
+    display:block;
+    font-weight:bold;
+    color:#334155;
+    margin-bottom:8px;
+    font-size:14px;
+}
+
+.input-box{
+    height:54px;
+    border:1px solid #dbe2ea;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:0 14px;
+    background:white;
+}
+
+.input-box i{
+    color:#64748b;
+    font-size:18px;
+}
+
+.input-box input{
+    width:100%;
+    height:100%;
+    border:none;
+    outline:none;
+    font-size:16px;
+}
+
+.eye{
+    cursor:pointer;
+}
+
+button{
+    width:100%;
+    height:56px;
+    border:none;
+    border-radius:14px;
+    background:#0b7cff;
+    color:white;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:8px;
+}
+
+button:hover{
+    background:#006be6;
+}
+
+.alerta{
+    display:none;
+    margin-top:16px;
+    background:#fee2e2;
+    color:#dc2626;
+    padding:12px;
+    border-radius:12px;
+    text-align:center;
+    font-weight:bold;
+    font-size:14px;
+}
+
+.info{
+    margin-top:18px;
+    background:#eff6ff;
+    color:#1d4ed8;
+    padding:12px;
+    border-radius:12px;
+    font-size:13px;
+    text-align:center;
+    font-weight:bold;
+}
+
+@media(max-width:480px){
+    .login-card{
+        padding:24px;
+    }
+
+    h1{
+        font-size:24px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-card">
+    <div class="logo">
+        <i class="fa-solid fa-cash-register"></i>
+    </div>
+
+    <h1>POS Nueva Venta</h1>
+    <p>Iniciar sesión</p>
+
+    <div class="input-group">
+        <label>Usuario</label>
+        <div class="input-box">
+            <i class="fa-solid fa-user"></i>
+            <input type="text" id="usuario" placeholder="Escribe tu usuario">
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label>Contraseña</label>
+        <div class="input-box">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="clave" placeholder="Escribe tu contraseña">
+            <i class="fa-solid fa-eye eye" onclick="verClave()"></i>
+        </div>
+    </div>
+
+    <button onclick="login()">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        Entrar
+    </button>
+
+    <div class="alerta" id="alerta">
+        Usuario o contraseña incorrecta
+    </div>
+
+    <div class="info">
+        Usuario inicial: <b>admin</b><br>
+        Contraseña inicial: <b>admin123</b>
+    </div>
+</div>
+
+<script src="supabase-config.js"></script>
+<script src="supabase-sync.js"></script>
+<script>
+const permisosTodos = [
+    "dashboard",
+    "ventas",
+    "productos",
+    "inventario",
+    "clientes",
+    "reportes",
+    "gastos",
+    "configuracion",
+    "cotizaciones"
+];
+
+function getLS(key, def){
+    try{
+        return JSON.parse(localStorage.getItem(key)) ?? def;
+    }catch(e){
+        return def;
+    }
+}
+
+function setLS(key, value){
+    localStorage.setItem(key, JSON.stringify(value));
+}
+
+function crearAdminInicial(){
+    const usuarios = getLS("usuariosPOS", []);
+
+    if(usuarios.length === 0){
+        setLS("usuariosPOS", [
+            {
+                nombre:"Administrador",
+                usuario:"admin",
+                clave:"admin123",
+                rol:"Administrador",
+                permisos:permisosTodos
+            }
+        ]);
+    }
+}
+
+function negocioConfigurado(){
+    const config = getLS("configNegocio", {});
+
+    return config &&
+           config.nombre &&
+           config.nombre.trim() !== "";
+}
+
+function login(){
+    const usuario = document.getElementById("usuario").value.trim();
+    const clave = document.getElementById("clave").value.trim();
+    const alerta = document.getElementById("alerta");
+
+    const usuarios = getLS("usuariosPOS", []);
+
+    const encontrado = usuarios.find(user =>
+        user.usuario === usuario && user.clave === clave
+    );
+
+    if(!encontrado){
+        alerta.style.display = "block";
+        return;
+    }
+
+    alerta.style.display = "none";
+
+    setLS("usuarioActualPOS", encontrado);
+
+    if(encontrado.usuario === "admin"){
+        if(negocioConfigurado()){
+            location.href = "nueva_venta.html";
+        }else{
+            location.href = "configuracion.html";
+        }
+        return;
+    }
+
+    if(encontrado.rol === "Administrador" || encontrado.permisos.includes("dashboard")){
+        location.href = "dashboard.html";
+        return;
+    }
+
+    if(encontrado.permisos.includes("ventas")){
+        location.href = "index.html";
+        return;
+    }
+
+    if(encontrado.permisos.includes("productos")){
+        location.href = "productos.html";
+        return;
+    }
+
+    if(encontrado.permisos.includes("inventario")){
+        location.href = "inventario.html";
+        return;
+    }
+
+    if(encontrado.permisos.includes("clientes")){
+        location.href = "clientes.html";
+        return;
+    }
+
+    if(encontrado.permisos.includes("reportes")){
+        location.href = "reportes.html";
+        return;
+    }
+
+    if(encontrado.permisos.includes("gastos")){
+        location.href = "gastos.html";
+        return;
+    }
+
+    if(encontrado.permisos.includes("configuracion")){
+        location.href = "configuracion.html";
+        return;
+    }
+
+    alert("Este usuario no tiene permisos asignados");
+}
+
+function verClave(){
+    const input = document.getElementById("clave");
+    const icono = document.querySelector(".eye");
+
+    if(input.type === "password"){
+        input.type = "text";
+        icono.classList.remove("fa-eye");
+        icono.classList.add("fa-eye-slash");
+    }else{
+        input.type = "password";
+        icono.classList.remove("fa-eye-slash");
+        icono.classList.add("fa-eye");
+    }
+}
+
+document.addEventListener("keydown", function(e){
+    if(e.key === "Enter"){
+        login();
+    }
+});
+
+crearAdminInicial();
+</script>
+
+</body>
+</html>
