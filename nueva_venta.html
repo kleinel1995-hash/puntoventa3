@@ -26,7 +26,6 @@ body{background:var(--fondo);color:var(--texto);overflow:hidden}
 .cart span{position:absolute;top:-12px;right:-12px;background:var(--azul);color:#fff;width:24px;height:24px;font-size:13px;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .user{display:flex;align-items:center;gap:12px}
 .user img{width:48px;height:48px;border-radius:50%}
-.user small{color:var(--gris)}
 
 .sidebar{position:fixed;top:75px;left:0;bottom:0;width:230px;background:white;border-right:1px solid var(--linea);padding:22px 12px;z-index:900}
 .menu-item{display:flex;align-items:center;gap:13px;padding:14px 15px;border-radius:12px;margin-bottom:8px;font-size:14px;font-weight:700;color:#334155;cursor:pointer;transition:.2s}
@@ -100,43 +99,15 @@ body{background:var(--fondo);color:var(--texto);overflow:hidden}
     gap:8px;
 }
 
-.cierre-grid{
-    display:grid;
-    gap:14px;
-}
-
-.cierre-card{
-    border:1px solid var(--linea);
-    border-radius:14px;
-    padding:16px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    font-weight:bold;
-    font-size:18px;
-}
-
-.cierre-card b{
-    color:var(--azul);
-}
-
-.cierre-card.ganancia b{
-    color:#16a34a;
-}
+.cierre-grid{display:grid;gap:14px}
+.cierre-card{border:1px solid var(--linea);border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;font-weight:bold;font-size:18px}
+.cierre-card b{color:var(--azul)}
+.cierre-card.ganancia b{color:#16a34a}
 
 #scanner{width:100%;height:320px;background:#000;border-radius:14px;overflow:hidden}
 #scanner video{width:100%;height:100%;object-fit:cover}
 
-.vacio{
-    background:white;
-    border:1px dashed #cbd5e1;
-    border-radius:16px;
-    padding:35px;
-    text-align:center;
-    color:#64748b;
-    font-weight:bold;
-    grid-column:1/-1;
-}
+.vacio{background:white;border:1px dashed #cbd5e1;border-radius:16px;padding:35px;text-align:center;color:#64748b;font-weight:bold;grid-column:1/-1}
 
 @media(max-width:1100px){
     .content{right:0}
@@ -151,6 +122,8 @@ body{background:var(--fondo);color:var(--texto);overflow:hidden}
     .search-box input{font-size:14px}
     .user{display:none}
     .cart{font-size:23px}
+    .btn-cierre{padding:0 9px;font-size:12px;height:40px}
+    .header-right{gap:12px}
     .sidebar{top:65px;width:82px;padding:20px 8px}
     .menu-item{justify-content:center;padding:16px 8px}
     .menu-item span{display:none}
@@ -229,7 +202,7 @@ body{background:var(--fondo);color:var(--texto);overflow:hidden}
 </aside>
 
 <main class="content">
-    <h2 class="products-title">Productos creados</h2>
+    <h2 class="products-title">Productos del inventario</h2>
     <section class="products" id="productos"></section>
 </main>
 
@@ -296,7 +269,6 @@ body{background:var(--fondo);color:var(--texto);overflow:hidden}
     </div>
 </div>
 
-
 <div class="modal" id="modalCierre">
     <div class="modal-box">
         <h2>Cierre del día</h2>
@@ -341,29 +313,22 @@ body{background:var(--fondo);color:var(--texto);overflow:hidden}
 
 <script src="supabase-config.js"></script>
 <script src="supabase-sync.js"></script>
+
 <script>
+
+/* =========================================
+   CONFIGURACIÓN
+========================================= */
+
 const imagenDefault = "https://cdn-icons-png.flaticon.com/512/3081/3081559.png";
-
-/* 
-   IMPORTANTE:
-   Aquí NO se cargan productos de ejemplo.
-   Solo se muestran productos guardados desde productos.html en localStorage productosPOS.
-*/
-let productos = JSON.parse(localStorage.getItem("productosPOS")) || [];
-
-productos = productos.map(p => ({
-    ...p,
-    img: p.img || imagenDefault,
-    stock: Number(p.stock || 0),
-    precio: Number(p.precio || 0),
-    codigo: p.codigo || "",
-    categoria: p.categoria || "",
-    departamento: p.departamento || ""
-}));
 
 let carrito = [];
 let scannerActivo = false;
 let bloqueoScanner = false;
+
+/* =========================================
+   LECTURA DE DATOS
+========================================= */
 
 function getLS(k,d){
     try{
@@ -372,6 +337,84 @@ function getLS(k,d){
         return d;
     }
 }
+
+function leerLS(clave){
+    try{
+        return JSON.parse(localStorage.getItem(clave)) || [];
+    }catch(e){
+        return [];
+    }
+}
+
+/* =========================================
+   CONEXIÓN CON PRODUCTOS E INVENTARIO
+
+   INVENTARIO:
+   inventarioPOS
+
+   PRODUCTOS:
+   productosPOS
+
+   El inventario controla las existencias.
+========================================= */
+
+function mismaIdentidad(a,b){
+
+    if(a.id && b.id){
+        return String(a.id) === String(b.id);
+    }
+
+    if(a.codigo && b.codigo){
+        return String(a.codigo) === String(b.codigo);
+    }
+
+    return String(a.nombre || "").trim().toLowerCase() ===
+           String(b.nombre || "").trim().toLowerCase();
+}
+
+function obtenerProductosInventario(){
+
+    const inventario = leerLS("inventarioPOS");
+    const catalogo = leerLS("productosPOS");
+
+    return inventario.map(inv=>{
+
+        const producto = catalogo.find(p=>mismaIdentidad(p,inv)) || {};
+
+        return {
+            ...producto,
+            ...inv,
+
+            id: inv.id || producto.id || "",
+            nombre: inv.nombre || producto.nombre || "",
+            departamento: inv.departamento || producto.departamento || "",
+            codigo: inv.codigo || producto.codigo || "",
+
+            img: producto.img || inv.img || imagenDefault,
+
+            costo: Number(inv.costo ?? producto.costo ?? 0),
+
+            precio: Number(
+                inv.precio ?? producto.precio ?? 0
+            ),
+
+            mayorista: Number(
+                producto.mayorista ?? inv.mayorista ?? 0
+            ),
+
+            stock: Number(inv.stock || 0)
+        };
+
+    }).filter(p=>p.nombre);
+
+}
+
+/* Esta lista siempre se alimenta del inventario */
+let productos = obtenerProductosInventario();
+
+/* =========================================
+   CONFIGURACIÓN DEL NEGOCIO
+========================================= */
 
 function obtenerNegocio(){
     return getLS("configNegocio",{
@@ -412,23 +455,74 @@ function inicialEmpresa(){
 }
 
 function actualizarHeaderEmpresa(){
-    document.getElementById("empresaHeader").innerText =
-        obtenerNegocio().nombre || "POS Nueva Venta";
+    const elemento = document.getElementById("empresaHeader");
+
+    if(elemento){
+        elemento.innerText =
+            obtenerNegocio().nombre || "POS Nueva Venta";
+    }
 }
 
 function formato(v){
-    return "$" + Number(v || 0).toLocaleString("es-DO");
+    return "$" + Number(v || 0).toLocaleString("es-DO",{
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+    });
 }
 
+/* =========================================
+   GUARDAR EXISTENCIAS EN AMBOS MÓDULOS
+========================================= */
+
 function guardarProductos(){
-    localStorage.setItem("productosPOS",JSON.stringify(productos));
+
+    const inventario = leerLS("inventarioPOS");
+    const catalogo = leerLS("productosPOS");
+
+    productos.forEach(p=>{
+
+        const indiceInv = inventario.findIndex(x=>mismaIdentidad(x,p));
+
+        if(indiceInv !== -1){
+            inventario[indiceInv].stock = Number(p.stock);
+        }
+
+        const indiceProd = catalogo.findIndex(x=>mismaIdentidad(x,p));
+
+        if(indiceProd !== -1){
+            catalogo[indiceProd].stock = Number(p.stock);
+        }
+
+    });
+
+    localStorage.setItem("inventarioPOS",JSON.stringify(inventario));
+    localStorage.setItem("productosPOS",JSON.stringify(catalogo));
+
 }
+
+/* =========================================
+   RECARGAR INVENTARIO
+========================================= */
+
+function recargarInventario(){
+
+    productos = obtenerProductosInventario();
+
+    mostrarProductos(productos);
+    actualizarCarrito();
+
+}
+
+/* =========================================
+   CÁLCULOS
+========================================= */
 
 function calcularSubtotal(){
     return carrito.reduce((s,i)=>s + i.precio * i.cantidad,0);
 }
 
 function calcularImpuesto(){
+
     const imp = obtenerImpuesto();
     const sub = calcularSubtotal();
 
@@ -447,6 +541,7 @@ function obtenerTotal(){
 }
 
 function anchoImpresora(){
+
     const i = obtenerImpresora();
 
     if(i.tipo === "58mm") return "58mm";
@@ -456,6 +551,7 @@ function anchoImpresora(){
 }
 
 function encabezadoNegocioHTML(){
+
     const n = obtenerNegocio();
 
     return `
@@ -466,64 +562,102 @@ function encabezadoNegocioHTML(){
         ${n.correo ? `<div class="center">${n.correo}</div>` : ""}
         ${n.direccion ? `<div class="center">${n.direccion}</div>` : ""}
     `;
+
 }
 
+/* =========================================
+   MOSTRAR PRODUCTOS DEL INVENTARIO
+========================================= */
+
 function mostrarProductos(lista){
+
     const c = document.getElementById("productos");
     c.innerHTML = "";
 
     if(lista.length === 0){
+
         c.innerHTML = `
             <div class="vacio">
-                No hay productos creados todavía.<br><br>
-                Ve a Productos y agrega tus productos.
+                No hay productos registrados en el inventario.<br><br>
+                Ve a Inventario y agrega existencias a tus productos.
             </div>
         `;
+
         return;
     }
 
     lista.forEach(p=>{
+
         const i = productos.indexOf(p);
         const sin = p.stock <= 0 ? "sin-stock" : "";
 
         c.innerHTML += `
             <div class="product ${sin}" onclick="agregarProducto(${i})">
+
                 <div class="product-img-box" data-inicial="${inicialEmpresa()}">
-                    <img src="${p.img}">
+                    <img src="${p.img || imagenDefault}"
+                         onerror="this.src='${imagenDefault}'">
                 </div>
+
                 <h3>${p.nombre}</h3>
+
                 <b>${formato(p.precio)}</b>
-                <div class="stock">Stock: ${p.stock}</div>
-                <div class="stock">Código: ${p.codigo || "-"}</div>
+
+                <div class="stock">
+                    Stock disponible: ${p.stock}
+                </div>
+
+                <div class="stock">
+                    Código: ${p.codigo || "-"}
+                </div>
+
             </div>
         `;
+
     });
+
 }
 
+/* =========================================
+   AGREGAR PRODUCTOS
+========================================= */
+
 function agregarProducto(i){
+
     const p = productos[i];
 
     if(!p || p.stock <= 0){
-        alert("Este producto no tiene stock");
+        alert("Este producto no tiene existencias en el inventario");
         return;
     }
 
-    const e = carrito.find(x=>x.codigo === p.codigo && x.nombre === p.nombre);
+    const e = carrito.find(x=>mismaIdentidad(x,p));
 
     if(e){
+
         if(e.cantidad >= p.stock){
             alert("No hay más stock disponible");
             return;
         }
+
         e.cantidad++;
+
     }else{
+
         carrito.push({...p,cantidad:1});
+
     }
 
     actualizarCarrito();
+
 }
 
+/* =========================================
+   ACTUALIZAR CARRITO
+========================================= */
+
 function actualizarCarrito(){
+
     let html = "";
     let cant = 0;
 
@@ -532,59 +666,90 @@ function actualizarCarrito(){
     const tot = obtenerTotal();
 
     carrito.forEach((it,i)=>{
+
         cant += it.cantidad;
 
         html += `
             <div class="sale-item">
-                <img src="${it.img}">
+
+                <img src="${it.img || imagenDefault}">
+
                 <div>
                     <h4>${it.nombre}</h4>
+
                     <small>${formato(it.precio)}</small>
+
                     <div class="qty">
                         <button onclick="restar(${i})">−</button>
                         <span>${it.cantidad}</span>
                         <button onclick="sumar(${i})">+</button>
                     </div>
                 </div>
-                <div class="price">${formato(it.precio * it.cantidad)}</div>
-                <i class="fa-solid fa-trash-can delete" onclick="eliminar(${i})"></i>
+
+                <div class="price">
+                    ${formato(it.precio * it.cantidad)}
+                </div>
+
+                <i class="fa-solid fa-trash-can delete"
+                   onclick="eliminar(${i})"></i>
+
             </div>
         `;
+
     });
 
     document.getElementById("carrito").innerHTML = html;
-    subtotal.innerText = formato(sub);
+
+    document.getElementById("subtotal").innerText = formato(sub);
 
     if(imp.monto > 0){
-        impuestoRow.style.display = "flex";
-        impuestoNombre.innerText = `${imp.impuesto.nombre} ${imp.impuesto.porcentaje}%`;
-        impuestoMonto.innerText = formato(imp.monto);
+
+        document.getElementById("impuestoRow").style.display = "flex";
+
+        document.getElementById("impuestoNombre").innerText =
+            `${imp.impuesto.nombre} ${imp.impuesto.porcentaje}%`;
+
+        document.getElementById("impuestoMonto").innerText =
+            formato(imp.monto);
+
     }else{
-        impuestoRow.style.display = "none";
+
+        document.getElementById("impuestoRow").style.display = "none";
+
     }
 
-    total.innerText = formato(tot);
+    document.getElementById("total").innerText = formato(tot);
 
     document.querySelector(".pay").innerHTML =
         `<i class="fa-solid fa-cart-shopping"></i> Cobrar ${formato(tot)}`;
 
-    cartCount.innerText = cant;
+    document.getElementById("cartCount").innerText = cant;
+
 }
 
-function sumar(i){
-    const it = carrito[i];
-    const p = productos.find(x=>x.codigo === it.codigo && x.nombre === it.nombre);
+/* =========================================
+   SUMAR, RESTAR Y ELIMINAR
+========================================= */
 
-    if(it.cantidad >= p.stock){
+function sumar(i){
+
+    const it = carrito[i];
+
+    const p = productos.find(x=>mismaIdentidad(x,it));
+
+    if(!p || it.cantidad >= p.stock){
         alert("No hay más stock disponible");
         return;
     }
 
     it.cantidad++;
+
     actualizarCarrito();
+
 }
 
 function restar(i){
+
     carrito[i].cantidad--;
 
     if(carrito[i].cantidad <= 0){
@@ -592,47 +757,75 @@ function restar(i){
     }
 
     actualizarCarrito();
+
 }
 
 function eliminar(i){
+
     carrito.splice(i,1);
+
     actualizarCarrito();
+
 }
 
 function limpiar(){
+
     carrito = [];
+
     actualizarCarrito();
+
 }
 
+/* =========================================
+   MÉTODOS DE PAGO
+========================================= */
+
 function esTarjeta(){
-    const metodo = metodoPago.value.toLowerCase();
+
+    const metodo = document.getElementById("metodoPago").value.toLowerCase();
 
     return metodo.includes("tarjeta") ||
            metodo.includes("targeta") ||
            metodo.includes("card");
+
 }
 
 function controlarCamposPago(){
+
+    const metodoPago = document.getElementById("metodoPago");
+    const campoMontoPago = document.getElementById("campoMontoPago");
+    const campoDevuelta = document.getElementById("campoDevuelta");
+    const montoPago = document.getElementById("montoPago");
+    const devuelta = document.getElementById("devuelta");
+    const alertaPago = document.getElementById("alertaPago");
+
     if(esTarjeta()){
+
         campoMontoPago.style.display = "none";
         campoDevuelta.style.display = "none";
         alertaPago.style.display = "none";
 
         montoPago.value = obtenerTotal();
         devuelta.value = formato(0);
+
     }else{
+
         campoMontoPago.style.display = "block";
         campoDevuelta.style.display = "block";
 
         montoPago.value = "";
         devuelta.value = formato(0);
+
         alertaPago.style.display = "none";
 
         setTimeout(()=>montoPago.focus(),100);
+
     }
+
 }
 
 function abrirModalPago(){
+
     if(!carrito.length){
         alert("No hay productos en la venta");
         return;
@@ -645,24 +838,36 @@ function abrirModalPago(){
         return;
     }
 
-    metodoPago.innerHTML = pagos.map(p=>`<option>${p.nombre}</option>`).join("");
+    const metodoPago = document.getElementById("metodoPago");
+
+    metodoPago.innerHTML = pagos.map(p=>
+        `<option>${p.nombre}</option>`
+    ).join("");
+
     metodoPago.onchange = controlarCamposPago;
 
-    totalCobro.value = formato(obtenerTotal());
-    montoPago.value = "";
-    devuelta.value = formato(0);
-    alertaPago.style.display = "none";
+    document.getElementById("totalCobro").value = formato(obtenerTotal());
+    document.getElementById("montoPago").value = "";
+    document.getElementById("devuelta").value = formato(0);
+    document.getElementById("alertaPago").style.display = "none";
 
     controlarCamposPago();
 
-    modalPago.classList.add("active");
+    document.getElementById("modalPago").classList.add("active");
+
 }
 
 function cerrarModalPago(){
-    modalPago.classList.remove("active");
+
+    document.getElementById("modalPago").classList.remove("active");
+
 }
 
-montoPago.addEventListener("input",function(){
+document.getElementById("montoPago").addEventListener("input",function(){
+
+    const devuelta = document.getElementById("devuelta");
+    const alertaPago = document.getElementById("alertaPago");
+
     if(esTarjeta()){
         alertaPago.style.display = "none";
         return;
@@ -671,100 +876,191 @@ montoPago.addEventListener("input",function(){
     const d = (parseFloat(this.value) || 0) - obtenerTotal();
 
     if(d < 0){
+
         devuelta.value = formato(0);
         alertaPago.style.display = "block";
+
     }else{
+
         devuelta.value = formato(d);
         alertaPago.style.display = "none";
+
     }
+
 });
 
+/* =========================================
+   CONFIRMAR VENTA
+========================================= */
+
 function confirmarPago(){
+
     const totalVenta = obtenerTotal();
-    const metodo = metodoPago.value;
+
+    const metodo = document.getElementById("metodoPago").value;
+    const montoPago = document.getElementById("montoPago");
+    const alertaPago = document.getElementById("alertaPago");
 
     let pagado = parseFloat(montoPago.value) || 0;
     let dev = 0;
 
     if(esTarjeta()){
+
         pagado = totalVenta;
         dev = 0;
+
     }else{
+
         if(pagado < totalVenta){
+
             alertaPago.style.display = "block";
             return;
+
         }
 
         dev = pagado - totalVenta;
+
     }
 
+    /* VERIFICAR STOCK ANTES DE COBRAR */
+
+    const inventarioActual = leerLS("inventarioPOS");
+
+    for(const it of carrito){
+
+        const inv = inventarioActual.find(x=>mismaIdentidad(x,it));
+
+        if(!inv || Number(inv.stock || 0) < it.cantidad){
+
+            alert("Stock insuficiente para: " + it.nombre +
+                  ". Actualiza el inventario antes de continuar.");
+
+            recargarInventario();
+            limpiar();
+
+            return;
+
+        }
+
+    }
+
+    /* DESCONTAR EXISTENCIAS */
+
     carrito.forEach(it=>{
-        const p = productos.find(x=>x.codigo === it.codigo && x.nombre === it.nombre);
+
+        const p = productos.find(x=>mismaIdentidad(x,it));
 
         if(p){
             p.stock -= it.cantidad;
         }
+
     });
+
+    /* GUARDAR CAMBIOS EN INVENTARIO Y PRODUCTOS */
 
     guardarProductos();
 
-    let ventas = JSON.parse(localStorage.getItem("ventasPOS")) || [];
+    /* GUARDAR VENTA */
+
+    let ventas = leerLS("ventasPOS");
 
     const venta = {
+
         folio:"#" + String(ventas.length + 1).padStart(6,"0"),
+
         fecha:new Date().toLocaleDateString("es-DO"),
+
         hora:new Date().toLocaleTimeString("es-DO"),
+
         cliente:"Consumidor final",
+
         productos:[...carrito],
+
         subtotal:calcularSubtotal(),
+
         total:totalVenta,
-        pagado,
+
+        pagado:pagado,
+
         devuelta:dev,
+
         pago:metodo,
+
         estado:"Completada"
+
     };
 
     ventas.unshift(venta);
+
     localStorage.setItem("ventasPOS",JSON.stringify(ventas));
 
     imprimirDocumento(venta,"FACTURA DE VENTA");
+
     cerrarModalPago();
+
     limpiar();
-    mostrarProductos(productos);
+
+    recargarInventario();
+
 }
 
+/* =========================================
+   COTIZACIONES
+========================================= */
+
 function guardarCotizacion(){
+
     if(!carrito.length){
         alert("No hay productos para cotizar");
         return;
     }
 
-    let cots = JSON.parse(localStorage.getItem("cotizacionesPOS")) || [];
+    let cots = leerLS("cotizacionesPOS");
 
     const cot = {
+
         folio:"COT-" + String(cots.length + 1).padStart(6,"0"),
+
         fecha:new Date().toLocaleDateString("es-DO"),
+
         hora:new Date().toLocaleTimeString("es-DO"),
+
         cliente:"Consumidor final",
+
         productos:[...carrito],
+
         subtotal:calcularSubtotal(),
+
         total:obtenerTotal(),
+
         pago:"Cotización",
+
         estado:"Cotización"
+
     };
 
     cots.unshift(cot);
+
     localStorage.setItem("cotizacionesPOS",JSON.stringify(cots));
 
     imprimirDocumento(cot,"COTIZACIÓN");
+
     limpiar();
+
     alert("Cotización creada correctamente");
+
 }
 
+/* =========================================
+   IMPRESIÓN DE DOCUMENTOS
+========================================= */
+
 function imprimirDocumento(doc,tipo){
+
     let rows = "";
 
     doc.productos.forEach(p=>{
+
         rows += `
             <tr>
                 <td>${p.cantidad}</td>
@@ -773,10 +1069,14 @@ function imprimirDocumento(doc,tipo){
                 <td>${formato(p.precio * p.cantidad)}</td>
             </tr>
         `;
+
     });
 
     const imp = obtenerImpuesto();
-    const sub = doc.subtotal || doc.productos.reduce((s,p)=>s + p.precio * p.cantidad,0);
+
+    const sub = doc.subtotal || doc.productos.reduce(
+        (s,p)=>s + p.precio * p.cantidad,0
+    );
 
     const im = imp.activo && imp.nombre && Number(imp.porcentaje) > 0
         ? sub * Number(imp.porcentaje) / 100
@@ -785,16 +1085,25 @@ function imprimirDocumento(doc,tipo){
     const ancho = anchoImpresora();
 
     const esVenta = tipo === "FACTURA DE VENTA";
-    const esPagoTarjeta = String(doc.pago || "").toLowerCase().includes("tarjeta") ||
-                          String(doc.pago || "").toLowerCase().includes("targeta");
+
+    const esPagoTarjeta =
+        String(doc.pago || "").toLowerCase().includes("tarjeta") ||
+        String(doc.pago || "").toLowerCase().includes("targeta");
 
     const w = window.open("","_blank","width=420,height=760");
+
+    if(!w){
+        alert("Permite las ventanas emergentes para imprimir.");
+        return;
+    }
 
     w.document.write(`
 <html>
 <head>
 <title>${tipo} ${doc.folio}</title>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+
 <style>
 *{box-sizing:border-box;font-family:Arial,sans-serif}
 body{width:${ancho};margin:auto;padding:10px;color:#000}
@@ -813,9 +1122,11 @@ th:nth-child(3),th:nth-child(4),td:nth-child(3),td:nth-child(4){text-align:right
 .gracias,.nota{text-align:center;margin-top:14px;font-size:13px;font-weight:bold}
 @media print{body{width:${ancho};margin:0;padding:6px}}
 </style>
+
 </head>
 
 <body>
+
 ${encabezadoNegocioHTML()}
 
 <div class="center"><b>${tipo}</b></div>
@@ -833,6 +1144,7 @@ ${encabezadoNegocioHTML()}
 <th>Total</th>
 </tr>
 </thead>
+
 <tbody>
 ${rows}
 </tbody>
@@ -841,23 +1153,24 @@ ${rows}
 <div class="line"></div>
 
 <div class="info">
-    <span>Subtotal:</span>
-    <span>${formato(sub)}</span>
+<span>Subtotal:</span>
+<span>${formato(sub)}</span>
 </div>
 
 ${im > 0 ? `
 <div class="info">
-    <span>${imp.nombre} ${imp.porcentaje}%:</span>
-    <span>${formato(im)}</span>
+<span>${imp.nombre} ${imp.porcentaje}%:</span>
+<span>${formato(im)}</span>
 </div>
 ` : ""}
 
 <div class="total">
-    <span>TOTAL</span>
-    <span>${formato(doc.total)}</span>
+<span>TOTAL</span>
+<span>${formato(doc.total)}</span>
 </div>
 
 ${esVenta ? `
+
     ${!esPagoTarjeta ? `
         <div class="info">
             <span>Pagó con:</span>
@@ -874,13 +1187,17 @@ ${esVenta ? `
         <span>Método:</span>
         <span>${doc.pago || "Efectivo"}</span>
     </div>
+
 ` : `
+
     <div class="nota">Esta cotización no descuenta inventario.</div>
+
 `}
 
 <div class="line"></div>
 
 <div id="qrcode"></div>
+
 <div class="center">QR: ${doc.folio}</div>
 
 <div class="line"></div>
@@ -888,6 +1205,7 @@ ${esVenta ? `
 <div class="gracias">¡Gracias por su compra!</div>
 
 <script>
+
 new QRCode(document.getElementById("qrcode"),{
     text:"${tipo}: ${doc.folio}",
     width:100,
@@ -899,6 +1217,7 @@ window.onload = function(){
         window.print();
     },800);
 };
+
 <\/script>
 
 </body>
@@ -906,50 +1225,78 @@ window.onload = function(){
     `);
 
     w.document.close();
+
 }
 
-buscar.addEventListener("input",function(){
+/* =========================================
+   BUSCADOR DE PRODUCTOS
+========================================= */
+
+document.getElementById("buscar").addEventListener("input",function(){
+
     const t = this.value.toLowerCase();
 
     mostrarProductos(
         productos.filter(p=>
             String(p.nombre || "").toLowerCase().includes(t) ||
-            String(p.codigo || "").includes(t)
+            String(p.codigo || "").toLowerCase().includes(t)
         )
     );
+
 });
 
+/* =========================================
+   ESCÁNER DE CÓDIGOS
+========================================= */
+
 function procesarCodigo(codigo){
+
     if(bloqueoScanner) return;
 
     bloqueoScanner = true;
 
-    const p = productos.find(x=>String(x.codigo) === String(codigo));
+    const p = productos.find(x=>
+        String(x.codigo) === String(codigo)
+    );
 
     if(p){
+
         cerrarScanner();
+
         agregarProducto(productos.indexOf(p));
+
     }else{
-        buscar.value = codigo;
+
+        document.getElementById("buscar").value = codigo;
 
         mostrarProductos(
-            productos.filter(x=>String(x.codigo || "").includes(codigo))
+            productos.filter(x=>
+                String(x.codigo || "").includes(codigo)
+            )
         );
 
         cerrarScanner();
-        alert("Producto no encontrado: " + codigo);
+
+        alert("Producto no encontrado en el inventario: " + codigo);
+
     }
 
     setTimeout(()=>bloqueoScanner = false,1000);
+
 }
 
 function abrirScanner(){
-    modalScanner.classList.add("active");
+
+    document.getElementById("modalScanner").classList.add("active");
+
+    const alertaScanner = document.getElementById("alertaScanner");
+
     alertaScanner.innerText = "Apunta la cámara al código de barra";
 
     if(scannerActivo) return;
 
     Quagga.init({
+
         inputStream:{
             type:"LiveStream",
             target:document.querySelector("#scanner"),
@@ -957,6 +1304,7 @@ function abrirScanner(){
                 facingMode:"environment"
             }
         },
+
         decoder:{
             readers:[
                 "ean_reader",
@@ -966,130 +1314,209 @@ function abrirScanner(){
                 "upc_e_reader"
             ]
         },
+
         locate:true
+
     },function(err){
+
         if(err){
+
             alertaScanner.innerText =
                 "No se pudo abrir la cámara. Revisa permisos o usa HTTPS.";
+
             console.log(err);
+
             return;
+
         }
 
         scannerActivo = true;
+
         Quagga.start();
+
     });
 
     Quagga.offDetected();
 
     Quagga.onDetected(function(r){
+
         const codigo = r.codeResult.code;
 
         if(codigo){
             procesarCodigo(codigo);
         }
+
     });
+
 }
 
 function cerrarScanner(){
-    modalScanner.classList.remove("active");
+
+    document.getElementById("modalScanner").classList.remove("active");
 
     if(scannerActivo){
+
         Quagga.stop();
+
         scannerActivo = false;
-    }
-}
 
-
-function fechaHoyDO(){
-    return new Date().toLocaleDateString("es-DO");
-}
-
-function leerLS(clave){
-    try{
-        return JSON.parse(localStorage.getItem(clave)) || [];
-    }catch(e){
-        return [];
-    }
-}
-
-function fechaGastoEsHoy(fecha){
-    if(!fecha) return false;
-
-    const hoy = fechaHoyDO();
-
-    if(String(fecha).includes("-")){
-        const f = new Date(fecha + "T00:00:00");
-        return f.toLocaleDateString("es-DO") === hoy;
     }
 
-    return String(fecha) === hoy;
-}
-
-function calcularGananciaVentaCierre(venta){
-    let ganancia = 0;
-
-    (venta.productos || []).forEach(p=>{
-        const precio = Number(p.precio || 0);
-        const costo = Number(p.costo || 0);
-        const cantidad = Number(p.cantidad || 1);
-
-        ganancia += (precio - costo) * cantidad;
-    });
-
-    return ganancia;
-}
-
-function abrirCierre(){
-    const hoy = fechaHoyDO();
-
-    const ventas = leerLS("ventasPOS").filter(v => v.fecha === hoy);
-    const gastos = leerLS("gastosPOS").filter(g => fechaGastoEsHoy(g.fecha));
-
-    const totalVentas = ventas.reduce((s,v)=>s + Number(v.total || 0),0);
-    const totalGastos = gastos.reduce((s,g)=>s + Number(g.monto || 0),0);
-    const gananciaVentas = ventas.reduce((s,v)=>s + calcularGananciaVentaCierre(v),0);
-    const gananciaFinal = gananciaVentas - totalGastos;
-
-    document.getElementById("cierreVentas").innerText = formato(totalVentas);
-    document.getElementById("cierreGastos").innerText = formato(totalGastos);
-    document.getElementById("cierreGanancia").innerText = formato(gananciaFinal);
-
-    document.getElementById("modalCierre").classList.add("active");
-}
-
-function cerrarCierre(){
-    document.getElementById("modalCierre").classList.remove("active");
-}
-
-function confirmarCierre(){
-    const cierres = leerLS("cierresPOS");
-
-    cierres.unshift({
-        fecha:fechaHoyDO(),
-        hora:new Date().toLocaleTimeString("es-DO"),
-        ventas:document.getElementById("cierreVentas").innerText,
-        gastos:document.getElementById("cierreGastos").innerText,
-        ganancia:document.getElementById("cierreGanancia").innerText
-    });
-
-    localStorage.setItem("cierresPOS", JSON.stringify(cierres));
-    localStorage.removeItem("usuarioActualPOS");
-    location.href = "index.html";
 }
 
 function probarCodigoManual(){
+
     const codigo = prompt("Escribe el código de barra:");
 
     if(codigo){
         procesarCodigo(codigo);
     }
+
 }
 
-mostrarProductos(productos);
-actualizarCarrito();
+/* =========================================
+   CIERRE DEL DÍA
+========================================= */
+
+function fechaHoyDO(){
+    return new Date().toLocaleDateString("es-DO");
+}
+
+function fechaGastoEsHoy(fecha){
+
+    if(!fecha) return false;
+
+    const hoy = fechaHoyDO();
+
+    if(String(fecha).includes("-")){
+
+        const f = new Date(fecha + "T00:00:00");
+
+        return f.toLocaleDateString("es-DO") === hoy;
+
+    }
+
+    return String(fecha) === hoy;
+
+}
+
+function calcularGananciaVentaCierre(venta){
+
+    let ganancia = 0;
+
+    (venta.productos || []).forEach(p=>{
+
+        const precio = Number(p.precio || 0);
+        const costo = Number(p.costo || 0);
+        const cantidad = Number(p.cantidad || 1);
+
+        ganancia += (precio - costo) * cantidad;
+
+    });
+
+    return ganancia;
+
+}
+
+function abrirCierre(){
+
+    const hoy = fechaHoyDO();
+
+    const ventas = leerLS("ventasPOS").filter(v=>v.fecha === hoy);
+
+    const gastos = leerLS("gastosPOS").filter(g=>
+        fechaGastoEsHoy(g.fecha)
+    );
+
+    const totalVentas = ventas.reduce(
+        (s,v)=>s + Number(v.total || 0),0
+    );
+
+    const totalGastos = gastos.reduce(
+        (s,g)=>s + Number(g.monto || 0),0
+    );
+
+    const gananciaVentas = ventas.reduce(
+        (s,v)=>s + calcularGananciaVentaCierre(v),0
+    );
+
+    const gananciaFinal = gananciaVentas - totalGastos;
+
+    document.getElementById("cierreVentas").innerText =
+        formato(totalVentas);
+
+    document.getElementById("cierreGastos").innerText =
+        formato(totalGastos);
+
+    document.getElementById("cierreGanancia").innerText =
+        formato(gananciaFinal);
+
+    document.getElementById("modalCierre").classList.add("active");
+
+}
+
+function cerrarCierre(){
+
+    document.getElementById("modalCierre").classList.remove("active");
+
+}
+
+function confirmarCierre(){
+
+    const cierres = leerLS("cierresPOS");
+
+    cierres.unshift({
+
+        fecha:fechaHoyDO(),
+
+        hora:new Date().toLocaleTimeString("es-DO"),
+
+        ventas:document.getElementById("cierreVentas").innerText,
+
+        gastos:document.getElementById("cierreGastos").innerText,
+
+        ganancia:document.getElementById("cierreGanancia").innerText
+
+    });
+
+    localStorage.setItem("cierresPOS",JSON.stringify(cierres));
+
+    localStorage.removeItem("usuarioActualPOS");
+
+    location.href = "index.html";
+
+}
+
+/* =========================================
+   INICIAR SISTEMA
+========================================= */
+
+recargarInventario();
+
+actualizarHeaderEmpresa();
+
+/* =========================================
+   ACTUALIZAR SI CAMBIA EL INVENTARIO
+   AL VOLVER DESDE OTRA PÁGINA
+========================================= */
+
+window.addEventListener("focus",function(){
+
+    recargarInventario();
+
+});
+
+window.addEventListener("storage",function(e){
+
+    if(e.key === "inventarioPOS" || e.key === "productosPOS"){
+
+        recargarInventario();
+
+    }
+
+});
+
 </script>
 
 </body>
 </html>
-
-Dejame todo como esta solo agregamele el modo movil
