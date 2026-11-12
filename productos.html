@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -64,55 +63,56 @@ body.menu-cerrado .content{left:0}
 .desktop-field{display:block}
 .product-meta{display:none}
 .empty{padding:30px 15px;text-align:center;color:var(--gris);background:white;border-radius:12px}
-.empty i{font-size:32px;display:block;margin-bottom:12px}
 
-/* SELECCIÓN DE PRODUCTOS */
+/* SELECCIÓN */
 .product-row.selected{
-    border:2px solid var(--azul)!important;
-    background:#eff6ff!important;
-    position:relative;
+ border:2px solid var(--azul)!important;
+ background:#eff6ff!important;
+ position:relative;
 }
 .selection-mark{
-    display:none;
-    width:23px;
-    height:23px;
-    border-radius:7px;
-    background:var(--azul);
-    color:white;
-    align-items:center;
-    justify-content:center;
-    margin-right:8px;
-    flex-shrink:0;
+ display:none;
+ width:23px;
+ height:23px;
+ border-radius:7px;
+ background:var(--azul);
+ color:white;
+ align-items:center;
+ justify-content:center;
+ margin-right:8px;
+ flex-shrink:0;
 }
 .product-row.selected .selection-mark{display:inline-flex}
 
 .selection-bar{
-    position:fixed;
-    bottom:20px;
-    left:50%;
-    transform:translateX(-50%);
-    z-index:2500;
-    background:white;
-    padding:12px;
-    border-radius:16px;
-    box-shadow:0 5px 30px #0003;
-    display:none;
-    align-items:center;
-    gap:12px;
-    width:max-content;
-    max-width:95%;
+ position:fixed;
+ bottom:20px;
+ left:50%;
+ transform:translateX(-50%);
+ z-index:2500;
+ background:white;
+ padding:12px;
+ border-radius:16px;
+ box-shadow:0 5px 30px #0003;
+ display:none;
+ align-items:center;
+ gap:10px;
+ width:max-content;
+ max-width:95%;
 }
 .selection-bar.active{display:flex}
 .selection-count{font-size:14px;font-weight:bold;color:var(--texto)}
-.btn-delete-selected,.btn-cancel-selection{
-    height:43px;
-    padding:0 17px;
-    border:0;
-    border-radius:10px;
-    font-weight:bold;
+.btn-delete-selected,.btn-cancel-selection,.btn-select-all{
+ height:43px;
+ padding:0 15px;
+ border:0;
+ border-radius:10px;
+ font-weight:bold;
+ white-space:nowrap;
 }
 .btn-delete-selected{background:var(--rojo);color:white}
 .btn-cancel-selection{background:#f1f5f9;color:var(--texto)}
+.btn-select-all{background:#eaf3ff;color:var(--azul)}
 
 .modal{position:fixed;inset:0;background:#0f172a99;display:none;align-items:center;justify-content:center;z-index:3000;padding:15px}
 .modal.active{display:flex}
@@ -161,85 +161,136 @@ body.menu-cerrado .content{left:0}
 
 @media(max-width:700px){
 body{overflow-x:hidden;overflow-y:auto}
-.header{height:62px;padding:0 10px}
-.header-left{gap:8px}
+
+.header{
+ position:fixed;
+ top:0;
+ left:0;
+ right:0;
+ height:120px;
+ padding:0 11px;
+ background:white;
+ display:flex;
+ flex-direction:column;
+ align-items:stretch;
+ justify-content:flex-start;
+ gap:10px;
+ z-index:1200;
+ border-bottom:1px solid var(--linea);
+}
+.header-left{
+ height:55px;
+ display:flex;
+ align-items:center;
+ gap:8px;
+}
 .header h1{font-size:20px}
-.header-right{gap:6px}
+.header-right{
+ position:absolute;
+ top:8px;
+ right:10px;
+ display:flex;
+ gap:5px;
+}
 .menu-toggle{width:38px;height:40px}
 .menu-toggle i{font-size:20px}
 .btn-header{height:40px;padding:0 10px;font-size:14px;border-radius:10px}
 .btn-header span{display:none}
 
-.sidebar{display:block!important;top:62px;left:0;bottom:0;width:270px;max-width:85vw;padding:18px 12px;z-index:950;transform:translateX(-105%);visibility:hidden;box-shadow:8px 0 25px #00000012}
-.sidebar.menu-visible{transform:translateX(0);visibility:visible}
+.sidebar{
+ display:block!important;
+ top:120px;
+ left:0;
+ bottom:0;
+ width:270px;
+ max-width:85vw;
+ padding:18px 12px;
+ z-index:1150;
+ transform:translateX(-105%);
+ visibility:hidden;
+ box-shadow:8px 0 25px #00000012;
+}
+.sidebar.menu-visible{
+ transform:translateX(0);
+ visibility:visible;
+}
 
-.content{position:relative;top:62px;left:0!important;right:auto;bottom:auto;width:100%;padding:65px 11px 90px;overflow:visible}
+.content{
+ position:relative;
+ top:120px;
+ left:0!important;
+ right:auto;
+ bottom:auto;
+ width:100%;
+ padding:12px 11px 100px;
+ overflow:visible;
+}
 .card{padding:0;background:transparent;box-shadow:none;border-radius:0}
 
-/* BUSCADOR Y DEPARTAMENTO FIJOS */
 .search-box{
-    position:fixed;
-    top:69px;
-    left:11px;
-    width:calc(100% - 165px);
-    height:45px;
-    z-index:1100;
-    margin:0;
-    background:white;
-    padding:0 12px;
-    gap:9px;
-    border-radius:13px;
+ position:fixed;
+ top:62px;
+ left:11px;
+ width:calc(100% - 165px);
+ height:45px;
+ z-index:1250;
+ margin:0;
+ background:white;
+ padding:0 12px;
+ gap:9px;
+ border-radius:11px;
 }
 .search-box>i{font-size:16px}
 .search-box input{font-size:14px}
 
 .filters{
-    position:fixed;
-    top:69px;
-    right:11px;
-    width:142px;
-    height:45px;
-    display:block;
-    z-index:1100;
-    margin:0;
+ position:fixed;
+ top:62px;
+ right:11px;
+ width:142px;
+ height:45px;
+ display:block;
+ z-index:1250;
+ margin:0;
 }
 .filters select{
-    height:45px;
-    width:100%;
-    padding:0 9px;
-    font-size:11px;
-    border-radius:12px;
-    min-width:0;
+ height:45px;
+ width:100%;
+ padding:0 9px;
+ font-size:11px;
+ border-radius:11px;
+ min-width:0;
 }
 
 .table{overflow:visible;width:100%}
 .header-row{display:none}
+
 .product-row{
-    min-width:0;
-    width:100%;
-    display:block;
-    padding:15px;
-    margin-bottom:12px;
-    background:white;
-    border:1px solid #e9edf3;
-    border-radius:16px;
-    box-shadow:0 3px 12px #0f172a08;
-    font-size:13px;
-    touch-action:pan-y;
-    user-select:none;
-    -webkit-user-select:none;
-    -webkit-touch-callout:none;
+ min-width:0;
+ width:100%;
+ display:block;
+ padding:15px;
+ margin-bottom:12px;
+ background:white;
+ border:1px solid #e9edf3;
+ border-radius:16px;
+ box-shadow:0 3px 12px #0f172a08;
+ font-size:13px;
+ touch-action:pan-y;
+ user-select:none;
+ -webkit-user-select:none;
+ -webkit-touch-callout:none;
 }
 .product-row:hover{background:white}
 .product-name{
-    display:flex;
-    align-items:center;
-    font-size:16px;
-    font-weight:bold;
-    color:var(--texto);
-    line-height:1.4;
-    overflow-wrap:anywhere;
-    margin-bottom:13px;
+ display:flex;
+ align-items:center;
+ font-size:16px;
+ font-weight:bold;
+ color:var(--texto);
+ line-height:1.4;
+ overflow-wrap:anywhere;
+ margin-bottom:13px;
 }
 .desktop-field{display:none}
 .product-meta{display:grid;grid-template-columns:1fr 1fr;gap:13px 10px}
@@ -249,13 +300,18 @@ body{overflow-x:hidden;overflow-y:auto}
 .meta-item strong.price{color:var(--azul);font-size:15px}
 
 .selection-bar{
-    bottom:15px;
-    width:calc(100% - 22px);
-    justify-content:space-between;
-    gap:7px;
+ bottom:15px;
+ width:calc(100% - 22px);
+ justify-content:space-between;
+ gap:6px;
+ padding:9px;
 }
-.selection-count{font-size:12px}
-.btn-delete-selected,.btn-cancel-selection{padding:0 12px;font-size:12px}
+.selection-count{font-size:11px}
+.btn-delete-selected,.btn-cancel-selection,.btn-select-all{
+ height:40px;
+ padding:0 9px;
+ font-size:11px;
+}
 
 .empty{background:white;border-radius:15px}
 .modal{padding:10px}
@@ -292,11 +348,9 @@ body{overflow-x:hidden;overflow-y:auto}
   <button class="btn-header btn-importar" onclick="seleccionarArchivoImportacion()" title="Importar Excel o CSV">
    <i class="fa-solid fa-file-import"></i><span> Importar Excel</span>
   </button>
-
   <button class="btn-header btn-exportar" onclick="exportarExcel()" title="Exportar productos a Excel">
    <i class="fa-solid fa-file-excel"></i><span> Exportar Excel</span>
   </button>
-
   <button class="btn-header" onclick="abrirModal()">
    <i class="fa-solid fa-plus"></i><span> Agregar</span>
   </button>
@@ -349,35 +403,31 @@ body{overflow-x:hidden;overflow-y:auto}
 </div>
 </main>
 
-<!-- BARRA DE PRODUCTOS SELECCIONADOS -->
+<!-- BARRA DE SELECCIÓN -->
 <div class="selection-bar" id="selectionBar">
-    <span class="selection-count" id="selectionCount">0 seleccionados</span>
+ <span class="selection-count" id="selectionCount">0 seleccionados</span>
 
-    <button class="btn-delete-selected" onclick="eliminarSeleccionados()">
-        <i class="fa-solid fa-trash"></i> Eliminar
-    </button>
+ <button class="btn-select-all" id="btnSelectAll" onclick="seleccionarTodos()">
+  <i class="fa-solid fa-check-double"></i> Seleccionar todos
+ </button>
 
-    <button class="btn-cancel-selection" onclick="cancelarSeleccion()">
-        Cancelar
-    </button>
+ <button class="btn-delete-selected" onclick="eliminarSeleccionados()">
+  <i class="fa-solid fa-trash"></i> Eliminar
+ </button>
+
+ <button class="btn-cancel-selection" onclick="cancelarSeleccion()">Cancelar</button>
 </div>
 
-<!-- DETALLES DEL PRODUCTO -->
+<!-- DETALLES -->
 <div class="modal" id="modalDetalle">
 <div class="modal-box detail-box">
-
  <div class="modal-top">
   <h2>Detalles del producto</h2>
-  <button class="close-btn" onclick="cerrarDetalle()" aria-label="Cerrar">
-   <i class="fa-solid fa-xmark"></i>
-  </button>
+  <button class="close-btn" onclick="cerrarDetalle()" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
  </div>
-
  <img id="detalleImagen" class="detail-image" src="" alt="Imagen del producto" onerror="this.onerror=null;this.src='https://cdn-icons-png.flaticon.com/512/3081/3081559.png'">
-
  <div id="detalleNombre" class="detail-name"></div>
  <div class="detail-subtitle">Información completa del producto</div>
-
  <div class="detail-grid">
   <div class="detail-item"><small>Departamento</small><strong id="detalleDepartamento">-</strong></div>
   <div class="detail-item"><small>Costo del producto</small><strong id="detalleCosto">-</strong></div>
@@ -386,23 +436,16 @@ body{overflow-x:hidden;overflow-y:auto}
   <div class="detail-item"><small>Ganancia sobre costo</small><strong id="detalleGanancia" class="detail-gain">-</strong></div>
   <div class="detail-item"><small>Código de barras</small><strong id="detalleCodigo" class="detail-code">-</strong></div>
  </div>
-
- <button class="btn-edit-detail" onclick="editarDesdeDetalle()">
-  <i class="fa-solid fa-pen-to-square"></i>Editar producto
- </button>
-
+ <button class="btn-edit-detail" onclick="editarDesdeDetalle()"><i class="fa-solid fa-pen-to-square"></i>Editar producto</button>
 </div>
 </div>
 
-<!-- FORMULARIO DE PRODUCTO -->
+<!-- FORMULARIO -->
 <div class="modal" id="modalProducto">
 <div class="modal-box">
-
  <div class="modal-top">
   <h2 id="tituloModal">Agregar producto</h2>
-  <button class="close-btn" onclick="cerrarModal()" aria-label="Cerrar">
-   <i class="fa-solid fa-xmark"></i>
-  </button>
+  <button class="close-btn" onclick="cerrarModal()" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
  </div>
 
  <label for="nombre">Nombre del producto</label>
@@ -422,43 +465,34 @@ body{overflow-x:hidden;overflow-y:auto}
  <input type="number" id="mayorista" placeholder="0.00" min="0" step="0.01">
 
  <label for="ganancia">Ganancia sobre costo (%)</label>
- <input type="text" id="ganancia" value="0.00%" readonly aria-label="Porcentaje de ganancia calculado automáticamente">
+ <input type="text" id="ganancia" value="0.00%" readonly>
 
  <label for="codigo">Código de barras</label>
  <div class="codigo-box">
   <input type="text" id="codigo" placeholder="Código de barra">
-  <button class="scan-btn" onclick="abrirScanner('codigo')" type="button">
-   <i class="fa-solid fa-barcode"></i>
-  </button>
+  <button class="scan-btn" onclick="abrirScanner('codigo')" type="button"><i class="fa-solid fa-barcode"></i></button>
  </div>
 
  <div class="modal-actions">
   <button class="cancel" onclick="cerrarModal()">Cancelar</button>
   <button class="save" id="btnGuardar" onclick="guardarProducto()">Guardar</button>
  </div>
-
 </div>
 </div>
 
 <!-- ESCÁNER -->
 <div class="modal" id="scannerModal">
 <div class="modal-box">
-
  <div class="modal-top">
   <h2>Escanear código</h2>
-  <button class="close-btn" onclick="cerrarScanner()" aria-label="Cerrar">
-   <i class="fa-solid fa-xmark"></i>
-  </button>
+  <button class="close-btn" onclick="cerrarScanner()" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
  </div>
-
  <div class="scan-info" id="scanInfo">Apunta la cámara al código de barras</div>
  <div id="reader"></div>
-
  <div class="modal-actions">
   <button class="cancel" onclick="cerrarScanner()">Cerrar</button>
   <button class="save" onclick="codigoManual()">Manual</button>
  </div>
-
 </div>
 </div>
 
@@ -470,20 +504,17 @@ const imagenDefault="https://cdn-icons-png.flaticon.com/512/3081/3081559.png";
 const STORAGE_KEY="productosPOS";
 
 let productos=[],indiceEditando=null,indiceDetalle=null;
-
-/* SELECCIÓN */
 let productosSeleccionados=new Set();
 let temporizadorPresion=null;
 let presionActivada=false;
 let indicePresionado=null;
 let movimientoPresion=false;
+let inicioX=0,inicioY=0;
 
 try{
  const datos=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
  productos=Array.isArray(datos)?datos:[];
-}catch(error){
- productos=[];
-}
+}catch(error){productos=[];}
 
 productos=productos.map(p=>{
  const {categoria,...r}=p||{};
@@ -521,45 +552,32 @@ function toggleMenu(forzarEstado){
 function irA(pagina){location.href=pagina}
 
 function alerta(titulo,texto,icono="success"){
- Swal.fire({
-  title:titulo,
-  text:texto,
-  icon:icono,
-  confirmButtonColor:"#0b7cff"
- });
+ Swal.fire({title:titulo,text:texto,icon:icono,confirmButtonColor:"#0b7cff"});
 }
 
 function formato(valor){
  return "RD$ "+Number(valor||0).toLocaleString("es-DO",{
-  minimumFractionDigits:2,
-  maximumFractionDigits:2
+  minimumFractionDigits:2,maximumFractionDigits:2
  });
 }
 
 function escapar(valor){
  return String(valor??"").replace(/[&<>"']/g,c=>({
-  "&":"&amp;",
-  "<":"&lt;",
-  ">":"&gt;",
-  '"':"&quot;",
-  "'":"&#39;"
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
  }[c]));
 }
 
 function porcentajeGanancia(c,p){
- c=Number(c)||0;
- p=Number(p)||0;
+ c=Number(c)||0;p=Number(p)||0;
  return c>0?((p-c)/c)*100:0;
 }
 
 function actualizarGanancia(){
  const c=Number(document.getElementById("costo").value)||0;
  const p=Number(document.getElementById("precio").value)||0;
-
  document.getElementById("ganancia").value=
  porcentajeGanancia(c,p).toLocaleString("es-DO",{
-  minimumFractionDigits:2,
-  maximumFractionDigits:2
+  minimumFractionDigits:2,maximumFractionDigits:2
  })+"%";
 }
 
@@ -577,21 +595,17 @@ function guardarLocal(){
 }
 
 /* EXPORTAR EXCEL */
-
 function exportarExcel(){
-
  if(typeof XLSX==="undefined"){
-  alerta("Excel no disponible","No se pudo cargar la biblioteca de Excel. Revisa tu conexión a Internet.","error");
-  return;
+  alerta("Excel no disponible","Revisa tu conexión a Internet.","error");return;
  }
-
  if(!productos.length){
-  alerta("Sin productos","No hay productos registrados para exportar.","warning");
-  return;
+  alerta("Sin productos","No hay productos registrados para exportar.","warning");return;
  }
 
  const datos=productos.map(p=>({
   "Nombre del producto":String(p.nombre||""),
+  "Departamento":String(p.departamento||""),
   "Costo del producto":Number(p.costo)||0,
   "Precio de venta al detalle":Number(p.precio)||0,
   "Precio de venta mayorista":Number(p.mayorista)||0,
@@ -599,34 +613,18 @@ function exportarExcel(){
  }));
 
  const hoja=XLSX.utils.json_to_sheet(datos);
-
- hoja["!cols"]=[
-  {wch:30},
-  {wch:20},
-  {wch:28},
-  {wch:28},
-  {wch:22}
- ];
+ hoja["!cols"]=[{wch:30},{wch:20},{wch:20},{wch:28},{wch:28},{wch:22}];
 
  for(let i=0;i<datos.length;i++){
-  const fila=i+2;
-  const celda=hoja["E"+fila];
-
-  if(celda){
-   celda.t="s";
-   celda.v=String(datos[i]["Código de barras"]);
-   celda.z="@";
-  }
+  const celda=hoja["F"+(i+2)];
+  if(celda){celda.t="s";celda.v=String(datos[i]["Código de barras"]);celda.z="@";}
  }
 
  const libro=XLSX.utils.book_new();
  XLSX.utils.book_append_sheet(libro,hoja,"Productos");
 
- const fecha=new Date().toLocaleDateString("en-CA");
- const nombreArchivo=`Productos_${fecha}.xlsx`;
-
  try{
-  XLSX.writeFile(libro,nombreArchivo);
+  XLSX.writeFile(libro,`Productos_${new Date().toLocaleDateString("en-CA")}.xlsx`);
   alerta("Exportación completada",`Se exportaron ${productos.length} productos correctamente.`);
  }catch(error){
   console.error(error);
@@ -635,11 +633,9 @@ function exportarExcel(){
 }
 
 /* DEPARTAMENTOS */
-
 function obtenerUnicos(campo){
- return [...new Set(
-  productos.map(p=>String(p[campo]||"").trim()).filter(Boolean)
- )].sort((a,b)=>a.localeCompare(b,"es"));
+ return [...new Set(productos.map(p=>String(p[campo]||"").trim()).filter(Boolean))]
+ .sort((a,b)=>a.localeCompare(b,"es"));
 }
 
 function actualizarDepartamentos(){
@@ -653,29 +649,23 @@ function actualizarDepartamentos(){
 
  deps.forEach(d=>{
   s.add(new Option(d,d));
-
   const op=document.createElement("option");
-  op.value=d;
-  l.appendChild(op);
+  op.value=d;l.appendChild(op);
  });
 
  if(deps.includes(actual))s.value=actual;
 }
 
 /* MOSTRAR PRODUCTOS */
-
 function mostrarProductos(lista=productos){
  const c=document.getElementById("listaProductos");
 
  if(!lista.length){
-  c.innerHTML=`
-   <div class="empty">
-    <i class="fa-solid fa-box-open"></i>
-    <strong>No hay productos encontrados</strong>
-    <p style="margin-top:8px;font-size:13px">
-     Prueba otra búsqueda o agrega un producto.
-    </p>
-   </div>`;
+  c.innerHTML=`<div class="empty">
+   <i class="fa-solid fa-box-open"></i>
+   <strong>No hay productos encontrados</strong>
+   <p style="margin-top:8px;font-size:13px">Prueba otra búsqueda o agrega un producto.</p>
+  </div>`;
   return;
  }
 
@@ -687,15 +677,12 @@ function mostrarProductos(lista=productos){
    <div class="product-row ${seleccionado?"selected":""}"
     data-index="${n}"
     onclick="manejarClickProducto(event,${n})"
-    role="button"
-    tabindex="0"
+    role="button" tabindex="0"
     aria-label="Ver detalles de ${escapar(p.nombre)}"
     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();manejarClickProducto(event,${n})}">
 
     <div class="product-name">
-     <span class="selection-mark">
-      <i class="fa-solid fa-check"></i>
-     </span>
+     <span class="selection-mark"><i class="fa-solid fa-check"></i></span>
      ${escapar(p.nombre)}
     </div>
 
@@ -704,80 +691,88 @@ function mostrarProductos(lista=productos){
     <div class="desktop-field">${formato(p.precio)}</div>
 
     <div class="product-meta">
-     <div class="meta-item">
-      <small>Costo</small>
-      <strong>${formato(p.costo)}</strong>
-     </div>
-
-     <div class="meta-item">
-      <small>Precio</small>
-      <strong class="price">${formato(p.precio)}</strong>
-     </div>
+     <div class="meta-item"><small>Costo</small><strong>${formato(p.costo)}</strong></div>
+     <div class="meta-item"><small>Precio</small><strong class="price">${formato(p.precio)}</strong></div>
     </div>
-
    </div>`;
  }).join("");
 }
 
-/* MANEJAR CLIC Y SELECCIÓN */
-
+/* CLIC Y SELECCIÓN */
 function manejarClickProducto(event,n){
-
  if(presionActivada){
   event.preventDefault();
   presionActivada=false;
-  indicePresionado=null;
   return;
  }
-
  if(productosSeleccionados.size>0){
   alternarSeleccion(n);
   return;
  }
-
  abrirDetalle(n);
 }
 
 function alternarSeleccion(n){
-
  if(n<0||n>=productos.length)return;
 
- if(productosSeleccionados.has(n)){
-  productosSeleccionados.delete(n);
+ if(productosSeleccionados.has(n))productosSeleccionados.delete(n);
+ else productosSeleccionados.add(n);
+
+ actualizarBarraSeleccion();
+ aplicarFiltro();
+}
+
+/* NUEVO: SELECCIONAR TODOS LOS PRODUCTOS */
+function seleccionarTodos(){
+ if(!productos.length)return;
+
+ const todosSeleccionados=productosSeleccionados.size===productos.length;
+
+ if(todosSeleccionados){
+  productosSeleccionados.clear();
  }else{
-  productosSeleccionados.add(n);
+  productosSeleccionados.clear();
+
+  productos.forEach((producto,indice)=>{
+   productosSeleccionados.add(indice);
+  });
  }
 
  actualizarBarraSeleccion();
  aplicarFiltro();
 }
 
+/* ACTUALIZAR BARRA DE SELECCIÓN */
 function actualizarBarraSeleccion(){
-
  const barra=document.getElementById("selectionBar");
  const contador=document.getElementById("selectionCount");
+ const botonTodos=document.getElementById("btnSelectAll");
  const cantidad=productosSeleccionados.size;
 
- contador.textContent=
-  cantidad+" producto"+(cantidad===1?" seleccionado":" seleccionados");
+ contador.textContent=cantidad+" producto"+(cantidad===1?" seleccionado":" seleccionados");
 
  barra.classList.toggle("active",cantidad>0);
+
+ if(cantidad===productos.length&&productos.length>0){
+  botonTodos.innerHTML='<i class="fa-solid fa-xmark"></i> Deseleccionar todos';
+ }else{
+  botonTodos.innerHTML='<i class="fa-solid fa-check-double"></i> Seleccionar todos';
+ }
 }
 
 function cancelarSeleccion(){
  productosSeleccionados.clear();
  presionActivada=false;
  indicePresionado=null;
+ clearTimeout(temporizadorPresion);
  actualizarBarraSeleccion();
  aplicarFiltro();
 }
 
 /* PRESIÓN PROLONGADA EN MÓVIL */
-
 const listaProductosElement=document.getElementById("listaProductos");
 
 listaProductosElement.addEventListener("pointerdown",function(e){
-
  if(!window.matchMedia("(max-width:700px)").matches)return;
  if(e.pointerType==="mouse")return;
 
@@ -785,43 +780,40 @@ listaProductosElement.addEventListener("pointerdown",function(e){
  if(!fila)return;
 
  const n=Number(fila.dataset.index);
-
  if(!Number.isInteger(n)||n<0||n>=productos.length)return;
 
  clearTimeout(temporizadorPresion);
-
  presionActivada=false;
  movimientoPresion=false;
  indicePresionado=n;
+ inicioX=e.clientX;
+ inicioY=e.clientY;
 
  temporizadorPresion=setTimeout(()=>{
-
   if(indicePresionado!==n||movimientoPresion)return;
 
   presionActivada=true;
   alternarSeleccion(n);
 
-  if(navigator.vibrate){
-   navigator.vibrate(45);
-  }
-
- },550);
-
+  if(navigator.vibrate)navigator.vibrate(60);
+ },500);
 });
 
 listaProductosElement.addEventListener("pointermove",function(e){
-
  if(indicePresionado===null)return;
 
- if(e.pointerType==="touch"){
+ const distanciaX=Math.abs(e.clientX-inicioX);
+ const distanciaY=Math.abs(e.clientY-inicioY);
+
+ if(distanciaX>12||distanciaY>12){
   movimientoPresion=true;
   clearTimeout(temporizadorPresion);
  }
-
 });
 
 listaProductosElement.addEventListener("pointerup",function(){
  clearTimeout(temporizadorPresion);
+ indicePresionado=null;
 });
 
 listaProductosElement.addEventListener("pointerleave",function(){
@@ -835,38 +827,38 @@ listaProductosElement.addEventListener("pointercancel",function(){
 });
 
 listaProductosElement.addEventListener("contextmenu",function(e){
- if(window.matchMedia("(max-width:700px)").matches){
-  e.preventDefault();
- }
+ if(window.matchMedia("(max-width:700px)").matches)e.preventDefault();
 });
 
-/* ELIMINAR VARIOS PRODUCTOS */
-
+/* ELIMINAR VARIOS */
 function eliminarSeleccionados(){
-
  const indices=[...productosSeleccionados]
-  .filter(n=>n>=0&&n<productos.length)
-  .sort((a,b)=>b-a);
+ .filter(n=>n>=0&&n<productos.length)
+ .sort((a,b)=>b-a);
 
  if(!indices.length)return;
 
+ const cantidad=indices.length;
+
  Swal.fire({
-  title:"¿Eliminar productos?",
-  text:`Se eliminarán ${indices.length} producto(s). Esta acción no se puede deshacer.`,
+  title:"¿Estás seguro?",
+  html:`<div style="font-size:15px;color:#475569">
+   Vas a eliminar <strong style="color:#dc2626">${cantidad} producto(s)</strong>.
+   <br><br>Esta acción no se puede deshacer.
+  </div>`,
   icon:"warning",
   showCancelButton:true,
   confirmButtonText:"Sí, eliminar",
-  cancelButtonText:"Cancelar",
-  confirmButtonColor:"#dc2626"
+  cancelButtonText:"No, cancelar",
+  confirmButtonColor:"#dc2626",
+  cancelButtonColor:"#64748b",
+  reverseButtons:true
  }).then(r=>{
-
   if(!r.isConfirmed)return;
 
   const respaldo=[...productos];
 
-  indices.forEach(n=>{
-   productos.splice(n,1);
-  });
+  indices.forEach(n=>productos.splice(n,1));
 
   if(!guardarLocal()){
    productos=respaldo;
@@ -879,20 +871,17 @@ function eliminarSeleccionados(){
   refrescar();
 
   Swal.fire({
-   title:"Productos eliminados",
-   text:`Se eliminaron ${indices.length} producto(s) correctamente.`,
+   title:"¡Productos eliminados!",
+   text:`Se eliminaron ${cantidad} producto(s) correctamente.`,
    icon:"success",
    confirmButtonColor:"#0b7cff"
   });
-
  });
 }
 
 /* DETALLES */
-
 function abrirDetalle(n){
  if(n<0||n>=productos.length)return;
-
  const p=productos[n];
  indiceDetalle=n;
 
@@ -905,10 +894,9 @@ function abrirDetalle(n){
  document.getElementById("detalleMayorista").textContent=formato(p.mayorista);
 
  document.getElementById("detalleGanancia").textContent=
-  porcentajeGanancia(p.costo,p.precio).toLocaleString("es-DO",{
-   minimumFractionDigits:2,
-   maximumFractionDigits:2
-  })+"%";
+ porcentajeGanancia(p.costo,p.precio).toLocaleString("es-DO",{
+  minimumFractionDigits:2,maximumFractionDigits:2
+ })+"%";
 
  document.getElementById("detalleCodigo").textContent=p.codigo||"-";
  document.getElementById("modalDetalle").classList.add("active");
@@ -927,7 +915,6 @@ function editarDesdeDetalle(){
 }
 
 /* FORMULARIO */
-
 function refrescar(){
  actualizarDepartamentos();
  aplicarFiltro();
@@ -943,19 +930,15 @@ function limpiarFormulario(){
 
 function abrirModal(){
  indiceEditando=null;
-
  document.getElementById("tituloModal").textContent="Agregar producto";
  document.getElementById("btnGuardar").textContent="Guardar";
-
  limpiarFormulario();
  document.getElementById("modalProducto").classList.add("active");
-
  setTimeout(()=>document.getElementById("nombre").focus(),150);
 }
 
 function editarProducto(n){
  if(n<0||n>=productos.length)return;
-
  const p=productos[n];
  indiceEditando=n;
 
@@ -968,7 +951,6 @@ function editarProducto(n){
 
  actualizarGanancia();
  document.getElementById("modalProducto").classList.add("active");
-
  setTimeout(()=>document.getElementById("nombre").focus(),150);
 }
 
@@ -978,9 +960,7 @@ function cerrarModal(){
 }
 
 /* GUARDAR PRODUCTO */
-
 function guardarProducto(ignorarAvisoMayorista=false){
-
  const nombre=document.getElementById("nombre").value.trim();
  const departamento=document.getElementById("departamento").value.trim();
  const ct=document.getElementById("costo").value.trim();
@@ -988,27 +968,11 @@ function guardarProducto(ignorarAvisoMayorista=false){
  const mt=document.getElementById("mayorista").value.trim();
  const codigo=document.getElementById("codigo").value.trim();
 
- const costo=Number(ct);
- const precio=Number(pt);
- const mayorista=Number(mt);
+ const costo=Number(ct),precio=Number(pt),mayorista=Number(mt);
 
- if(
-  !nombre||
-  !departamento||
-  !codigo||
-  ct===""||
-  pt===""||
-  mt===""||
-  ![costo,precio,mayorista].every(Number.isFinite)||
-  costo<0||
-  precio<=0||
-  mayorista<0
- ){
-  alerta(
-   "Campos incompletos",
-   "Completa todos los campos. El costo y el precio mayorista no pueden ser negativos y el precio al detalle debe ser mayor que cero.",
-   "warning"
-  );
+ if(!nombre||!departamento||!codigo||ct===""||pt===""||mt===""||
+ ![costo,precio,mayorista].every(Number.isFinite)||costo<0||precio<=0||mayorista<0){
+  alerta("Campos incompletos","Completa todos los campos. El costo y el precio mayorista no pueden ser negativos y el precio al detalle debe ser mayor que cero.","warning");
   return;
  }
 
@@ -1021,34 +985,21 @@ function guardarProducto(ignorarAvisoMayorista=false){
    confirmButtonText:"Guardar de todos modos",
    cancelButtonText:"Revisar",
    confirmButtonColor:"#0b7cff"
-  }).then(r=>{
-   if(r.isConfirmed)guardarProducto(true);
-  });
+  }).then(r=>{if(r.isConfirmed)guardarProducto(true);});
   return;
  }
 
- if(productos.some((p,i)=>
-  i!==indiceEditando&&
-  String(p.codigo).trim().toLowerCase()===codigo.toLowerCase()
- )){
+ if(productos.some((p,i)=>i!==indiceEditando&&String(p.codigo).trim().toLowerCase()===codigo.toLowerCase())){
   alerta("Código repetido","Este código de barras ya existe en otro producto.","error");
   return;
  }
 
  const p={
-  nombre,
-  departamento,
-  costo,
-  precio,
-  mayorista,
-  codigo,
-  img:indiceEditando!==null?
-   (productos[indiceEditando].img||imagenDefault):
-   imagenDefault
+  nombre,departamento,costo,precio,mayorista,codigo,
+  img:indiceEditando!==null?(productos[indiceEditando].img||imagenDefault):imagenDefault
  };
 
  if(indiceEditando!==null){
-
   const anterior=productos[indiceEditando];
   productos[indiceEditando]=p;
 
@@ -1060,9 +1011,7 @@ function guardarProducto(ignorarAvisoMayorista=false){
   cerrarModal();
   refrescar();
   alerta("Cambios guardados","El producto fue actualizado correctamente.");
-
  }else{
-
   productos.push(p);
 
   if(!guardarLocal()){
@@ -1076,44 +1025,31 @@ function guardarProducto(ignorarAvisoMayorista=false){
  }
 }
 
-/* BUSCADOR Y FILTROS */
-
+/* BUSCADOR */
 function aplicarFiltro(){
-
  const t=document.getElementById("buscar").value.trim().toLowerCase();
  const d=document.getElementById("filtroDepartamento").value;
 
  mostrarProductos(productos.filter(p=>
-  [
-   p.nombre,
-   p.departamento,
-   p.costo,
-   p.precio,
-   p.mayorista,
-   p.codigo,
-   porcentajeGanancia(p.costo,p.precio)
-  ].some(v=>String(v??"").toLowerCase().includes(t))&&
+  [p.nombre,p.departamento,p.costo,p.precio,p.mayorista,p.codigo,
+  porcentajeGanancia(p.costo,p.precio)]
+  .some(v=>String(v??"").toLowerCase().includes(t))&&
   (d==="Todos"||p.departamento===d)
  ));
 }
-
 document.getElementById("buscar").addEventListener("input",aplicarFiltro);
 
-/* IMPORTACIÓN EXCEL, CSV Y TXT */
-
+/* IMPORTACIÓN EXCEL Y CSV */
 function seleccionarArchivoImportacion(){
-
  Swal.fire({
   title:"Importar productos",
-  html:`
-   <div style="text-align:left;font-size:14px;line-height:1.7">
-    <p>Selecciona un archivo Excel (.xlsx o .xls) o CSV.</p>
-    <p style="margin-top:8px"><b>Se reconoce automáticamente:</b> Producto/Nombre, Costo y Precio detalle.</p>
-    <p style="margin-top:8px">Si faltan otros campos, se dejan vacíos. Si no hay precio, se guarda como 0.</p>
-    <p style="margin-top:8px;color:#64748b">Puedes usar encabezados en la primera fila. Los nombres de columna pueden estar en distinto orden.</p>
-   </div>`,
-  icon:"info",
-  showCancelButton:true,
+  html:`<div style="text-align:left;font-size:14px;line-height:1.7">
+   <p>Selecciona un archivo Excel (.xlsx o .xls) o CSV.</p>
+   <p style="margin-top:8px"><b>Se reconoce automáticamente:</b> Producto/Nombre, Costo y Precio detalle.</p>
+   <p style="margin-top:8px">Si faltan otros campos, se dejan vacíos. Si no hay precio, se guarda como 0.</p>
+   <p style="margin-top:8px;color:#64748b">Puedes usar encabezados en la primera fila. Los nombres de columna pueden estar en distinto orden.</p>
+  </div>`,
+  icon:"info",showCancelButton:true,
   confirmButtonText:"Elegir archivo",
   cancelButtonText:"Cancelar",
   confirmButtonColor:"#0b7cff"
@@ -1127,35 +1063,21 @@ function seleccionarArchivoImportacion(){
 }
 
 function norm(s){
- return String(s??"")
- .replace(/^\uFEFF/,"")
- .trim()
- .toLowerCase()
- .normalize("NFD")
- .replace(/[\u0300-\u036f]/g,"")
- .replace(/[_-]+/g," ")
- .replace(/\s+/g," ");
+ return String(s??"").replace(/^\uFEFF/,"").trim().toLowerCase()
+ .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+ .replace(/[_-]+/g," ").replace(/\s+/g," ");
 }
 
 function numImportado(v){
  if(v===null||v===undefined||String(v).trim()==="")return 0;
  if(typeof v==="number")return Number.isFinite(v)?v:NaN;
 
- let s=String(v).trim()
- .replace(/\s/g,"")
- .replace(/RD\$/gi,"")
- .replace(/\$/g,"")
- .replace(/[^\d,.-]/g,"");
+ let s=String(v).trim().replace(/\s/g,"").replace(/RD\$/gi,"").replace(/\$/g,"").replace(/[^\d,.-]/g,"");
 
  if(s.includes(",")&&s.includes(".")){
-  if(s.lastIndexOf(",")>s.lastIndexOf(".")){
-   s=s.replace(/\./g,"").replace(",",".");
-  }else{
-   s=s.replace(/,/g,"");
-  }
- }else if(s.includes(",")){
-  s=s.replace(",",".");
- }
+  if(s.lastIndexOf(",")>s.lastIndexOf("."))s=s.replace(/\./g,"").replace(",",".");
+  else s=s.replace(/,/g,"");
+ }else if(s.includes(",")){s=s.replace(",",".");}
 
  return s===""?NaN:Number(s);
 }
@@ -1165,97 +1087,56 @@ function findCol(headers,aliases){
 }
 
 function importarArchivo(ev){
-
  const file=ev.target.files&&ev.target.files[0];
  if(!file)return;
 
- const input=ev.target;
- input.value="";
-
+ ev.target.value="";
  const ext=(file.name.split(".").pop()||"").toLowerCase();
  const reader=new FileReader();
 
- reader.onerror=()=>{
-  alerta("Error al leer","No se pudo abrir el archivo seleccionado.","error");
- };
+ reader.onerror=()=>alerta("Error al leer","No se pudo abrir el archivo seleccionado.","error");
 
  reader.onload=()=>{
   try{
-
    if(["xlsx","xls"].includes(ext)){
-
     if(typeof XLSX==="undefined"){
-     alerta("Lector de Excel no disponible","Revisa tu conexión a Internet y vuelve a intentarlo.","error");
-     return;
+     alerta("Lector de Excel no disponible","Revisa tu conexión a Internet.","error");return;
     }
-
     const wb=XLSX.read(reader.result,{type:"array"});
     const sheet=wb.Sheets[wb.SheetNames[0]];
-
     if(!sheet){
-     alerta("Excel vacío","No se encontró ninguna hoja con datos.","warning");
-     return;
+     alerta("Excel vacío","No se encontró ninguna hoja con datos.","warning");return;
     }
-
-    const rows=XLSX.utils.sheet_to_json(sheet,{
-     header:1,
-     defval:"",
-     raw:true,
-     blankrows:false
-    });
-
+    const rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:"",raw:true,blankrows:false});
     procesarFilasImportadas(rows);
-
    }else{
-
     const text=String(reader.result||"").replace(/^\uFEFF/,"");
     const first=(text.split(/\r?\n/)[0]||"");
-
-    const delimiter=first.includes("\t")?
-     "\t":
-     (first.split(";").length>first.split(",").length?";":",");
-
-    const rows=XLSX.utils.sheet_to_json(
-     XLSX.read(text,{type:"string",FS:delimiter}),
-     {
-      header:1,
-      defval:"",
-      raw:true,
-      blankrows:false
-     }
-    );
-
+    const delimiter=first.includes("\t")?"\t":(first.split(";").length>first.split(",").length?";":",");
+    const wb=XLSX.read(text,{type:"string",FS:delimiter});
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:"",raw:true,blankrows:false});
     procesarFilasImportadas(rows);
    }
-
   }catch(err){
    console.error(err);
    alerta("Archivo no válido","No se pudo interpretar el archivo. Intenta guardarlo como Excel (.xlsx) o CSV.","error");
   }
  };
 
- if(["xlsx","xls"].includes(ext)){
-  reader.readAsArrayBuffer(file);
- }else{
-  reader.readAsText(file,"UTF-8");
- }
+ if(["xlsx","xls"].includes(ext))reader.readAsArrayBuffer(file);
+ else reader.readAsText(file,"UTF-8");
 }
 
 function procesarFilasImportadas(rows){
-
- rows=(rows||[]).filter(r=>
-  Array.isArray(r)&&r.some(v=>String(v??"").trim()!=="")
- );
+ rows=(rows||[]).filter(r=>Array.isArray(r)&&r.some(v=>String(v??"").trim()!==""));
 
  if(!rows.length){
-  alerta("Archivo vacío","No se encontraron productos en el archivo.","warning");
-  return;
+  alerta("Archivo vacío","No se encontraron productos en el archivo.","warning");return;
  }
 
  const h=rows[0].map(norm);
-
  const aliases={
-  nombre:["producto","nombre","nombre del producto","product","product name","name","descripcion","descripción"],
+  nombre:["producto","nombre","nombre del producto","product","product name","name","descripcion"],
   costo:["costo","costo del producto","cost","cost price","precio costo","precio de costo"],
   precio:["precio detalle","precio al detalle","precio de venta al detalle","precio","precio venta","precio de venta","price","retail price","precio minorista"],
   departamento:["departamento","categoria","category","department","familia"],
@@ -1269,25 +1150,16 @@ function procesarFilasImportadas(rows){
  const tieneEncabezado=col.nombre>=0&&(col.costo>=0||col.precio>=0);
  let start=0;
 
- if(tieneEncabezado){
-  start=1;
- }else{
-  col.nombre=0;
-  col.costo=1;
-  col.precio=2;
-  col.departamento=-1;
-  col.mayorista=-1;
-  col.codigo=-1;
+ if(tieneEncabezado)start=1;
+ else{
+  col.nombre=0;col.costo=1;col.precio=2;
+  col.departamento=-1;col.mayorista=-1;col.codigo=-1;
  }
 
- const nuevos=[];
- const errores=[];
- const codigos=new Set(
-  productos.map(p=>String(p.codigo||"").trim().toLowerCase()).filter(Boolean)
- );
+ const nuevos=[],errores=[];
+ const codigos=new Set(productos.map(p=>String(p.codigo||"").trim().toLowerCase()).filter(Boolean));
 
  for(let i=start;i<rows.length;i++){
-
   const row=rows[i];
   const get=k=>col[k]>=0?String(row[col[k]]??"").trim():"";
 
@@ -1300,66 +1172,32 @@ function procesarFilasImportadas(rows){
 
   if(!nombre&&!costoTexto&&!precioTexto)continue;
 
-  if(!nombre){
-   errores.push(`Fila ${i+1}: falta el nombre.`);
-   continue;
-  }
+  if(!nombre){errores.push(`Fila ${i+1}: falta el nombre.`);continue;}
 
   const costo=costoTexto===""?0:numImportado(row[col.costo]);
   const precio=precioTexto===""?0:numImportado(row[col.precio]);
   const mayorista=mayTexto===""?0:numImportado(row[col.mayorista]);
 
-  if(!Number.isFinite(costo)||costo<0){
-   errores.push(`Fila ${i+1}: costo no válido.`);
-   continue;
-  }
-
-  if(!Number.isFinite(precio)||precio<0){
-   errores.push(`Fila ${i+1}: precio no válido.`);
-   continue;
-  }
-
-  if(!Number.isFinite(mayorista)||mayorista<0){
-   errores.push(`Fila ${i+1}: precio mayorista no válido.`);
-   continue;
-  }
+  if(!Number.isFinite(costo)||costo<0){errores.push(`Fila ${i+1}: costo no válido.`);continue;}
+  if(!Number.isFinite(precio)||precio<0){errores.push(`Fila ${i+1}: precio no válido.`);continue;}
+  if(!Number.isFinite(mayorista)||mayorista<0){errores.push(`Fila ${i+1}: precio mayorista no válido.`);continue;}
 
   const codeKey=codigo.toLowerCase();
-
-  if(codeKey&&codigos.has(codeKey)){
-   errores.push(`Fila ${i+1}: código ${codigo} repetido.`);
-   continue;
-  }
-
+  if(codeKey&&codigos.has(codeKey)){errores.push(`Fila ${i+1}: código ${codigo} repetido.`);continue;}
   if(codeKey)codigos.add(codeKey);
 
-  nuevos.push({
-   nombre,
-   departamento:dep,
-   costo,
-   precio,
-   mayorista,
-   codigo,
-   img:imagenDefault
-  });
+  nuevos.push({nombre,departamento:dep,costo,precio,mayorista,codigo,img:imagenDefault});
  }
 
  if(!nuevos.length){
-
   let msg="No se encontraron productos válidos para importar.";
-
-  if(errores.length){
-   msg+="\n\n"+errores.slice(0,8).join("\n");
-  }
-
-  alerta("Sin productos",msg,"warning");
-  return;
+  if(errores.length)msg+="\n\n"+errores.slice(0,8).join("\n");
+  alerta("Sin productos",msg,"warning");return;
  }
 
- const resumen=
-  `Se encontraron ${nuevos.length} producto(s) para importar.`+
-  (errores.length?`\nSe omitirán ${errores.length} fila(s) con errores.`:"")+
-  "\n\nLos productos existentes se conservarán.";
+ const resumen=`Se encontraron ${nuevos.length} producto(s) para importar.`+
+ (errores.length?`\nSe omitirán ${errores.length} fila(s) con errores.`:"")+
+ "\n\nLos productos existentes se conservarán.";
 
  Swal.fire({
   title:"Confirmar importación",
@@ -1370,21 +1208,18 @@ function procesarFilasImportadas(rows){
   cancelButtonText:"Cancelar",
   confirmButtonColor:"#0b7cff"
  }).then(r=>{
-
   if(!r.isConfirmed)return;
 
   const anterior=productos.length;
   productos.push(...nuevos);
 
   if(!guardarLocal()){
-   productos.splice(anterior,nuevos.length);
-   return;
+   productos.splice(anterior,nuevos.length);return;
   }
 
   refrescar();
 
   let msg=`Se importaron ${nuevos.length} producto(s) correctamente.`;
-
   if(errores.length){
    msg+=`\n\nSe omitieron ${errores.length} fila(s):\n`+
    errores.slice(0,6).join("\n")+
@@ -1400,8 +1235,7 @@ function procesarFilasImportadas(rows){
  });
 }
 
-/* ESCÁNER DE CÓDIGOS */
-
+/* ESCÁNER */
 let scanner=null;
 let campoScanner="codigo";
 let escaneando=false;
@@ -1409,40 +1243,31 @@ let iniciandoScanner=false;
 let sesionScanner=0;
 
 async function abrirScanner(campo="codigo"){
-
  campoScanner=campo;
 
  if(scanner||iniciandoScanner){
-  document.getElementById("scannerModal").classList.add("active");
-  return;
+  document.getElementById("scannerModal").classList.add("active");return;
  }
 
  const sesion=++sesionScanner;
  escaneando=false;
-
  document.getElementById("scannerModal").classList.add("active");
  document.getElementById("scanInfo").textContent="Iniciando cámara...";
 
  if(typeof Html5Qrcode==="undefined"){
-  document.getElementById("scanInfo").textContent="No se pudo cargar el escáner. Usa la opción Manual.";
-  return;
+  document.getElementById("scanInfo").textContent="No se pudo cargar el escáner. Usa la opción Manual.";return;
  }
 
  iniciandoScanner=true;
-
  const lector=new Html5Qrcode("reader");
  scanner=lector;
 
  try{
-
   await lector.start(
    {facingMode:"environment"},
    {
     fps:10,
-    qrbox:(w,h)=>({
-     width:Math.max(100,Math.min(w-30,280)),
-     height:Math.max(80,Math.min(h-30,150))
-    }),
+    qrbox:(w,h)=>({width:Math.max(100,Math.min(w-30,280)),height:Math.max(80,Math.min(h-30,150))}),
     formatsToSupport:[
      Html5QrcodeSupportedFormats.EAN_13,
      Html5QrcodeSupportedFormats.EAN_8,
@@ -1468,72 +1293,48 @@ async function abrirScanner(campo="codigo"){
   }
 
   document.getElementById("scanInfo").textContent="Apunta la cámara al código de barras.";
-
  }catch(e){
-
   if(scanner===lector)scanner=null;
-
   document.getElementById("scanInfo").textContent="No se pudo abrir la cámara. Revisa los permisos y utiliza HTTPS.";
-
   console.error(e);
-
   try{lector.clear()}catch(x){}
-
  }finally{
   if(sesion===sesionScanner)iniciandoScanner=false;
  }
 }
 
 function procesarCodigoEscaneado(codigoEscaneado){
-
  const codigo=String(codigoEscaneado).trim();
 
  if(campoScanner==="buscar"){
-
   document.getElementById("buscar").value=codigo;
   aplicarFiltro();
-
   const found=productos.some(p=>String(p.codigo)===codigo);
-
   cerrarScanner();
-
-  if(!found){
-   alerta("No encontrado","No hay productos con el código: "+codigo,"warning");
-  }
-
+  if(!found)alerta("No encontrado","No hay productos con el código: "+codigo,"warning");
  }else{
-
   document.getElementById("codigo").value=codigo;
   cerrarScanner();
  }
 }
 
 async function cerrarScanner(){
-
  document.getElementById("scannerModal").classList.remove("active");
-
  ++sesionScanner;
 
  const lector=scanner;
-
  scanner=null;
  escaneando=false;
  iniciandoScanner=false;
 
  if(lector){
-
-  try{
-   if(lector.isScanning)await lector.stop();
-  }catch(e){
-   console.warn("No se pudo detener la cámara:",e);
-  }
-
+  try{if(lector.isScanning)await lector.stop();}
+  catch(e){console.warn("No se pudo detener la cámara:",e);}
   try{lector.clear()}catch(e){}
  }
 }
 
 function codigoManual(){
-
  Swal.fire({
   title:"Código de barras",
   input:"text",
@@ -1542,28 +1343,19 @@ function codigoManual(){
   confirmButtonText:"Aceptar",
   cancelButtonText:"Cancelar",
   confirmButtonColor:"#0b7cff",
-  inputValidator:v=>{
-   if(!v||!v.trim())return "Escribe un código.";
-  }
+  inputValidator:v=>{if(!v||!v.trim())return "Escribe un código.";}
  }).then(async r=>{
-
   if(!r.isConfirmed)return;
-
   const codigo=r.value.trim();
 
   if(campoScanner==="buscar"){
-
    document.getElementById("buscar").value=codigo;
    aplicarFiltro();
-
    await cerrarScanner();
-
    if(!productos.some(p=>String(p.codigo)===codigo)){
     alerta("No encontrado","No hay productos con ese código.","warning");
    }
-
   }else{
-
    document.getElementById("codigo").value=codigo;
    await cerrarScanner();
   }
@@ -1571,7 +1363,6 @@ function codigoManual(){
 }
 
 /* CIERRE DE VENTANAS */
-
 document.getElementById("modalDetalle").addEventListener("click",e=>{
  if(e.target.id==="modalDetalle")cerrarDetalle();
 });
@@ -1609,10 +1400,8 @@ window.addEventListener("resize",()=>{
  }
 });
 
-/* INICIAR PÁGINA */
-
+/* INICIAR */
 refrescar();
-
 </script>
 </body>
 </html>
