@@ -66,6 +66,54 @@ body.menu-cerrado .content{left:0}
 .empty{padding:30px 15px;text-align:center;color:var(--gris);background:white;border-radius:12px}
 .empty i{font-size:32px;display:block;margin-bottom:12px}
 
+/* SELECCIÓN DE PRODUCTOS */
+.product-row.selected{
+    border:2px solid var(--azul)!important;
+    background:#eff6ff!important;
+    position:relative;
+}
+.selection-mark{
+    display:none;
+    width:23px;
+    height:23px;
+    border-radius:7px;
+    background:var(--azul);
+    color:white;
+    align-items:center;
+    justify-content:center;
+    margin-right:8px;
+    flex-shrink:0;
+}
+.product-row.selected .selection-mark{display:inline-flex}
+
+.selection-bar{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:2500;
+    background:white;
+    padding:12px;
+    border-radius:16px;
+    box-shadow:0 5px 30px #0003;
+    display:none;
+    align-items:center;
+    gap:12px;
+    width:max-content;
+    max-width:95%;
+}
+.selection-bar.active{display:flex}
+.selection-count{font-size:14px;font-weight:bold;color:var(--texto)}
+.btn-delete-selected,.btn-cancel-selection{
+    height:43px;
+    padding:0 17px;
+    border:0;
+    border-radius:10px;
+    font-weight:bold;
+}
+.btn-delete-selected{background:var(--rojo);color:white}
+.btn-cancel-selection{background:#f1f5f9;color:var(--texto)}
+
 .modal{position:fixed;inset:0;background:#0f172a99;display:none;align-items:center;justify-content:center;z-index:3000;padding:15px}
 .modal.active{display:flex}
 .modal-box{background:white;width:95%;max-width:540px;max-height:90vh;overflow-y:auto;border-radius:22px;padding:25px;box-shadow:0 20px 60px #0003}
@@ -125,25 +173,89 @@ body{overflow-x:hidden;overflow-y:auto}
 .sidebar{display:block!important;top:62px;left:0;bottom:0;width:270px;max-width:85vw;padding:18px 12px;z-index:950;transform:translateX(-105%);visibility:hidden;box-shadow:8px 0 25px #00000012}
 .sidebar.menu-visible{transform:translateX(0);visibility:visible}
 
-.content{position:relative;top:62px;left:0!important;right:auto;bottom:auto;width:100%;padding:12px 11px 30px;overflow:visible}
+.content{position:relative;top:62px;left:0!important;right:auto;bottom:auto;width:100%;padding:65px 11px 90px;overflow:visible}
 .card{padding:0;background:transparent;box-shadow:none;border-radius:0}
-.search-box{height:48px;background:white;padding:0 12px;gap:9px;border-radius:13px;margin-bottom:12px}
+
+/* BUSCADOR Y DEPARTAMENTO FIJOS */
+.search-box{
+    position:fixed;
+    top:69px;
+    left:11px;
+    width:calc(100% - 165px);
+    height:45px;
+    z-index:1100;
+    margin:0;
+    background:white;
+    padding:0 12px;
+    gap:9px;
+    border-radius:13px;
+}
 .search-box>i{font-size:16px}
 .search-box input{font-size:14px}
-.filters{grid-template-columns:1fr;gap:8px;margin-bottom:15px}
-.filters select{height:42px;padding:0 9px;font-size:12px;border-radius:10px;min-width:0}
+
+.filters{
+    position:fixed;
+    top:69px;
+    right:11px;
+    width:142px;
+    height:45px;
+    display:block;
+    z-index:1100;
+    margin:0;
+}
+.filters select{
+    height:45px;
+    width:100%;
+    padding:0 9px;
+    font-size:11px;
+    border-radius:12px;
+    min-width:0;
+}
 
 .table{overflow:visible;width:100%}
 .header-row{display:none}
-.product-row{min-width:0;width:100%;display:block;padding:15px;margin-bottom:12px;background:white;border:1px solid #e9edf3;border-radius:16px;box-shadow:0 3px 12px #0f172a08;font-size:13px}
+.product-row{
+    min-width:0;
+    width:100%;
+    display:block;
+    padding:15px;
+    margin-bottom:12px;
+    background:white;
+    border:1px solid #e9edf3;
+    border-radius:16px;
+    box-shadow:0 3px 12px #0f172a08;
+    font-size:13px;
+    touch-action:pan-y;
+    user-select:none;
+    -webkit-user-select:none;
+    -webkit-touch-callout:none;
+}
 .product-row:hover{background:white}
-.product-name{display:block;font-size:16px;font-weight:bold;color:var(--texto);line-height:1.4;overflow-wrap:anywhere;margin-bottom:13px}
+.product-name{
+    display:flex;
+    align-items:center;
+    font-size:16px;
+    font-weight:bold;
+    color:var(--texto);
+    line-height:1.4;
+    overflow-wrap:anywhere;
+    margin-bottom:13px;
+}
 .desktop-field{display:none}
 .product-meta{display:grid;grid-template-columns:1fr 1fr;gap:13px 10px}
 .meta-item{min-width:0}
 .meta-item small{display:block;font-size:11px;color:var(--gris);font-weight:normal;margin-bottom:5px}
 .meta-item strong{display:block;font-size:13px;color:#334155;overflow-wrap:anywhere;line-height:1.4}
 .meta-item strong.price{color:var(--azul);font-size:15px}
+
+.selection-bar{
+    bottom:15px;
+    width:calc(100% - 22px);
+    justify-content:space-between;
+    gap:7px;
+}
+.selection-count{font-size:12px}
+.btn-delete-selected,.btn-cancel-selection{padding:0 12px;font-size:12px}
 
 .empty{background:white;border-radius:15px}
 .modal{padding:10px}
@@ -177,12 +289,10 @@ body{overflow-x:hidden;overflow-y:auto}
  </div>
 
  <div class="header-right">
-
   <button class="btn-header btn-importar" onclick="seleccionarArchivoImportacion()" title="Importar Excel o CSV">
    <i class="fa-solid fa-file-import"></i><span> Importar Excel</span>
   </button>
 
-  <!-- NUEVO BOTÓN EXPORTAR EXCEL -->
   <button class="btn-header btn-exportar" onclick="exportarExcel()" title="Exportar productos a Excel">
    <i class="fa-solid fa-file-excel"></i><span> Exportar Excel</span>
   </button>
@@ -190,7 +300,6 @@ body{overflow-x:hidden;overflow-y:auto}
   <button class="btn-header" onclick="abrirModal()">
    <i class="fa-solid fa-plus"></i><span> Agregar</span>
   </button>
-
  </div>
 </header>
 
@@ -239,6 +348,19 @@ body{overflow-x:hidden;overflow-y:auto}
 
 </div>
 </main>
+
+<!-- BARRA DE PRODUCTOS SELECCIONADOS -->
+<div class="selection-bar" id="selectionBar">
+    <span class="selection-count" id="selectionCount">0 seleccionados</span>
+
+    <button class="btn-delete-selected" onclick="eliminarSeleccionados()">
+        <i class="fa-solid fa-trash"></i> Eliminar
+    </button>
+
+    <button class="btn-cancel-selection" onclick="cancelarSeleccion()">
+        Cancelar
+    </button>
+</div>
 
 <!-- DETALLES DEL PRODUCTO -->
 <div class="modal" id="modalDetalle">
@@ -340,7 +462,6 @@ body{overflow-x:hidden;overflow-y:auto}
 </div>
 </div>
 
-<!-- CONFIGURACIÓN SUPABASE ORIGINAL -->
 <script src="supabase-config.js"></script>
 <script src="supabase-sync.js"></script>
 
@@ -349,6 +470,13 @@ const imagenDefault="https://cdn-icons-png.flaticon.com/512/3081/3081559.png";
 const STORAGE_KEY="productosPOS";
 
 let productos=[],indiceEditando=null,indiceDetalle=null;
+
+/* SELECCIÓN */
+let productosSeleccionados=new Set();
+let temporizadorPresion=null;
+let presionActivada=false;
+let indicePresionado=null;
+let movimientoPresion=false;
 
 try{
  const datos=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
@@ -448,31 +576,20 @@ function guardarLocal(){
  }
 }
 
-/* =====================================
-   EXPORTAR PRODUCTOS A EXCEL
-   ===================================== */
+/* EXPORTAR EXCEL */
 
 function exportarExcel(){
 
  if(typeof XLSX==="undefined"){
-  alerta(
-   "Excel no disponible",
-   "No se pudo cargar la biblioteca de Excel. Revisa tu conexión a Internet.",
-   "error"
-  );
+  alerta("Excel no disponible","No se pudo cargar la biblioteca de Excel. Revisa tu conexión a Internet.","error");
   return;
  }
 
  if(!productos.length){
-  alerta(
-   "Sin productos",
-   "No hay productos registrados para exportar.",
-   "warning"
-  );
+  alerta("Sin productos","No hay productos registrados para exportar.","warning");
   return;
  }
 
- // Exporta exclusivamente los cinco campos solicitados.
  const datos=productos.map(p=>({
   "Nombre del producto":String(p.nombre||""),
   "Costo del producto":Number(p.costo)||0,
@@ -481,10 +598,8 @@ function exportarExcel(){
   "Código de barras":String(p.codigo||"")
  }));
 
- // Crear hoja de Excel.
  const hoja=XLSX.utils.json_to_sheet(datos);
 
- // Ajustar ancho de columnas.
  hoja["!cols"]=[
   {wch:30},
   {wch:20},
@@ -493,8 +608,6 @@ function exportarExcel(){
   {wch:22}
  ];
 
- // Mantener códigos de barras como texto.
- // Así no se pierden los ceros iniciales.
  for(let i=0;i<datos.length;i++){
   const fila=i+2;
   const celda=hoja["E"+fila];
@@ -506,37 +619,18 @@ function exportarExcel(){
   }
  }
 
- // Crear libro.
  const libro=XLSX.utils.book_new();
+ XLSX.utils.book_append_sheet(libro,hoja,"Productos");
 
- XLSX.utils.book_append_sheet(
-  libro,
-  hoja,
-  "Productos"
- );
-
- // Nombre del archivo con fecha.
  const fecha=new Date().toLocaleDateString("en-CA");
-
  const nombreArchivo=`Productos_${fecha}.xlsx`;
 
  try{
   XLSX.writeFile(libro,nombreArchivo);
-
-  alerta(
-   "Exportación completada",
-   `Se exportaron ${productos.length} productos correctamente.`,
-   "success"
-  );
-
+  alerta("Exportación completada",`Se exportaron ${productos.length} productos correctamente.`);
  }catch(error){
-  console.error("Error al exportar:",error);
-
-  alerta(
-   "Error al exportar",
-   "No se pudo generar el archivo Excel.",
-   "error"
-  );
+  console.error(error);
+  alerta("Error al exportar","No se pudo generar el archivo Excel.","error");
  }
 }
 
@@ -587,16 +681,24 @@ function mostrarProductos(lista=productos){
 
  c.innerHTML=lista.map(p=>{
   const n=productos.indexOf(p);
+  const seleccionado=productosSeleccionados.has(n);
 
   return `
-   <div class="product-row"
-    onclick="abrirDetalle(${n})"
+   <div class="product-row ${seleccionado?"selected":""}"
+    data-index="${n}"
+    onclick="manejarClickProducto(event,${n})"
     role="button"
     tabindex="0"
     aria-label="Ver detalles de ${escapar(p.nombre)}"
-    onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirDetalle(${n})}">
+    onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();manejarClickProducto(event,${n})}">
 
-    <div class="product-name">${escapar(p.nombre)}</div>
+    <div class="product-name">
+     <span class="selection-mark">
+      <i class="fa-solid fa-check"></i>
+     </span>
+     ${escapar(p.nombre)}
+    </div>
+
     <div class="desktop-field">${escapar(p.departamento||"-")}</div>
     <div class="desktop-field">${formato(p.costo)}</div>
     <div class="desktop-field">${formato(p.precio)}</div>
@@ -617,6 +719,175 @@ function mostrarProductos(lista=productos){
  }).join("");
 }
 
+/* MANEJAR CLIC Y SELECCIÓN */
+
+function manejarClickProducto(event,n){
+
+ if(presionActivada){
+  event.preventDefault();
+  presionActivada=false;
+  indicePresionado=null;
+  return;
+ }
+
+ if(productosSeleccionados.size>0){
+  alternarSeleccion(n);
+  return;
+ }
+
+ abrirDetalle(n);
+}
+
+function alternarSeleccion(n){
+
+ if(n<0||n>=productos.length)return;
+
+ if(productosSeleccionados.has(n)){
+  productosSeleccionados.delete(n);
+ }else{
+  productosSeleccionados.add(n);
+ }
+
+ actualizarBarraSeleccion();
+ aplicarFiltro();
+}
+
+function actualizarBarraSeleccion(){
+
+ const barra=document.getElementById("selectionBar");
+ const contador=document.getElementById("selectionCount");
+ const cantidad=productosSeleccionados.size;
+
+ contador.textContent=
+  cantidad+" producto"+(cantidad===1?" seleccionado":" seleccionados");
+
+ barra.classList.toggle("active",cantidad>0);
+}
+
+function cancelarSeleccion(){
+ productosSeleccionados.clear();
+ presionActivada=false;
+ indicePresionado=null;
+ actualizarBarraSeleccion();
+ aplicarFiltro();
+}
+
+/* PRESIÓN PROLONGADA EN MÓVIL */
+
+const listaProductosElement=document.getElementById("listaProductos");
+
+listaProductosElement.addEventListener("pointerdown",function(e){
+
+ if(!window.matchMedia("(max-width:700px)").matches)return;
+ if(e.pointerType==="mouse")return;
+
+ const fila=e.target.closest(".product-row");
+ if(!fila)return;
+
+ const n=Number(fila.dataset.index);
+
+ if(!Number.isInteger(n)||n<0||n>=productos.length)return;
+
+ clearTimeout(temporizadorPresion);
+
+ presionActivada=false;
+ movimientoPresion=false;
+ indicePresionado=n;
+
+ temporizadorPresion=setTimeout(()=>{
+
+  if(indicePresionado!==n||movimientoPresion)return;
+
+  presionActivada=true;
+  alternarSeleccion(n);
+
+  if(navigator.vibrate){
+   navigator.vibrate(45);
+  }
+
+ },550);
+
+});
+
+listaProductosElement.addEventListener("pointermove",function(e){
+
+ if(indicePresionado===null)return;
+
+ if(e.pointerType==="touch"){
+  movimientoPresion=true;
+  clearTimeout(temporizadorPresion);
+ }
+
+});
+
+listaProductosElement.addEventListener("pointerup",function(){
+ clearTimeout(temporizadorPresion);
+});
+
+listaProductosElement.addEventListener("pointerleave",function(){
+ clearTimeout(temporizadorPresion);
+});
+
+listaProductosElement.addEventListener("pointercancel",function(){
+ clearTimeout(temporizadorPresion);
+ presionActivada=false;
+ indicePresionado=null;
+});
+
+listaProductosElement.addEventListener("contextmenu",function(e){
+ if(window.matchMedia("(max-width:700px)").matches){
+  e.preventDefault();
+ }
+});
+
+/* ELIMINAR VARIOS PRODUCTOS */
+
+function eliminarSeleccionados(){
+
+ const indices=[...productosSeleccionados]
+  .filter(n=>n>=0&&n<productos.length)
+  .sort((a,b)=>b-a);
+
+ if(!indices.length)return;
+
+ Swal.fire({
+  title:"¿Eliminar productos?",
+  text:`Se eliminarán ${indices.length} producto(s). Esta acción no se puede deshacer.`,
+  icon:"warning",
+  showCancelButton:true,
+  confirmButtonText:"Sí, eliminar",
+  cancelButtonText:"Cancelar",
+  confirmButtonColor:"#dc2626"
+ }).then(r=>{
+
+  if(!r.isConfirmed)return;
+
+  const respaldo=[...productos];
+
+  indices.forEach(n=>{
+   productos.splice(n,1);
+  });
+
+  if(!guardarLocal()){
+   productos=respaldo;
+   refrescar();
+   return;
+  }
+
+  productosSeleccionados.clear();
+  actualizarBarraSeleccion();
+  refrescar();
+
+  Swal.fire({
+   title:"Productos eliminados",
+   text:`Se eliminaron ${indices.length} producto(s) correctamente.`,
+   icon:"success",
+   confirmButtonColor:"#0b7cff"
+  });
+
+ });
+}
+
 /* DETALLES */
 
 function abrirDetalle(n){
@@ -634,10 +905,10 @@ function abrirDetalle(n){
  document.getElementById("detalleMayorista").textContent=formato(p.mayorista);
 
  document.getElementById("detalleGanancia").textContent=
- porcentajeGanancia(p.costo,p.precio).toLocaleString("es-DO",{
-  minimumFractionDigits:2,
-  maximumFractionDigits:2
- })+"%";
+  porcentajeGanancia(p.costo,p.precio).toLocaleString("es-DO",{
+   minimumFractionDigits:2,
+   maximumFractionDigits:2
+  })+"%";
 
  document.getElementById("detalleCodigo").textContent=p.codigo||"-";
  document.getElementById("modalDetalle").classList.add("active");
@@ -660,6 +931,7 @@ function editarDesdeDetalle(){
 function refrescar(){
  actualizarDepartamentos();
  aplicarFiltro();
+ actualizarBarraSeleccion();
 }
 
 function limpiarFormulario(){
@@ -676,7 +948,6 @@ function abrirModal(){
  document.getElementById("btnGuardar").textContent="Guardar";
 
  limpiarFormulario();
-
  document.getElementById("modalProducto").classList.add("active");
 
  setTimeout(()=>document.getElementById("nombre").focus(),150);
@@ -696,7 +967,6 @@ function editarProducto(n){
  });
 
  actualizarGanancia();
-
  document.getElementById("modalProducto").classList.add("active");
 
  setTimeout(()=>document.getElementById("nombre").focus(),150);
@@ -809,6 +1079,7 @@ function guardarProducto(ignorarAvisoMayorista=false){
 /* BUSCADOR Y FILTROS */
 
 function aplicarFiltro(){
+
  const t=document.getElementById("buscar").value.trim().toLowerCase();
  const d=document.getElementById("filtroDepartamento").value;
 
@@ -828,7 +1099,7 @@ function aplicarFiltro(){
 
 document.getElementById("buscar").addEventListener("input",aplicarFiltro);
 
-/* IMPORTACIÓN FLEXIBLE DE EXCEL, CSV Y TXT */
+/* IMPORTACIÓN EXCEL, CSV Y TXT */
 
 function seleccionarArchivoImportacion(){
 
@@ -1147,7 +1418,6 @@ async function abrirScanner(campo="codigo"){
  }
 
  const sesion=++sesionScanner;
-
  escaneando=false;
 
  document.getElementById("scannerModal").classList.add("active");
@@ -1210,7 +1480,6 @@ async function abrirScanner(campo="codigo"){
   try{lector.clear()}catch(x){}
 
  }finally{
-
   if(sesion===sesionScanner)iniciandoScanner=false;
  }
 }
@@ -1320,6 +1589,7 @@ document.addEventListener("keydown",e=>{
   cerrarDetalle();
   cerrarModal();
   cerrarScanner();
+  cancelarSeleccion();
   toggleMenu(false);
  }
 });
