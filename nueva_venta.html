@@ -34,6 +34,26 @@ body{background:var(--fondo);color:var(--texto);overflow:hidden}
 }
 @media(max-width:380px){body.modo-productos .product{min-height:300px;padding:12px}body.modo-productos .product-img-box{height:110px}body.modo-productos .product h3{font-size:14px}body.modo-productos .product b{font-size:21px}body.modo-productos .stock{font-size:13px}.summary{padding:12px 16px 16px}.row{font-size:17px}.total{font-size:29px}.btn-mayorista{height:60px;font-size:17px}.pay{height:65px;font-size:20px}.actions button{height:58px;font-size:15px}}
 @media(min-width:1101px){#fondoMenu{display:none!important}}
+
+/* ===== AJUSTE COMPACTO: MENOS ALTURA EN MÓVIL ===== */
+@media(max-width:700px){
+.header{height:58px;padding:0 10px;gap:8px}.header h1{font-size:16px}.header-left{gap:9px}.header-left i{font-size:20px}
+.search-box{height:38px;padding:0 8px;gap:6px}.search-box input{font-size:13px}.search-box i{font-size:16px}
+.sale-detail{top:58px}.sale-detail h2{min-height:52px;padding:13px 15px;font-size:20px}
+#carrito{padding:0 12px}.sale-item{grid-template-columns:45px 1fr 65px 20px;gap:7px;padding:8px 0}
+.sale-item img{width:42px;height:42px}.sale-item h4{font-size:13px;margin-bottom:3px}.sale-item small{font-size:13px}
+.qty{margin-top:4px}.qty button,.qty span{height:23px}.qty button{width:24px;font-size:15px}.qty span{width:26px;font-size:13px}.price{font-size:12px}
+.summary{padding:10px 16px 12px}.row{font-size:16px;margin-bottom:7px}.total{font-size:27px}
+.btn-mayorista{height:48px;border-radius:12px;font-size:15px;margin-top:8px;margin-bottom:2px}
+.pay{height:55px;border-radius:12px;font-size:19px;margin-top:6px}.actions{gap:9px;margin-top:9px}.actions button{height:45px;border-radius:11px;font-size:14px}
+.sidebar{top:58px}#fondoMenu{inset:58px 0 0}
+}
+@media(max-width:380px){
+.summary{padding:8px 12px 10px}.row{font-size:15px;margin-bottom:6px}.total{font-size:25px}
+.btn-mayorista{height:43px;font-size:14px}.pay{height:49px;font-size:17px}.actions button{height:40px;font-size:13px}
+.sale-detail h2{min-height:48px;padding:11px 13px;font-size:18px}
+}
+
 </style>
 </head>
 <body>
